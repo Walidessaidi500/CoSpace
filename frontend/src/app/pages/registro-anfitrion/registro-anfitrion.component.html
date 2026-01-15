@@ -1,0 +1,92 @@
+<!-- Header is now in app.component.html -->
+
+<div class="min-h-screen bg-[#f4f4f6] flex justify-center items-center py-12 px-4">
+
+  <div class="bg-white p-8 md:p-10 rounded-2xl shadow-xl w-full max-w-3xl">
+
+    <h1 class="text-3xl font-bold text-center text-slate-900 mb-2">Crear Cuenta de Anfitrión</h1>
+    <p class="text-gray-500 text-center mb-8">Anuncia tu espacio de coworking en CoSpace.</p>
+
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2">Nombre Completo</label>
+          <input type="text" formControlName="nombre_completo" placeholder="Jose Juan"
+            class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2">Email</label>
+          <input type="email" formControlName="email" placeholder="josejuan@email.com"
+            class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2">Contraseña</label>
+          <input type="password" formControlName="password" placeholder="........."
+            class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2">Confirma Contraseña</label>
+          <input type="password" formControlName="password_confirmation" placeholder="........."
+            class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+          <p *ngIf="registroForm.errors?.['mismatch'] && registroForm.touched" class="text-red-500 text-xs mt-1">
+            Las contraseñas no coinciden
+          </p>
+        </div>
+      </div>
+
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2">Nombre Espacio de Trabajo</label>
+          <input type="text" formControlName="titulo" placeholder="Mi Espacio de Trabajo"
+            class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2">Dirección</label>
+          <input type="text" formControlName="direccion" placeholder="Calle Juan Ramon, 12, planta 3, Sagunto, Valencia"
+            class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Capacidad (Personas)</label>
+            <input type="number" formControlName="capacidad" min="1" placeholder="Ej. 10"
+              class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Precio por Hora (€)</label>
+            <input type="number" formControlName="precio_hora" min="0" step="0.01" placeholder="Ej. 15.50"
+              class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-2">Corta Descripción</label>
+          <textarea formControlName="descripcion" rows="4" placeholder="Describe tu espacio de trabajo"
+            class="w-full bg-gray-100 border border-transparent rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition resize-none"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="registroForm.invalid || loading"
+        class="w-full mt-8 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold py-4 rounded-full transition duration-300 shadow-lg transform active:scale-[0.99]">
+        {{ loading ? 'Creando...' : 'Crear Cuenta de Anfitrión' }}
+      </button>
+
+      <p *ngIf="errorMessage" class="text-red-500 text-center mt-4 font-medium">{{ errorMessage }}</p>
+
+    </form>
+
+    <div class="mt-8 text-center space-y-2 text-gray-600">
+      <p>¿Ya tienes una cuenta? <a href="#" class="text-orange-500 font-bold hover:underline">Iniciar Sesión</a></p>
+      <p>¿Buscando un espacio? <a href="#" class="text-orange-500 font-bold hover:underline">Registrarse como
+          Cliente</a></p>
+    </div>
+
+  </div>
+</div>
