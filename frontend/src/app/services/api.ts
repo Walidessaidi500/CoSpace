@@ -12,4 +12,12 @@ export class ApiService {
   testConexion() {
     return this.http.get(`${environment.apiUrl}/test-conexion`);
   }
+
+  register(data: any) {
+    return this.http.post(`${environment.apiUrl}/register`, data);
+  }
+
+  login(data: any) {
+    return this.http.post(`${environment.apiUrl}/login`, data);
+  }
 }

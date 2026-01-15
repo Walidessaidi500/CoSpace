@@ -7,5 +7,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 use App\Http\Controllers\TestController;
-Route::get('/test-conexion', [TestController::class, 'index']);
+use App\Http\Controllers\AuthController;
 
+Route::get('/test-conexion', [TestController::class, 'index']);
+Route::post('/register', [AuthController::class, 'register']);
