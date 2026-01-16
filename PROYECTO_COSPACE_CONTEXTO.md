@@ -1,4 +1,4 @@
-# Proyecto CoSpace - Contexto Completo para Gemini
+# Proyecto CoSpace - Contexto Completo
 
 ## 📋 Descripción General del Proyecto
 
@@ -645,24 +645,8 @@ CoSpace busca un diseño:
 
 **Última actualización:** 15 de enero de 2026  
 **Versión del documento:** 1.0  
-**Estado del proyecto:** En desarrollo - Panel de Administrador completo
+**Estado del proyecto:** En desarrollo
 
 ---
-
-## 🤝 Colaboración con Gemini
-
-Este documento contiene todo el contexto necesario para que Gemini pueda:
-- Entender completamente el proyecto CoSpace
-- Seguir la guía de estilos establecida
-- Crear nuevas pantallas y componentes coherentes
-- Mantener la consistencia visual y funcional
-- Sugerir mejoras alineadas con la visión del proyecto
-
-Por favor, al trabajar en este proyecto:
-1. Consulta siempre este documento y el archivo `Guidelines.md`
-2. Mantén la consistencia con el código existente en `/App.tsx`
-3. Usa exactamente los mismos colores, tipografías y estilos
-4. Sigue los patrones de diseño establecidos
-5. Pregunta si algo no está claro antes de implementar
 
 ¡Gracias por ayudar a construir CoSpace! 🚀
