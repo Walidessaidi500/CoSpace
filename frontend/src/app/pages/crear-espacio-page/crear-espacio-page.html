@@ -1,0 +1,17 @@
+<div class="flex min-h-screen bg-[#f5f5f5]">
+  <app-sidebar-anfitrion></app-sidebar-anfitrion>
+
+  <div class="flex-grow ml-64 relative flex flex-col">
+    
+    <main class="flex-grow p-8">
+      <app-formulario-espacio></app-formulario-espacio>
+    </main>
+
+    <div class="sticky bottom-0 z-40">
+      <app-footer-acciones 
+        (guardar)="onGuardar()" 
+        (cancelar)="onCancelar()">
+      </app-footer-acciones>
+    </div>
+  </div>
+</div>

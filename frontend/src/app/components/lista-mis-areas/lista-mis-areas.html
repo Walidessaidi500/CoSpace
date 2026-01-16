@@ -1,0 +1,68 @@
+<div class="mb-10">
+    <h1 class="text-[40px] font-semibold text-primary-blue">Mis Áreas</h1>
+    <p class="text-neutral-text text-base mt-2">Gestiona tus espacios publicados</p>
+</div>
+
+<!-- Grid de Espacios -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <!-- Tarjeta de Espacio (Loop) -->
+    <div *ngFor="let espacio of espacios"
+        class="bg-white rounded-2xl shadow-lg border border-neutral-200 overflow-hidden flex flex-col">
+
+        <!-- Imagen -->
+        <div class="relative h-56">
+            <img [src]="getImagenPrincipal(espacio)" [alt]="espacio.titulo" class="w-full h-full object-cover">
+        </div>
+
+        <!-- Contenido -->
+        <div class="p-6 flex-grow flex flex-col justify-between h-56">
+            <div>
+                <h3 class="text-xl font-bold text-primary-blue mb-2 line-clamp-1">{{ espacio.titulo }}</h3>
+
+                <div class="flex items-center text-neutral-text text-sm mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-primary-orange" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span class="line-clamp-1">{{ espacio.ciudad }}, España</span>
+                </div>
+
+                <div class="text-[28px] font-bold text-primary-blue">
+                    ${{ espacio.precio_hora }}<span class="text-sm font-normal text-neutral-text">/hora</span>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex gap-4 mt-6">
+                <button
+                    class="flex-1 bg-white border border-neutral-300 text-primary-blue font-medium py-2.5 px-4 rounded-full hover:bg-neutral-50 transition-colors">
+                    Editar
+                </button>
+
+                <button (click)="borrarEspacio(espacio.id_espacio)"
+                    class="flex-1 bg-primary-red text-white font-medium py-2.5 px-4 rounded-full hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Borrar
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Card vacía si no hay espacios -->
+    <div *ngIf="espacios.length === 0"
+        class="col-span-full py-12 text-center bg-white rounded-2xl border-dashed border-2 border-neutral-300">
+        <p class="text-neutral-text text-lg">No tienes espacios publicados aún.</p>
+        <a href="/anfitrion/crear-espacio"
+            class="inline-block mt-4 text-primary-orange font-medium hover:underline">¡Crea tu primer
+            espacio ahora!</a>
+    </div>
+
+</div>
