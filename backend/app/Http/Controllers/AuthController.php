@@ -28,7 +28,7 @@ class AuthController extends Controller
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
                 'tipo_usuario' => 'Cliente',
-                'estado_cuenta' => 'Activo', 
+                'estado_cuenta' => 'Activo',
             ]);
 
             DB::commit();
@@ -52,6 +52,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:150|unique:usuarios',
             'password' => 'required|string|min:8',
             'titulo' => 'required|string|max:100',
+            'ciudad' => 'required|string|max:100', // Added ciudad
             'direccion' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'capacidad' => 'required|integer|min:1',
@@ -82,6 +83,7 @@ class AuthController extends Controller
             Espacio::create([
                 'id_anfitrion' => $usuario->id_usuario,
                 'titulo' => $validatedData['titulo'],
+                'ciudad' => $validatedData['ciudad'], // Now required
                 'direccion' => $validatedData['direccion'],
                 'descripcion' => $validatedData['descripcion'],
                 'capacidad' => $validatedData['capacidad'],
@@ -101,5 +103,44 @@ class AuthController extends Controller
             Log::error($e->getMessage());
             return response()->json(['error' => 'Registration failed: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $usuario = Usuario::where('email', $request->email)->first();
+
+        if (!$usuario || !Hash::check($request->password, $usuario->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Credenciales incorrectas.',
+            ], 401);
+        }
+
+        // Optional: Check if account is active
+        // Assuming estado_cuenta exists on Usuario
+        if ($usuario->estado_cuenta === 'Suspendido') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Su cuenta ha sido suspendida.',
+            ], 403);
+        }
+
+        $token = $usuario->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Inicio de sesión exitoso',
+            'data' => [
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $usuario,
+                'role' => $usuario->tipo_usuario // 'Cliente', 'Anfitrion', 'Admin'
+            ]
+        ]);
     }
 }

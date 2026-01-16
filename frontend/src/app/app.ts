@@ -1,17 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core'; // 1. Importar OnInit
-import { ApiService } from './services/api'; // Sugerencia: nombres más descriptivos
+import { Component, inject, OnInit } from '@angular/core';
+import { ApiService } from './services/api';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-root',
-  standalone: true, // Asegúrate de esto si usas Angular moderno (v14+)
+  standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.html',
-  styleUrls: ['./app.css']
+  styleUrls: []
 })
-export class AppComponent implements OnInit { // 2. Implementar la interfaz
+export class AppComponent implements OnInit {
 
   private api = inject(ApiService);
 

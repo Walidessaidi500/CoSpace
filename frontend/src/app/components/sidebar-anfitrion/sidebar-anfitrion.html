@@ -1,0 +1,39 @@
+<aside class="w-64 bg-primary-blue h-screen fixed left-0 top-0 flex flex-col p-6 z-50 text-white font-sans">
+  <div class="flex items-center gap-3 mb-12">
+    <div class="bg-white text-primary-blue rounded-xl w-10 h-10 flex items-center justify-center font-bold text-lg">C
+    </div>
+    <span class="text-xl font-semibold tracking-wide">CoSpace</span>
+  </div>
+
+  <nav class="flex-grow space-y-4">
+    <p class="text-[11px] font-medium text-white/40 px-3 uppercase tracking-wider">Panel de Anfitrión</p>
+
+    <a routerLink="/anfitrion/mis-areas" routerLinkActive="bg-[#1a2942] border-r-4 border-primary-orange"
+      class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all group">
+      <span>🏢</span>
+      <span class="text-sm font-medium group-hover:text-white">Mis Áreas</span>
+    </a>
+
+    <a routerLink="/anfitrion/crear-espacio" routerLinkActive="bg-[#1a2942] border-r-4 border-primary-orange"
+      class="flex items-center gap-3 px-4 py-3 text-white rounded-xl transition-all">
+      <span>➕</span>
+      <span class="text-sm font-medium">Añadir Áreas</span>
+    </a>
+
+    <a routerLink="/anfitrion/reservas" routerLinkActive="bg-[#1a2942] border-r-4 border-primary-orange"
+      class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all group">
+      <span>📅</span>
+      <span class="text-sm font-medium group-hover:text-white">Mis Reservas</span>
+    </a>
+  </nav>
+
+  <div class="mt-auto pt-6 border-t border-white/10 flex items-center gap-3">
+    <div
+      class="w-10 h-10 rounded-full bg-primary-orange flex items-center justify-center font-bold text-sm text-white shadow-lg">
+      M</div>
+    <div class="flex flex-col">
+      <span class="text-sm font-medium">María García</span>
+      <span class="text-[11px] text-white/50">anfitrion@cospace.com</span>
+    </div>
+  </div>
+</aside>

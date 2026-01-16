@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,6 +14,7 @@ return new class extends Migration
             $table->id('id_espacio');
             $table->foreignId('id_anfitrion')->constrained('anfitriones', 'id_usuario');
             $table->string('titulo', 100);
+            $table->string('ciudad', 100);
             $table->string('direccion', 255);
             $table->text('descripcion');
             $table->integer('capacidad');
@@ -114,6 +114,6 @@ return new class extends Migration
         Schema::dropIfExists('fotos_espacio');
 
         Schema::dropIfExists('servicios');
-        Schema::dropIfExists('espacios');    
+        Schema::dropIfExists('espacios');
     }
 };

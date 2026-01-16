@@ -54,6 +54,7 @@ services:
       - "4200:4200"
     volumes:
       - "./frontend:/app"
+      - "/app/node_modules"
     # Añadimos la instalación explícita de la CLI por si acaso
     command: sh -c "npm install && npm install -g @angular/cli && ng serve --host 0.0.0.0 --poll 2000"
     networks:
