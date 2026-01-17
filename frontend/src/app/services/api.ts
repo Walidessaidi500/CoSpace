@@ -17,6 +17,10 @@ export class ApiService {
     return this.http.post(`${environment.apiUrl}/register`, data);
   }
 
+  registerClient(data: any) {
+    return this.http.post(`${environment.apiUrl}/register-client`, data);
+  }
+
   login(data: any) {
     return this.http.post(`${environment.apiUrl}/login`, data);
   }
