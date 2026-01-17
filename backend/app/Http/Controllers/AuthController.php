@@ -12,6 +12,39 @@ use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
+    public function registerClient(Request $request)
+    {
+        $validatedData = $request->validate([
+            'nombre_completo' => 'required|string|max:100',
+            'email' => 'required|string|email|max:150|unique:usuarios',
+            'password' => 'required|string|min:8',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $usuario = Usuario::create([
+                'nombre_completo' => $validatedData['nombre_completo'],
+                'email' => $validatedData['email'],
+                'password' => Hash::make($validatedData['password']),
+                'tipo_usuario' => 'Cliente',
+                'estado_cuenta' => 'Activo', // Clients can be active by default
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Client registered successfully',
+                'user' => $usuario
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'Registration failed: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function register(Request $request)
     {
         $validatedData = $request->validate([
