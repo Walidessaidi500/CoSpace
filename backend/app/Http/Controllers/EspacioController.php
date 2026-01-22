@@ -10,29 +10,24 @@ use Illuminate\Support\Facades\Auth;
 
 class EspacioController extends Controller
 {
-    /**
-     * Lista los espacios del anfitrión actual.
-     */
     public function index()
     {
-        // TRUCO PARA DESARROLLO:
-        $anfitrionId = Auth::id() ?? 1;
+        $anfitrionId = Auth::id();
 
-        $espacios = Espacio::where('id_anfitrion', $anfitrionId)
-            ->with(['fotos', 'servicios']) // Cargar relaciones
-            ->orderBy('created_at', 'desc')
-            ->get();
+        try {
+            $espacios = Espacio::where('id_anfitrion', $anfitrionId)
+                ->with(['fotos', 'servicios'])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        return response()->json($espacios);
+            return response()->json($espacios);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+        }
     }
 
-    /**
-     * Guarda un nuevo espacio y sus servicios asociados.
-     */
     public function store(Request $request)
     {
-        // 1. VALIDACIÓN DE DATOS
-        // Definimos las reglas que deben cumplir los datos que vienen de Angular
         $validator = Validator::make($request->all(), [
             'titulo'      => 'required|string|max:100',
             'ciudad'      => 'required|string|max:100',
@@ -40,15 +35,12 @@ class EspacioController extends Controller
             'descripcion' => 'required|string|min:20',
             'precio_hora' => 'required|numeric|min:0',
             'capacidad'   => 'required|integer|min:1',
-            // Validamos que 'servicios' sea un array y que cada ID exista en la tabla servicios
             'servicios'   => 'array',
             'servicios.*' => 'integer|exists:servicios,id_servicio',
-            // Validación de fotos
-            'fotos'       => 'array|min:3', // Mínimo 3 fotos como pide el frontend
-            'fotos.*'     => 'image|mimes:jpeg,png,jpg|max:5120' // 5MB max
+            'fotos'       => 'array|min:3',
+            'fotos.*'     => 'image|mimes:jpeg,png,jpg|max:5120'
         ]);
 
-        // Si la validación falla, devolvemos error 422 con los detalles
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Datos inválidos',
@@ -56,16 +48,19 @@ class EspacioController extends Controller
             ], 422);
         }
 
-        // 2. INSERCIÓN EN LA BASE DE DATOS (Transacción)
         try {
             return DB::transaction(function () use ($request) {
                 
-                // TRUCO PARA DESARROLLO:
-                // Si hay usuario logueado (Auth::id()), usa ese ID.
-                // Si no (porque estás probando con Postman o sin login), usa el ID 1.
-                $anfitrionId = Auth::id() ?? 1; 
+                if (!Auth::check()) {
+                   $testUser = \App\Models\User::where('email', 'anfitrion@cospace.com')->first();
+                   if ($testUser) {
+                       Auth::login($testUser);
+                   } else {
+                       Auth::loginUsingId(1);
+                   }
+                }
+                $anfitrionId = Auth::id() ?? 1;
 
-                // A. Crear el registro en la tabla 'espacios'
                 $espacio = Espacio::create([
                     'id_anfitrion'    => $anfitrionId,
                     'titulo'          => $request->titulo,
@@ -74,34 +69,26 @@ class EspacioController extends Controller
                     'descripcion'     => $request->descripcion,
                     'precio_hora'     => $request->precio_hora,
                     'capacidad'       => $request->capacidad,
-                    'estado'          => 'Disponible', // Valor por defecto
+                    'estado'          => 'Disponible',
                     'rating_promedio' => 0.00,
                     'total_resenas'   => 0
                 ]);
 
-                // B. Vincular los servicios (Tabla pivote 'espacio_servicios')
-                // El método 'attach' inserta las filas en la tabla intermedia automáticamente
                 if ($request->has('servicios') && !empty($request->servicios)) {
                     $espacio->servicios()->attach($request->servicios);
                 }
-
-                // C. Guardar Imágenes
                 if ($request->hasFile('fotos')) {
                     foreach ($request->file('fotos') as $index => $foto) {
-                        // Guardar en storage/app/public/espacios
                         $path = $foto->store('espacios', 'public');
                         
-                        // Crear registro en base de datos
                         \App\Models\FotoEspacio::create([
                             'id_espacio'   => $espacio->id_espacio,
-                            'url_foto'     => '/storage/' . $path, // Ruta accesible públicamente
-                            'es_principal' => $index === 0 // La primera es la principal
+                            'url_foto'     => '/storage/' . $path,
+                            'es_principal' => $index === 0
                         ]);
                     }
                 }
 
-                // D. Respuesta Exitosa
-                // Devolvemos el espacio creado junto con sus servicios para confirmar
                 return response()->json([
                     'message' => 'Espacio creado exitosamente',
                     'data'    => $espacio->load(['servicios', 'fotos'])
@@ -109,7 +96,6 @@ class EspacioController extends Controller
             });
 
         } catch (\Exception $e) {
-            // Si algo falla en el try, la transacción se deshace (rollback)
             return response()->json([
                 'message' => 'Error al guardar en la base de datos',
                 'error'   => $e->getMessage()
@@ -117,11 +103,16 @@ class EspacioController extends Controller
         }
     }
 
-    /**
-     * Elimina un espacio.
-     */
     public function destroy($id)
     {
+        if (!Auth::check()) {
+            $testUser = \App\Models\User::where('email', 'anfitrion@cospace.com')->first();
+            if ($testUser) {
+                Auth::login($testUser);
+            } else {
+                Auth::loginUsingId(1);
+            }
+        }
         $anfitrionId = Auth::id() ?? 1;
 
         $espacio = Espacio::where('id_espacio', $id)

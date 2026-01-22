@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CrearEspacioPage } from './crear-espacio-page';
+import { CrearEspacioPageComponent } from './crear-espacio-page';
 
-describe('CrearEspacioPage', () => {
-  let component: CrearEspacioPage;
-  let fixture: ComponentFixture<CrearEspacioPage>;
+describe('CrearEspacioPageComponent', () => {
+  let component: CrearEspacioPageComponent;
+  let fixture: ComponentFixture<CrearEspacioPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CrearEspacioPage]
+      imports: [CrearEspacioPageComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
-    fixture = TestBed.createComponent(CrearEspacioPage);
+    fixture = TestBed.createComponent(CrearEspacioPageComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

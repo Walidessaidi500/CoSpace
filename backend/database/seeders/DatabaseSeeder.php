@@ -11,13 +11,11 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Sembrar la base de datos.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // 1. Crear Servicios (Amenidades)
+        // 1. Crear Servicios
         $servicios = [
             ['id_servicio' => 1, 'nombre_servicio' => 'WiFi de Alta Velocidad'],
             ['id_servicio' => 2, 'nombre_servicio' => 'Café y Té Gratis'],
@@ -36,7 +34,7 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 2. Crear Usuario Anfitrión de Prueba (si no existe)
+        // 2. Crear Usuario Anfitrión
         $user = User::firstOrCreate(
             ['email' => 'anfitrion@cospace.com'],
             [
@@ -47,7 +45,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 3. Crear Registro en tabla anfitriones
+        // 3. Crear Anfitrión
         \App\Models\Anfitrion::firstOrCreate(
             ['id_usuario' => $user->id_usuario],
             [
@@ -55,5 +53,7 @@ class DatabaseSeeder extends Seeder
                 'es_verificado' => true
             ]
         );
+        // 4. Crear Espacios
+        $this->call(EspacioSeeder::class);
     }
 }
