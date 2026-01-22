@@ -13,6 +13,7 @@ import { ApiService } from '../../services/api';
 })
 export class RegistroClienteComponent {
   registerForm: FormGroup;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -34,23 +35,27 @@ export class RegistroClienteComponent {
   }
 
   onSubmit() {
-    if (this.registerForm.valid) {
-      // Remover confirmPassword antes de enviar si no se necesita en backend
-      const { confirmPassword, ...dataToSend } = this.registerForm.value;
-
-      this.apiService.registerClient(dataToSend).subscribe({
-        next: (res: any) => {
-          console.log('Cliente registrado:', res);
-          alert('Cuenta de cliente creada con éxito');
-          this.router.navigate(['/login']);
-        },
-        error: (err: any) => {
-          console.error('Error al registrar cliente:', err);
-          alert('Error al registrar. Por favor intenta de nuevo.');
-        }
-      });
-    } else {
-      this.registerForm.markAllAsTouched();
+    if (this.registerForm.invalid) {
+        this.registerForm.markAllAsTouched();
+        return;
     }
+
+    this.loading = true;
+    // Remover confirmPassword antes de enviar si no se necesita en backend
+    const { confirmPassword, ...dataToSend } = this.registerForm.value;
+
+    this.apiService.registerClient(dataToSend).subscribe({
+    next: (res: any) => {
+        console.log('Cliente registrado:', res);
+        alert('Cuenta de cliente creada con éxito');
+        this.router.navigate(['/login']);
+        this.loading = false;
+    },
+    error: (err: any) => {
+        console.error('Error al registrar cliente:', err);
+        alert('Error al registrar. Por favor intenta de nuevo.');
+        this.loading = false;
+    }
+    });
   }
 }

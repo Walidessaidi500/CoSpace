@@ -8,6 +8,7 @@ export const routes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'registro-anfitrion', component: RegistroAnfitrionComponent },
     { path: 'registro-cliente', component: RegistroClienteComponent },
+    { path: 'explorar', loadComponent: () => import('./components/explorar/explorar').then(m => m.Explorar) },
 
 
 

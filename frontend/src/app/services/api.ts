@@ -24,4 +24,8 @@ export class ApiService {
   login(data: any) {
     return this.http.post(`${environment.apiUrl}/login`, data);
   }
+
+  getEspacios() {
+    return this.http.get(`${environment.apiUrl}/espacios`);
+  }
 }

@@ -12,3 +12,5 @@ use App\Http\Controllers\AuthController;
 Route::get('/test-conexion', [TestController::class, 'index']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/register-client', [AuthController::class, 'registerClient']);
+use App\Http\Controllers\EspacioController;
+Route::get('/espacios', [EspacioController::class, 'index']);

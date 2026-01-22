@@ -48,9 +48,9 @@
       </div>
 
       <div class="pt-2">
-        <button type="submit"
-          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg py-3 px-6 rounded-full transition-colors shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-[0.99]">
-          Crear Cuenta de Cliente
+        <button type="submit" [disabled]="registerForm.invalid || loading"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg py-3 px-6 rounded-full transition-colors shadow-lg hover:shadow-xl disabled:bg-orange-300 disabled:cursor-not-allowed transform active:scale-[0.99]">
+          {{ loading ? 'Creando...' : 'Crear Cuenta de Cliente' }}
         </button>
       </div>
 

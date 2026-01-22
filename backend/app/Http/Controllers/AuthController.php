@@ -28,7 +28,7 @@ class AuthController extends Controller
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
                 'tipo_usuario' => 'Cliente',
-                'estado_cuenta' => 'Activo', // Clients can be active by default
+                'estado_cuenta' => 'Activo', 
             ]);
 
             DB::commit();
