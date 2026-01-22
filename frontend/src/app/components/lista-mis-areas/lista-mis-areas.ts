@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef, NgZone } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { EspaciosService } from '../../services/espacios';
 
 @Component({
@@ -10,18 +10,39 @@ import { EspaciosService } from '../../services/espacios';
 })
 export class ListaMisAreasComponent implements OnInit {
     espacios: any[] = [];
-    backendUrl = 'http://localhost:8000'; // Base url for images
+    errorMessage: string = '';
+    // debugInfo eliminado de la vista
+    backendUrl = 'http://127.0.0.1:8000'; // Base url for images
 
-    constructor(private espaciosService: EspaciosService) { }
+    constructor(
+        private espaciosService: EspaciosService,
+        @Inject(PLATFORM_ID) private platformId: Object,
+        private cdr: ChangeDetectorRef,
+        private ngZone: NgZone // Importar NgZone de nuevo
+    ) { }
 
     ngOnInit() {
+        if (isPlatformBrowser(this.platformId)) {
+            this.cargarEspacios();
+        }
+    }
+
+    cargarEspacios() {
+        console.log('Solicitando espacios a través del servicio...');
         this.espaciosService.getEspacios().subscribe({
             next: (data) => {
-                this.espacios = data;
-                console.log('Espacios cargados:', this.espacios);
+                this.ngZone.run(() => {
+                    this.espacios = data;
+                    console.log('Espacios cargados (HTTP):', this.espacios);
+                    this.cdr.detectChanges();
+                });
             },
             error: (err) => {
-                console.error('Error cargando espacios:', err);
+                this.ngZone.run(() => {
+                    console.error('Error HTTP:', err);
+                    this.errorMessage = 'Error de conexión: ' + (err.message || err);
+                    this.cdr.detectChanges();
+                });
             }
         });
     }

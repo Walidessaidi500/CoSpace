@@ -1,6 +1,11 @@
 <div class="mb-10">
     <h1 class="text-[40px] font-semibold text-primary-blue">Mis Áreas</h1>
     <p class="text-neutral-text text-base mt-2">Gestiona tus espacios publicados</p>
+
+    <!-- Mensaje de Error -->
+    <div *ngIf="errorMessage" class="mt-4 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
+        {{ errorMessage }}
+    </div>
 </div>
 
 <!-- Grid de Espacios -->
@@ -31,7 +36,7 @@
                 </div>
 
                 <div class="text-[28px] font-bold text-primary-blue">
-                    ${{ espacio.precio_hora }}<span class="text-sm font-normal text-neutral-text">/hora</span>
+                    {{ espacio.precio_hora }} €<span class="text-sm font-normal text-neutral-text">/hora</span>
                 </div>
             </div>
 
