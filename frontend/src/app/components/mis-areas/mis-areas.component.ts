@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SidebarAnfitrionComponent } from '../../components/sidebar-anfitrion/sidebar-anfitrion';
-import { ListaMisAreasComponent } from '../../components/lista-mis-areas/lista-mis-areas';
+import { SidebarAnfitrionComponent } from '../sidebar-anfitrion/sidebar-anfitrion.component';
+import { ListaMisAreasComponent } from '../lista-mis-areas/lista-mis-areas.component';
 
 @Component({
-    selector: 'app-mis-areas-page',
+    selector: 'app-mis-areas',
     standalone: true,
     imports: [CommonModule, SidebarAnfitrionComponent, ListaMisAreasComponent],
-    templateUrl: './mis-areas-page.html'
+    templateUrl: './mis-areas.component.html'
 })
-export class MisAreasPageComponent {
+export class MisAreasComponent {
     // La lógica se ha movido al componente ListaMisAreasComponent
     constructor() { }
 }

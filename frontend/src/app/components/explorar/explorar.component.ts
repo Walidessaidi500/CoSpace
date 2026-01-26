@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EspacioCard } from '../espacio-card/espacio-card';
+import { EspacioCard } from '../espacio-card/espacio-card.component';
 import { ApiService } from '../../services/api';
 
 @Component({
   selector: 'app-explorar',
   imports: [CommonModule, EspacioCard],
-  templateUrl: './explorar.html',
-  styleUrl: './explorar.css',
+  templateUrl: './explorar.component.html',
+  styleUrl: './explorar.component.css',
 })
 export class Explorar implements OnInit {
   private api = inject(ApiService);

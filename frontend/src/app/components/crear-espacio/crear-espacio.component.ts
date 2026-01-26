@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 // Imports de tus componentes
-import { SidebarAnfitrionComponent } from '../../components/sidebar-anfitrion/sidebar-anfitrion';
-import { FormularioEspacioComponent } from '../../components/formulario-espacio/formulario-espacio';
-import { FooterAccionesComponent } from '../../components/footer-acciones/footer-acciones';
+import { SidebarAnfitrionComponent } from '../sidebar-anfitrion/sidebar-anfitrion.component';
+import { FormularioEspacioComponent } from '../formulario-espacio/formulario-espacio.component';
+import { FooterAccionesComponent } from '../footer-acciones/footer-acciones.component';
 import { EspaciosService } from '../../services/espacios';
 
 @Component({
-  selector: 'app-crear-espacio-page',
+  selector: 'app-crear-espacio',
   standalone: true,
   imports: [
     CommonModule,
@@ -17,10 +17,10 @@ import { EspaciosService } from '../../services/espacios';
     FormularioEspacioComponent,
     FooterAccionesComponent
   ],
-  templateUrl: './crear-espacio-page.html'
+  templateUrl: './crear-espacio.component.html'
   // Nota: Si no tienes archivo .css para esta página, borra la línea de styleUrls
 })
-export class CrearEspacioPageComponent {
+export class CrearEspacioComponent {
   // ViewChild busca el componente hijo para poder leer sus datos
   @ViewChild(FormularioEspacioComponent) formularioComponent!: FormularioEspacioComponent;
 

@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-footer-acciones',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './footer-acciones.html',
-  styleUrls: ['./footer-acciones.css']
+  templateUrl: './footer-acciones.component.html',
+  styleUrl: './footer-acciones.component.css'
 })
 export class FooterAccionesComponent {
   @Output() guardar = new EventEmitter<void>();

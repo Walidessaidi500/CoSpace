@@ -6,7 +6,7 @@ import { EspaciosService } from '../../services/espacios';
     selector: 'app-lista-mis-areas',
     standalone: true,
     imports: [CommonModule],
-    templateUrl: './lista-mis-areas.html'
+    templateUrl: './lista-mis-areas.component.html'
 })
 export class ListaMisAreasComponent implements OnInit {
     espacios: any[] = [];

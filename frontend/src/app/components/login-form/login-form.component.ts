@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
     selector: 'app-login-form',
     standalone: true,
     imports: [RouterLink, ReactiveFormsModule, CommonModule],
-    templateUrl: './login-form.html',
+    templateUrl: './login-form.component.html',
 })
 export class LoginFormComponent {
     private fb = inject(FormBuilder);

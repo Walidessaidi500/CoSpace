@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
   selector: 'app-sidebar-anfitrion',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './sidebar-anfitrion.html', // Nota: sin .component.html
-  styleUrls: ['./sidebar-anfitrion.css']   // Nota: sin .component.css
+  templateUrl: './sidebar-anfitrion.component.html', // Nota: sin .component.html
+  styleUrl: './sidebar-anfitrion.component.css'   // Nota: sin .component.css
 })
 export class SidebarAnfitrionComponent {}

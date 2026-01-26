@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { LoginFormComponent } from '../../components/login-form/login-form';
+import { LoginFormComponent } from '../login-form/login-form.component';
 
 @Component({
-    selector: 'app-login-page',
+    selector: 'app-login',
     standalone: true,
     imports: [LoginFormComponent],
-    templateUrl: './login-page.html',
+    templateUrl: './login.component.html',
     styles: [`
         :host {
             display: flex;
@@ -16,4 +16,4 @@ import { LoginFormComponent } from '../../components/login-form/login-form';
         }
     `]
 })
-export class LoginPageComponent { }
+export class LoginComponent { }

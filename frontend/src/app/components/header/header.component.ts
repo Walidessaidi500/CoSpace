@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
     selector: 'app-header',
     standalone: true,
     imports: [RouterLink, RouterLinkActive, CommonModule],
-    templateUrl: './header.html',
+    templateUrl: './header.component.html',
 })
 export class HeaderComponent {
     authService = inject(AuthService);

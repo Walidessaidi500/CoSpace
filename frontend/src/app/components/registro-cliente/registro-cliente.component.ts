@@ -8,8 +8,8 @@ import { ApiService } from '../../services/api';
   selector: 'app-registro-cliente',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './registro-cliente.html',
-  styleUrl: './registro-cliente.css',
+  templateUrl: './registro-cliente.component.html',
+  styleUrl: './registro-cliente.component.css',
 })
 export class RegistroClienteComponent {
   registerForm: FormGroup;

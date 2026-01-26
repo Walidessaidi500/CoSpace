@@ -8,8 +8,8 @@ import { EspaciosService } from '../../services/espacios';
   selector: 'app-formulario-espacio',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './formulario-espacio.html',
-  styleUrls: ['./formulario-espacio.css']
+  templateUrl: './formulario-espacio.component.html',
+  styleUrl: './formulario-espacio.component.css'
 })
 export class FormularioEspacioComponent {
   espacioForm: FormGroup;

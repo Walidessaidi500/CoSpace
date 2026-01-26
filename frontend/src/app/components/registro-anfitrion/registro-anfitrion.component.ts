@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, RouterModule],
     templateUrl: './registro-anfitrion.component.html',
-    styleUrls: ['./registro-anfitrion.component.css']
+    styleUrl: './registro-anfitrion.component.css'
 })
 export class RegistroAnfitrionComponent {
     registroForm: FormGroup;
