@@ -28,4 +28,8 @@ export class ApiService {
   getEspacios() {
     return this.http.get(`${environment.apiUrl}/espacios`);
   }
+
+  getEspacioById(id: string | number) {
+    return this.http.get(`${environment.apiUrl}/espacios/${id}`);
+  }
 }

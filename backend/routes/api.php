@@ -19,6 +19,7 @@ Route::post('/register-client', [AuthController::class, 'registerClient']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/espacios', [EspacioController::class, 'index']); // Public Exploration
+Route::get('/espacios/{id}', [EspacioController::class, 'show']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {

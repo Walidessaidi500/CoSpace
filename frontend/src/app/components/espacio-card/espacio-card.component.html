@@ -1,18 +1,17 @@
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+<div
+  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
   <div class="relative h-52 overflow-hidden">
-    <img 
-      [src]="espacio.foto_principal || 'assets/placeholder.jpg'" 
-      [alt]="espacio.titulo"
-      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-    >
+    <img [src]="getFullUrl(espacio.fotos && espacio.fotos.length > 0 ? espacio.fotos[0].url_foto : null)"
+      [alt]="espacio.titulo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
   </div>
 
   <div class="p-5">
     <h3 class="text-xl font-bold text-slate-900 mb-1 truncate">{{ espacio.titulo }}</h3>
-    
+
     <div class="flex items-center text-gray-500 text-sm mb-4">
       <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
       </svg>
       {{ espacio.direccion }}
     </div>
@@ -28,7 +27,8 @@
       </div>
     </div>
 
-    <button class="w-full bg-[#0f172a] text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transform active:scale-95 transition-all">
+    <button [routerLink]="['/espacios', espacio.id_espacio]"
+      class="w-full bg-[#0f172a] text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transform active:scale-95 transition-all">
       Ver Detalles
     </button>
   </div>

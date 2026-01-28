@@ -116,6 +116,19 @@ class EspacioController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        try {
+            $espacio = Espacio::with(['fotos', 'servicios'])->find($id);
+            if (!$espacio) {
+                return response()->json(['message' => 'Espacio no encontrado'], 404);
+            }
+            return response()->json($espacio);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function destroy($id)
     {
         $anfitrionId = Auth::id();
