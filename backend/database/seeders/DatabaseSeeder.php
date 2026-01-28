@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Usuario;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Servicio;
+use App\Models\Anfitrion;
 
 class DatabaseSeeder extends Seeder
 {
@@ -28,32 +31,34 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($servicios as $servicio) {
-            \App\Models\Servicio::firstOrCreate(
-                ['id_servicio' => $servicio['id_servicio']], 
+            Servicio::firstOrCreate(
+                ['id_servicio' => $servicio['id_servicio']],
                 $servicio
             );
         }
 
         // 2. Crear Usuario Anfitrión
-        $user = User::firstOrCreate(
+        $user = Usuario::firstOrCreate(
             ['email' => 'anfitrion@cospace.com'],
             [
                 'nombre_completo' => 'María García',
-                'password'        => \Illuminate\Support\Facades\Hash::make('password123'),
-                'tipo_usuario'    => 'Anfitrion',
-                'estado_cuenta'   => 'Activo'
+                'password' => Hash::make('password123'),
+                'tipo_usuario' => 'Anfitrion',
+                'estado_cuenta' => 'Activo'
             ]
         );
 
         // 3. Crear Anfitrión
-        \App\Models\Anfitrion::firstOrCreate(
+        Anfitrion::firstOrCreate(
             ['id_usuario' => $user->id_usuario],
             [
                 'biografia' => 'Amante del coworking y la tecnología',
-                'es_verificado' => true
+                'es_verificado' => true,
+                'cantidad_espacios' => 1
             ]
         );
-        // 4. Crear Espacios
+
+        // 4. Crear Espacios if Seeder exists
         $this->call(EspacioSeeder::class);
     }
 }

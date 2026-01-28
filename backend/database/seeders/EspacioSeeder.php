@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use App\Models\Espacio;
-use App\Models\User;
+use App\Models\Usuario;
 use App\Models\FotoEspacio;
 
 class EspacioSeeder extends Seeder
@@ -13,11 +13,11 @@ class EspacioSeeder extends Seeder
     public function run()
     {
         // Obtener usuario anfitrión
-        $user = User::where('email', 'anfitrion@cospace.com')->first();
-        
+        $user = Usuario::where('email', 'anfitrion@cospace.com')->first();
+
         if (!$user) {
             // Respaldo
-            $user = User::first(); 
+            $user = Usuario::first();
         }
 
         if (!$user) {
@@ -58,7 +58,7 @@ class EspacioSeeder extends Seeder
             // Asignar servicios: WiFi(1), Café(2), Impresora(3)
             $espacio1->servicios()->sync([1, 2, 3]);
         }
-        
+
         // Crear Espacio 2
         $espacio2 = Espacio::firstOrCreate(
             ['titulo' => 'Estudio Creativo en Malasaña'],
@@ -77,8 +77,8 @@ class EspacioSeeder extends Seeder
             ]
         );
 
-         // Fotos Espacio 2
-         if ($espacio2->wasRecentlyCreated) {
+        // Fotos Espacio 2
+        if ($espacio2->wasRecentlyCreated) {
             FotoEspacio::create([
                 'id_espacio' => $espacio2->id_espacio,
                 'url_foto' => 'https://images.unsplash.com/photo-1505409859467-3a796fd5798e?auto=format&fit=crop&w=800&q=80', // Estudio

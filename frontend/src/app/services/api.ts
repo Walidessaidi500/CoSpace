@@ -12,4 +12,24 @@ export class ApiService {
   testConexion() {
     return this.http.get(`${environment.apiUrl}/test-conexion`);
   }
+
+  register(data: any) {
+    return this.http.post(`${environment.apiUrl}/register`, data);
+  }
+
+  registerClient(data: any) {
+    return this.http.post(`${environment.apiUrl}/register-client`, data);
+  }
+
+  login(data: any) {
+    return this.http.post(`${environment.apiUrl}/login`, data);
+  }
+
+  getEspacios() {
+    return this.http.get(`${environment.apiUrl}/espacios`);
+  }
+
+  getEspacioById(id: string | number) {
+    return this.http.get(`${environment.apiUrl}/espacios/${id}`);
+  }
 }

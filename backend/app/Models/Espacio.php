@@ -12,7 +12,7 @@ class Espacio extends Model
     // 1. Configuración de la Tabla
     protected $table = 'espacios';
     protected $primaryKey = 'id_espacio';
-    
+
     // 2. Asignación Masiva (Mass Assignment)
     // Estos son los campos que permitimos guardar con Espacio::create([])
     protected $fillable = [
@@ -47,7 +47,7 @@ class Espacio extends Model
     public function servicios()
     {
         return $this->belongsToMany(
-            Servicio::class, 
+            Servicio::class,
             'espacio_servicios', // Nombre tabla intermedia
             'id_espacio',        // FK de este modelo en la tabla intermedia
             'id_servicio'        // FK del otro modelo en la tabla intermedia

@@ -13,11 +13,6 @@ class Usuario extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
-    /**
-     * Atributos asignables masivamente.
-     *
-     * @var list<string>
-     */
     protected $table = 'usuarios';
     protected $primaryKey = 'id_usuario';
 
@@ -25,6 +20,7 @@ class Usuario extends Authenticatable
         'nombre_completo',
         'email',
         'password',
+        'foto_perfil', // From HEAD
         'tipo_usuario',
         'estado_cuenta'
     ];

@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-slate-50/50">
+
+  <main class="max-w-7xl mx-auto px-6 py-12">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-10">
+      Explorar Espacios de Coworking
+    </h1>
+
+    <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+      role="alert">
+      <strong class="font-bold">Error!</strong>
+      <span class="block sm:inline">{{ errorMessage }}</span>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <div class="relative">
+        <select
+          class="w-full appearance-none bg-white border border-gray-200 rounded-xl p-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
+          <option>Ubicación</option>
+        </select>
+        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
+      </div>
+      <select class="w-full appearance-none bg-white border border-gray-200 rounded-xl p-4 text-gray-500">
+        <option>Precio</option>
+      </select>
+      <select class="w-full appearance-none bg-white border border-gray-200 rounded-xl p-4 text-gray-500">
+        <option>Disponibilidad</option>
+      </select>
+      <select class="w-full appearance-none bg-white border border-gray-200 rounded-xl p-4 text-gray-500">
+        <option>Reseñas</option>
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <app-espacio-card *ngFor="let item of listaEspacios" [espacio]="item">
+      </app-espacio-card>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-20">
+      <p class="text-gray-400 text-lg">Cargando espacios increíbles para ti...</p>
+    </div>
+
+    <div *ngIf="!isLoading && listaEspacios.length === 0 && !errorMessage" class="text-center py-20">
+      <p class="text-gray-400 text-lg">No se encontraron espacios disponibles en este momento.</p>
+    </div>
+  </main>
+</div>
