@@ -64,9 +64,8 @@
                 <h2 class="text-2xl font-bold mb-8 text-gray-900">Características</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div *ngFor="let item of space.caracteristicas" class="flex items-center gap-4 group">
-                        <div
-                            class="bg-orange-50 p-4 rounded-2xl text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 text-2xl">
-                            {{ item.icono }}
+                        <div class="bg-orange-50 p-4 rounded-2xl text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center"
+                            [innerHTML]="item.icono">
                         </div>
                         <span class="font-semibold text-gray-700">{{ item.nombre }}</span>
                     </div>

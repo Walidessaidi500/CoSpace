@@ -1,8 +1,9 @@
 <div class="max-w-5xl mx-auto pb-24 font-sans">
 
   <div class="mb-8">
-    <h1 class="text-[40px] font-semibold text-primary-blue">Añadir Nueva Área</h1>
-    <p class="text-neutral-text text-base mt-1">Completa la información de tu espacio de coworking</p>
+    <h1 class="text-[40px] font-semibold text-primary-blue">{{ isEditMode ? 'Editar Área' : 'Añadir Nueva Área' }}</h1>
+    <p class="text-neutral-text text-base mt-1">{{ isEditMode ? 'Edita la información de tu espacio' : 'Completa la
+      información de tu espacio de coworking' }}</p>
   </div>
 
   <form [formGroup]="espacioForm" class="space-y-6">

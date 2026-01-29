@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -23,36 +23,56 @@ export class CrearEspacioComponent implements OnInit {
   @ViewChild(FormularioEspacioComponent) formularioComponent!: FormularioEspacioComponent;
 
   isEditMode = false;
+  isLoading = true;
+  loadingText = 'Cargando información...'; // Default text
+
+  // Toast State
+  showToast = false;
+  toastMessage = '';
+  toastType: 'success' | 'error' = 'success';
+
   espacioId: string | null = null;
 
+  // Import ChangeDetectorRef to ensure view updates
   constructor(
     private espaciosService: EspaciosService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
     this.espacioId = this.route.snapshot.paramMap.get('id');
     if (this.espacioId) {
       this.isEditMode = true;
+      this.isLoading = true;
+      this.loadingText = 'Cargando información...';
+
       // Fetch existing data
       this.espaciosService.getEspacioById(this.espacioId).subscribe({
         next: (data) => {
-          // We need to wait for view child? logic is safer if we patch after view init, 
-          // but usually Angular handles data binding if we pass input. 
-          // Since we use a method on the child, we must ensure child exists. 
-          // However, ngOnInit runs before ViewChild is available if static: false.
-          // We'll handle this by setting a timeout or using ngAfterViewInit, 
-          // OR better, we can just save the data and apply it when the ViewChild is ready?
-          // For simplicity in this structure: usually fetching takes time so ViewChild is ready by the time data arrives.
+          // Small delay to ensure view is ready and provide smooth transition
           setTimeout(() => {
-            if (this.formularioComponent) {
-              this.formularioComponent.patchData(data);
+            try {
+              if (this.formularioComponent) {
+                this.formularioComponent.patchData(data);
+              }
+            } catch (error) {
+              console.error('Error updating form data:', error);
+            } finally {
+              this.isLoading = false;
+              this.cdr.detectChanges(); // Force update
             }
-          }, 100);
+          }, 300); // Reduced timeout
         },
-        error: (err) => console.error(err)
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
       });
+    } else {
+      this.isLoading = false;
     }
   }
 
@@ -60,28 +80,59 @@ export class CrearEspacioComponent implements OnInit {
     if (this.formularioComponent && this.formularioComponent.espacioForm.valid) {
       const formData = this.formularioComponent.getFormData();
 
+      this.isLoading = true;
+      this.loadingText = this.isEditMode ? 'Guardando cambios...' : 'Publicando área...';
+
       if (this.isEditMode && this.espacioId) {
         this.espaciosService.updateEspacio(this.espacioId, formData).subscribe({
           next: () => {
-            alert('¡Espacio actualizado correctamente!');
-            this.router.navigate(['/anfitrion/mis-areas']);
+            this.handleSuccess('¡Espacio actualizado correctamente!');
           },
-          error: (err: any) => alert('Error: ' + err.message)
+          error: (err: any) => this.handleError(err)
         });
       } else {
         this.espaciosService.crearEspacio(formData).subscribe({
           next: () => {
-            alert('¡Espacio creado correctamente!');
-            this.router.navigate(['/anfitrion/mis-areas']);
+            this.handleSuccess('¡Espacio creado correctamente!');
           },
-          error: (err: any) => alert('Error: ' + err.message)
+          error: (err: any) => this.handleError(err)
         });
       }
     } else {
       if (this.formularioComponent) {
         this.formularioComponent.espacioForm.markAllAsTouched();
       }
-      alert('Por favor, revisa los campos obligatorios.');
+      this.showToastNotification('Por favor, revisa los campos obligatorios.', 'error');
+    }
+  }
+
+  private handleSuccess(message: string) {
+    this.isLoading = false;
+    this.showToastNotification(message, 'success');
+
+    // Wait for toast to be seen before navigating
+    setTimeout(() => {
+      this.router.navigate(['/anfitrion/mis-areas']);
+    }, 2000);
+  }
+
+  private handleError(err: any) {
+    this.isLoading = false;
+    this.showToastNotification('Error: ' + (err.message || 'Ocurrió un error inesperado'), 'error');
+  }
+
+  private showToastNotification(message: string, type: 'success' | 'error') {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+    this.cdr.detectChanges();
+
+    // Auto hide after 3 seconds if it's an error (success navigates away)
+    if (type === 'error') {
+      setTimeout(() => {
+        this.showToast = false;
+        this.cdr.detectChanges();
+      }, 3000);
     }
   }
 

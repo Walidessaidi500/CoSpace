@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 // Importación corregida según tu estructura:
@@ -12,6 +12,7 @@ import { EspaciosService } from '../../services/espacios';
   styleUrl: './formulario-espacio.component.css'
 })
 export class FormularioEspacioComponent {
+  @Input() isEditMode: boolean = false;
   espacioForm: FormGroup;
   selectedFiles: File[] = [];
   previewImages: string[] = [];
@@ -27,7 +28,10 @@ export class FormularioEspacioComponent {
     { id: 8, nombre: 'Cocina' }
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
+  ) {
     this.espacioForm = this.fb.group({
       titulo: ['', Validators.required],
       ciudad: ['', Validators.required],
@@ -52,6 +56,8 @@ export class FormularioEspacioComponent {
   onFileSelected(event: any) {
     if (event.target.files && event.target.files.length > 0) {
       this.processFiles(Array.from(event.target.files));
+      // Reset input to allow selecting the same file again if needed
+      event.target.value = '';
     }
   }
 
@@ -81,6 +87,7 @@ export class FormularioEspacioComponent {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.previewImages.push(e.target.result);
+        this.cdr.detectChanges(); // Force view update
       }
       reader.readAsDataURL(file);
     }
@@ -128,7 +135,7 @@ export class FormularioEspacioComponent {
       descripcion: data.descripcion,
       precio_hora: data.precio_hora,
       capacidad: data.capacidad,
-      servicios: data.servicios.map((s: any) => s.id_servicio)
+      servicios: data.servicios ? data.servicios.map((s: any) => s.id_servicio) : []
     });
 
     // Handle existing images for preview

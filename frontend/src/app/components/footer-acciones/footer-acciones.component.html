@@ -6,6 +6,6 @@
   </button>
   <button (click)="guardar.emit()"
     class="px-8 py-3 rounded-full bg-primary-orange text-white font-bold text-sm shadow-md hover:opacity-90 transition-colors">
-    Publicar Área
+    {{ isEditMode ? 'Guardar Cambios' : 'Publicar Área' }}
   </button>
 </div>

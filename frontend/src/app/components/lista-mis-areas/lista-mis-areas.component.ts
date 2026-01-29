@@ -13,7 +13,6 @@ export class ListaMisAreasComponent implements OnInit {
     espacios: any[] = [];
     errorMessage: string = '';
     isLoading: boolean = true;
-    // debugInfo eliminado de la vista
     backendUrl = 'http://127.0.0.1:8000'; // Base url for images
 
     constructor(
@@ -57,9 +56,12 @@ export class ListaMisAreasComponent implements OnInit {
         if (espacio.fotos && espacio.fotos.length > 0) {
             // Buscamos la principal
             const principal = espacio.fotos.find((f: any) => f.es_principal);
-            if (principal) return this.backendUrl + principal.url_foto;
-            // Si no, la primera
-            return this.backendUrl + espacio.fotos[0].url_foto;
+            const relativeUrl = principal ? principal.url_foto : espacio.fotos[0].url_foto;
+
+            if (relativeUrl.startsWith('http')) {
+                return relativeUrl;
+            }
+            return this.backendUrl + relativeUrl;
         }
         // Imagen por defecto si no hay fotos (placeholder)
         return 'https://via.placeholder.com/400x300?text=No+Image';
