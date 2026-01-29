@@ -1,8 +1,10 @@
-import { Component, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 // Importación corregida según tu estructura:
 import { EspaciosService } from '../../services/espacios';
+
+declare var google: any;
 
 @Component({
   selector: 'app-formulario-espacio',
@@ -11,7 +13,8 @@ import { EspaciosService } from '../../services/espacios';
   templateUrl: './formulario-espacio.component.html',
   styleUrl: './formulario-espacio.component.css'
 })
-export class FormularioEspacioComponent {
+export class FormularioEspacioComponent implements AfterViewInit {
+  @ViewChild('addressInput') addressInput!: ElementRef;
   @Input() isEditMode: boolean = false;
   espacioForm: FormGroup;
   selectedFiles: File[] = [];
@@ -30,7 +33,8 @@ export class FormularioEspacioComponent {
 
   constructor(
     private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
     this.espacioForm = this.fb.group({
       titulo: ['', Validators.required],
@@ -39,8 +43,68 @@ export class FormularioEspacioComponent {
       descripcion: ['', [Validators.required, Validators.minLength(20)]],
       precio_hora: ['', [Validators.required, Validators.min(1)]],
       capacidad: ['', [Validators.required, Validators.min(1)]],
-      servicios: [[]]
+      servicios: [[]],
+      latitud: [''],
+      longitud: ['']
     });
+  }
+
+  ngAfterViewInit() {
+    this.initAutocomplete();
+  }
+
+  initAutocomplete() {
+    // Check if google is available
+    if (typeof google !== 'undefined') {
+      const autocomplete = new google.maps.places.Autocomplete(this.addressInput.nativeElement, {
+        types: ['geocode'], // 'address' or 'geocode' covers most addresses
+        fields: ['address_components', 'geometry', 'formatted_address']
+      });
+
+      autocomplete.addListener('place_changed', () => {
+        this.ngZone.run(() => {
+          const place = autocomplete.getPlace();
+
+          if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            return;
+          }
+
+          // 1. Update formatted address and coordinates
+          this.espacioForm.patchValue({
+            direccion: place.formatted_address,
+            latitud: place.geometry.location.lat(),
+            longitud: place.geometry.location.lng()
+          });
+
+          // 2. Extract city/locality
+          let city = '';
+          // Iterate components to find locality
+          for (const component of place.address_components) {
+            const types = component.types;
+            if (types.includes('locality')) {
+              city = component.long_name;
+              break;
+            }
+          }
+
+          // Fallback if locality is not found (sometimes it's under administrative_area_level_2 etc)
+          if (!city) {
+            for (const component of place.address_components) {
+              if (component.types.includes('administrative_area_level_2')) {
+                city = component.long_name;
+                break;
+              }
+            }
+          }
+
+          if (city) {
+            this.espacioForm.patchValue({ ciudad: city });
+          }
+        });
+      });
+    }
   }
 
   toggleAmenidad(id: number, event: any) {
@@ -135,7 +199,9 @@ export class FormularioEspacioComponent {
       descripcion: data.descripcion,
       precio_hora: data.precio_hora,
       capacidad: data.capacidad,
-      servicios: data.servicios ? data.servicios.map((s: any) => s.id_servicio) : []
+      servicios: data.servicios ? data.servicios.map((s: any) => s.id_servicio) : [],
+      latitud: data.latitud,
+      longitud: data.longitud
     });
 
     // Handle existing images for preview

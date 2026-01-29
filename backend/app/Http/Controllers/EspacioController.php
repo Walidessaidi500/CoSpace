@@ -52,7 +52,9 @@ class EspacioController extends Controller
             'servicios' => 'array',
             'servicios.*' => 'integer|exists:servicios,id_servicio',
             'fotos' => 'array|min:3',
-            'fotos.*' => 'image|mimes:jpeg,png,jpg|max:5120'
+            'fotos.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -84,7 +86,9 @@ class EspacioController extends Controller
                     'capacidad' => $request->capacidad,
                     'estado' => 'Disponible',
                     'rating_promedio' => 0.00,
-                    'total_resenas' => 0
+                    'total_resenas' => 0,
+                    'latitud' => $request->latitud,
+                    'longitud' => $request->longitud
                 ]);
 
                 if ($request->has('servicios') && !empty($request->servicios)) {
@@ -178,6 +182,8 @@ class EspacioController extends Controller
             // Photos handling in update can be complex (add/remove), 
             // for simplicity we might only allow adding new ones here or handle separately
             // depending on frontend implementation.
+            'latitud' => 'sometimes|nullable|numeric',
+            'longitud' => 'sometimes|nullable|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -190,22 +196,28 @@ class EspacioController extends Controller
         try {
             DB::transaction(function () use ($request, $espacio) {
                 $espacio->update($request->only([
-                    'titulo', 'ciudad', 'direccion', 'descripcion', 
-                    'precio_hora', 'capacidad'
+                    'titulo',
+                    'ciudad',
+                    'direccion',
+                    'descripcion',
+                    'precio_hora',
+                    'capacidad',
+                    'latitud',
+                    'longitud'
                 ]));
 
                 if ($request->has('servicios')) {
                     $espacio->servicios()->sync($request->servicios);
                 }
-                
+
                 // Photo upload logic for update (Appending new photos)
                 if ($request->hasFile('fotos')) {
-                     foreach ($request->file('fotos') as $foto) {
+                    foreach ($request->file('fotos') as $foto) {
                         $path = $foto->store('espacios', 'public');
                         \App\Models\FotoEspacio::create([
                             'id_espacio' => $espacio->id_espacio,
                             'url_foto' => '/storage/' . $path,
-                            'es_principal' => false 
+                            'es_principal' => false
                         ]);
                     }
                 }
