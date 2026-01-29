@@ -52,11 +52,13 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:150|unique:usuarios',
             'password' => 'required|string|min:8',
             'titulo' => 'required|string|max:100',
-            'ciudad' => 'required|string|max:100', // Added ciudad
+            'ciudad' => 'required|string|max:100',
             'direccion' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'capacidad' => 'required|integer|min:1',
             'precio_hora' => 'required|numeric|min:0',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric',
         ]);
 
         try {
@@ -83,11 +85,13 @@ class AuthController extends Controller
             Espacio::create([
                 'id_anfitrion' => $usuario->id_usuario,
                 'titulo' => $validatedData['titulo'],
-                'ciudad' => $validatedData['ciudad'], // Now required
+                'ciudad' => $validatedData['ciudad'],
                 'direccion' => $validatedData['direccion'],
                 'descripcion' => $validatedData['descripcion'],
                 'capacidad' => $validatedData['capacidad'],
                 'precio_hora' => $validatedData['precio_hora'],
+                'latitud' => $validatedData['latitud'] ?? null,
+                'longitud' => $validatedData['longitud'] ?? null,
                 'estado' => 'Disponible',
             ]);
 
