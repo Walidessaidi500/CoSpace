@@ -2,11 +2,12 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api';
+import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
   selector: 'app-espacios-detalles',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, GoogleMapsModule],
   templateUrl: './espacios-detalles.component.html',
   styleUrl: './espacios-detalles.component.css',
 })
@@ -18,6 +19,15 @@ export class EspaciosDetallesComponent implements OnInit {
   space: any = null;
   isLoading: boolean = true;
   errorMessage: string = '';
+
+  // Google Maps Configuration
+  mapOptions: google.maps.MapOptions = {
+    center: { lat: 40, lng: -3 }, // Default center (e.g. Spain usually)
+    zoom: 15,
+    disableDefaultUI: false,
+    zoomControl: true,
+  };
+  markerPosition: google.maps.LatLngLiteral = { lat: 40, lng: -3 };
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -46,6 +56,8 @@ export class EspaciosDetallesComponent implements OnInit {
             precio: data.precio_hora,
             puntuacion: data.rating_promedio || 'N/A',
             total_resenas: data.total_resenas || 0,
+            latitud: data.latitud,
+            longitud: data.longitud,
             imagenes: (data.fotos && data.fotos.length > 0)
               ? data.fotos.map((f: any) => this.getFullUrl(f.url_foto))
               : [
@@ -59,6 +71,17 @@ export class EspaciosDetallesComponent implements OnInit {
               icono: this.getIconForService(s.nombre_servicio)
             })) : []
           };
+
+          // Configure Map if coordinates exist
+          if (data.latitud && data.longitud) {
+            const lat = parseFloat(data.latitud);
+            const lng = parseFloat(data.longitud);
+            this.mapOptions = {
+              ...this.mapOptions,
+              center: { lat, lng }
+            };
+            this.markerPosition = { lat, lng };
+          }
 
           this.isLoading = false;
           this.cdr.detectChanges();

@@ -18,7 +18,21 @@ export class EspaciosService {
     return this.http.get<any[]>(`${this.apiUrl}/espacios`);
   }
 
+  getEspaciosAnfitrion(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/anfitrion/espacios`);
+  }
+
   deleteEspacio(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/espacios/${id}`);
+  }
+
+  getEspacioById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/espacios/${id}`);
+  }
+
+  updateEspacio(id: string, data: any): Observable<any> {
+    // Note: Angular HttpClient defaults to JSON, but if 'data' is FormData, it handles the Content-Type automatically.
+    // However, Laravel PUT vs POST with Multipart is tricky. We created a POST route: /espacios/{id}
+    return this.http.post(`${this.apiUrl}/espacios/${id}`, data);
   }
 }

@@ -72,6 +72,21 @@
                     </div>
                 </div>
             </section>
+
+            <section class="mt-12 mb-12">
+                <h2 class="text-2xl font-bold mb-8 text-gray-900">Localización</h2>
+                <div class="rounded-3xl overflow-hidden h-[400px] w-full bg-gray-100 shadow-sm relative z-0">
+                    <google-map *ngIf="space.latitud && space.longitud; else noMap" height="100%" width="100%"
+                        [options]="mapOptions">
+                        <map-marker [position]="markerPosition"></map-marker>
+                    </google-map>
+                    <ng-template #noMap>
+                        <div class="w-full h-full flex items-center justify-center bg-gray-50">
+                            <p class="text-gray-500">Ubicación exacta no disponible en el mapa</p>
+                        </div>
+                    </ng-template>
+                </div>
+            </section>
         </div>
 
         <div class="lg:col-span-1">

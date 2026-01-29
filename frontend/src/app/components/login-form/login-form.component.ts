@@ -26,6 +26,8 @@ export class LoginFormComponent {
     errorMessage: string = '';
     successMessage: string = '';
 
+    isLoading: boolean = false;
+
     onSubmit() {
         console.log('Login Submit Triggered');
         this.errorMessage = '';
@@ -39,6 +41,8 @@ export class LoginFormComponent {
             this.form.markAllAsTouched();
             return;
         }
+
+        this.isLoading = true; // Start loading
 
         const credentials = {
             email: this.form.get('email')?.value ?? '',
@@ -54,16 +58,21 @@ export class LoginFormComponent {
                     setTimeout(() => {
                         this.router.navigate(['/anfitrion/mis-areas']).catch(() => {
                         });
+                        this.isLoading = false; // Stop loading after nav starts or delay
                     }, 1500);
                 } else {
                     setTimeout(() => {
+                        // this.isLoading = false; // logic for other roles
                         alert(`Bienvenido ${role}! El panel está en construcción.`);
+                        this.router.navigate(['/explorar']);
+                        this.isLoading = false;
                     }, 500);
                 }
             },
             error: (err) => {
                 console.error(err);
                 this.errorMessage = err.error?.message || 'Error al iniciar sesión. Verifique sus credenciales.';
+                this.isLoading = false; // Stop loading on error
             }
         });
     }

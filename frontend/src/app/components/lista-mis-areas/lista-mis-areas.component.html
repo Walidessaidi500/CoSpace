@@ -8,8 +8,27 @@
     </div>
 </div>
 
+<!-- Skeleton Loading -->
+<div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div *ngFor="let item of [1,2,3]"
+        class="bg-white rounded-2xl shadow-lg border border-neutral-200 overflow-hidden flex flex-col h-[480px]">
+        <div class="h-56 bg-gray-200 animate-pulse"></div>
+        <div class="p-6 flex-grow flex flex-col justify-between">
+            <div>
+                <div class="h-6 bg-gray-200 rounded w-3/4 mb-4 animate-pulse"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mb-6 animate-pulse"></div>
+                <div class="h-8 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+            </div>
+            <div class="flex gap-4 mt-6">
+                <div class="flex-1 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                <div class="flex-1 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Grid de Espacios -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
     <!-- Tarjeta de Espacio (Loop) -->
     <div *ngFor="let espacio of espacios"
@@ -42,7 +61,7 @@
 
             <!-- Botones de Acción -->
             <div class="flex gap-4 mt-6">
-                <button
+                <button [routerLink]="['/anfitrion/editar-espacio', espacio.id_espacio]"
                     class="flex-1 bg-white border border-neutral-300 text-primary-blue font-medium py-2.5 px-4 rounded-full hover:bg-neutral-50 transition-colors">
                     Editar
                 </button>

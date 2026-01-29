@@ -17,27 +17,77 @@
                 <a routerLink="/explorar"
                     class="text-[#4a5565] hover:text-[#0d1b2a] font-medium transition-colors text-[16px]">Coworkings</a>
 
-                <!-- Bloque Condicional: Si hay usuario logueado -->
-                <div *ngIf="currentUser$ | async as user; else loginBlock"
-                    class="flex items-center gap-4 relative group">
-                    <div class="flex items-center gap-3 cursor-pointer">
+                <div *ngIf="currentUser$ | async as user; else loginBlock" class="relative z-50">
+                    <!-- Botón del Perfil -->
+                    <button (click)="toggleDropdown()"
+                        class="flex items-center gap-3 focus:outline-none bg-white p-1 rounded-full hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
                         <div
-                            class="w-10 h-10 rounded-full bg-[#ff7a00] flex items-center justify-center text-white font-bold shadow-md">
+                            class="w-10 h-10 rounded-full bg-[#ff7a00] flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                             {{ user.nombre_completo.charAt(0).toUpperCase() }}
                         </div>
-                        <div class="flex flex-col">
+                        <div class="hidden lg:flex flex-col items-start mr-1">
                             <span class="text-[14px] font-semibold text-[#0d1b2a] leading-tight">
                                 {{ user.nombre_completo }}
                             </span>
-                            <span class="text-[12px] text-[#717182]">Conectado</span>
+                            <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">{{
+                                user.tipo_usuario || 'Usuario' }}</span>
+                        </div>
+                        <svg [class.rotate-180]="dropdownOpen"
+                            class="w-4 h-4 text-gray-400 transition-transform duration-300 ml-1" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <!-- Backdrop (para cerrar al hacer click fuera) -->
+                    <div *ngIf="dropdownOpen" (click)="closeDropdown()"
+                        class="fixed inset-0 z-40 bg-transparent cursor-default"></div>
+
+                    <!-- Menú Desplegable -->
+                    <div [class.opacity-100]="dropdownOpen" [class.translate-y-0]="dropdownOpen"
+                        [class.pointer-events-auto]="dropdownOpen" [class.opacity-0]="!dropdownOpen"
+                        [class.translate-y-2]="!dropdownOpen" [class.pointer-events-none]="!dropdownOpen"
+                        class="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 py-3 origin-top-right transition-all duration-200 ease-out z-50 overflow-hidden">
+
+                        <!-- Cabecera del Menú -->
+                        <div class="px-6 py-4 border-b border-gray-50 mb-2">
+                            <p class="text-sm font-bold text-gray-900 truncate">{{ user.nombre_completo }}</p>
+                            <p class="text-xs text-gray-500 truncate mt-0.5">{{ user.email }}</p>
+                        </div>
+
+                        <!-- Opciones -->
+                        <div class="space-y-1">
+                            <!-- Enlaces según Rol -->
+                            <ng-container [ngSwitch]="user.tipo_usuario">
+                                <a *ngSwitchCase="'Anfitrion'" routerLink="/anfitrion/mis-areas"
+                                    (click)="closeDropdown()"
+                                    class="flex items-center gap-3 px-6 py-2.5 text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors mx-2 rounded-xl">
+                                    <span class="text-lg">🏢</span> Panel de Anfitrión
+                                </a>
+                                <a *ngSwitchCase="'Cliente'" routerLink="/explorar" (click)="closeDropdown()"
+                                    class="flex items-center gap-3 px-6 py-2.5 text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors mx-2 rounded-xl">
+                                    <span class="text-lg">👤</span> Mi Perfil
+                                </a>
+                                <a *ngSwitchCase="'Admin'" routerLink="/admin" (click)="closeDropdown()"
+                                    class="flex items-center gap-3 px-6 py-2.5 text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors mx-2 rounded-xl">
+                                    <span class="text-lg">🛡️</span> Panel Admin
+                                </a>
+                            </ng-container>
+
+                            <a routerLink="/configuracion" (click)="closeDropdown()"
+                                class="flex items-center gap-3 px-6 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors mx-2 rounded-xl">
+                                <span class="text-lg">⚙️</span> Configuración
+                            </a>
+                        </div>
+
+                        <!-- Footer Logout -->
+                        <div class="border-t border-gray-50 mt-2 pt-2">
+                            <button (click)="logout()"
+                                class="w-full text-left flex items-center gap-3 px-6 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">
+                                <span class="text-lg">🚪</span> Cerrar Sesión
+                            </button>
                         </div>
                     </div>
-
-                    <!-- Botón de Salir (Simple por ahora) -->
-                    <button (click)="logout()"
-                        class="text-[12px] font-medium text-red-500 hover:text-red-700 bg-red-50 px-3 py-1 rounded-full transition-colors ml-2">
-                        Salir
-                    </button>
                 </div>
 
                 <!-- Bloque Else: Botones de Login/Registro -->

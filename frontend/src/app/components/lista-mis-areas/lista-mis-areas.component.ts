@@ -1,16 +1,18 @@
 import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { EspaciosService } from '../../services/espacios';
 
 @Component({
     selector: 'app-lista-mis-areas',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './lista-mis-areas.component.html'
 })
 export class ListaMisAreasComponent implements OnInit {
     espacios: any[] = [];
     errorMessage: string = '';
+    isLoading: boolean = true;
     // debugInfo eliminado de la vista
     backendUrl = 'http://127.0.0.1:8000'; // Base url for images
 
@@ -29,10 +31,12 @@ export class ListaMisAreasComponent implements OnInit {
 
     cargarEspacios() {
         console.log('Solicitando espacios a través del servicio...');
-        this.espaciosService.getEspacios().subscribe({
+        this.isLoading = true;
+        this.espaciosService.getEspaciosAnfitrion().subscribe({
             next: (data) => {
                 this.ngZone.run(() => {
                     this.espacios = data;
+                    this.isLoading = false;
                     console.log('Espacios cargados (HTTP):', this.espacios);
                     this.cdr.detectChanges();
                 });
@@ -41,6 +45,7 @@ export class ListaMisAreasComponent implements OnInit {
                 this.ngZone.run(() => {
                     console.error('Error HTTP:', err);
                     this.errorMessage = 'Error de conexión: ' + (err.message || err);
+                    this.isLoading = false;
                     this.cdr.detectChanges();
                 });
             }

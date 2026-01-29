@@ -118,4 +118,29 @@ export class FormularioEspacioComponent {
 
     return formData;
   }
+
+  // Nuevo método para rellenar datos (Edición)
+  patchData(data: any) {
+    this.espacioForm.patchValue({
+      titulo: data.titulo,
+      ciudad: data.ciudad,
+      direccion: data.direccion,
+      descripcion: data.descripcion,
+      precio_hora: data.precio_hora,
+      capacidad: data.capacidad,
+      servicios: data.servicios.map((s: any) => s.id_servicio)
+    });
+
+    // Handle existing images for preview
+    if (data.fotos && data.fotos.length > 0) {
+      this.previewImages = data.fotos.map((f: any) => this.getFullUrl(f.url_foto));
+    }
+  }
+
+  // TODO: Move this helper to a shared utility or service
+  private getFullUrl(path: string | null): string {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `http://127.0.0.1:8000${path}`;
+  }
 }

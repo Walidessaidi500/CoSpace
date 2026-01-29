@@ -23,6 +23,12 @@ export const routes: Routes = [
         canActivate: [anfitrionGuard]
     },
     {
+        path: 'anfitrion/editar-espacio/:id',
+        component: CrearEspacioComponent,
+        title: 'CoSpace - Editar Área',
+        canActivate: [anfitrionGuard]
+    },
+    {
         path: 'anfitrion/mis-areas',
         component: MisAreasComponent,
         title: 'CoSpace - Mis Áreas',

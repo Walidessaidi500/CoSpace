@@ -31,5 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Host Management
     Route::get('/anfitrion/espacios', [EspacioController::class, 'indexAnfitrion']);
     Route::post('/espacios', [EspacioController::class, 'store']);
+    Route::post('/espacios/{id}', [EspacioController::class, 'update']); // Using POST for file uploads via FormData simplicity
     Route::delete('/espacios/{id}', [EspacioController::class, 'destroy']);
 });

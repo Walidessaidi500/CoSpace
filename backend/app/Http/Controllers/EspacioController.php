@@ -149,4 +149,78 @@ class EspacioController extends Controller
 
         return response()->json(['message' => 'Espacio eliminado correctamente']);
     }
+
+    public function update(Request $request, $id)
+    {
+        $anfitrionId = Auth::id();
+
+        if (!$anfitrionId) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $espacio = Espacio::where('id_espacio', $id)
+            ->where('id_anfitrion', $anfitrionId)
+            ->first();
+
+        if (!$espacio) {
+            return response()->json(['message' => 'Espacio no encontrado o no autorizado'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'titulo' => 'sometimes|required|string|max:100',
+            'ciudad' => 'sometimes|required|string|max:100',
+            'direccion' => 'sometimes|required|string|max:255',
+            'descripcion' => 'sometimes|required|string|min:20',
+            'precio_hora' => 'sometimes|required|numeric|min:0',
+            'capacidad' => 'sometimes|required|integer|min:1',
+            'servicios' => 'array',
+            'servicios.*' => 'integer|exists:servicios,id_servicio',
+            // Photos handling in update can be complex (add/remove), 
+            // for simplicity we might only allow adding new ones here or handle separately
+            // depending on frontend implementation.
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos inválidos',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($request, $espacio) {
+                $espacio->update($request->only([
+                    'titulo', 'ciudad', 'direccion', 'descripcion', 
+                    'precio_hora', 'capacidad'
+                ]));
+
+                if ($request->has('servicios')) {
+                    $espacio->servicios()->sync($request->servicios);
+                }
+                
+                // Photo upload logic for update (Appending new photos)
+                if ($request->hasFile('fotos')) {
+                     foreach ($request->file('fotos') as $foto) {
+                        $path = $foto->store('espacios', 'public');
+                        \App\Models\FotoEspacio::create([
+                            'id_espacio' => $espacio->id_espacio,
+                            'url_foto' => '/storage/' . $path,
+                            'es_principal' => false 
+                        ]);
+                    }
+                }
+            });
+
+            return response()->json([
+                'message' => 'Espacio actualizado exitosamente',
+                'data' => $espacio->load(['servicios', 'fotos'])
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al actualizar el espacio',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

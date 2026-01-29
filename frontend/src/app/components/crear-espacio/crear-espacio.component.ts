@@ -1,6 +1,6 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 // Imports de tus componentes
 import { SidebarAnfitrionComponent } from '../sidebar-anfitrion/sidebar-anfitrion.component';
@@ -18,29 +18,66 @@ import { EspaciosService } from '../../services/espacios';
     FooterAccionesComponent
   ],
   templateUrl: './crear-espacio.component.html'
-  // Nota: Si no tienes archivo .css para esta página, borra la línea de styleUrls
 })
-export class CrearEspacioComponent {
-  // ViewChild busca el componente hijo para poder leer sus datos
+export class CrearEspacioComponent implements OnInit {
   @ViewChild(FormularioEspacioComponent) formularioComponent!: FormularioEspacioComponent;
 
-  constructor(private espaciosService: EspaciosService, private router: Router) { }
+  isEditMode = false;
+  espacioId: string | null = null;
 
-  // ESTA es la función que el HTML estaba buscando y no encontraba
+  constructor(
+    private espaciosService: EspaciosService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
+
+  ngOnInit() {
+    this.espacioId = this.route.snapshot.paramMap.get('id');
+    if (this.espacioId) {
+      this.isEditMode = true;
+      // Fetch existing data
+      this.espaciosService.getEspacioById(this.espacioId).subscribe({
+        next: (data) => {
+          // We need to wait for view child? logic is safer if we patch after view init, 
+          // but usually Angular handles data binding if we pass input. 
+          // Since we use a method on the child, we must ensure child exists. 
+          // However, ngOnInit runs before ViewChild is available if static: false.
+          // We'll handle this by setting a timeout or using ngAfterViewInit, 
+          // OR better, we can just save the data and apply it when the ViewChild is ready?
+          // For simplicity in this structure: usually fetching takes time so ViewChild is ready by the time data arrives.
+          setTimeout(() => {
+            if (this.formularioComponent) {
+              this.formularioComponent.patchData(data);
+            }
+          }, 100);
+        },
+        error: (err) => console.error(err)
+      });
+    }
+  }
+
   onGuardar() {
     if (this.formularioComponent && this.formularioComponent.espacioForm.valid) {
-      // Usamos getFormData() para incluir las imágenes
       const formData = this.formularioComponent.getFormData();
 
-      this.espaciosService.crearEspacio(formData).subscribe({
-        next: () => {
-          alert('¡Espacio creado correctamente!');
-          this.router.navigate(['/anfitrion/mis-areas']);
-        },
-        error: (err: any) => alert('Error: ' + err.message)
-      });
+      if (this.isEditMode && this.espacioId) {
+        this.espaciosService.updateEspacio(this.espacioId, formData).subscribe({
+          next: () => {
+            alert('¡Espacio actualizado correctamente!');
+            this.router.navigate(['/anfitrion/mis-areas']);
+          },
+          error: (err: any) => alert('Error: ' + err.message)
+        });
+      } else {
+        this.espaciosService.crearEspacio(formData).subscribe({
+          next: () => {
+            alert('¡Espacio creado correctamente!');
+            this.router.navigate(['/anfitrion/mis-areas']);
+          },
+          error: (err: any) => alert('Error: ' + err.message)
+        });
+      }
     } else {
-      // Si el componente formulario existe, marcamos los errores
       if (this.formularioComponent) {
         this.formularioComponent.espacioForm.markAllAsTouched();
       }
@@ -48,8 +85,7 @@ export class CrearEspacioComponent {
     }
   }
 
-  // ESTA es la función correcta para cancelar
   onCancelar() {
-    this.router.navigate(['/anfitrion/mis-areas']); // O a donde quieras redirigir
+    this.router.navigate(['/anfitrion/mis-areas']);
   }
 }
