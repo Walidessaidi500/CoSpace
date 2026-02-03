@@ -13,10 +13,10 @@ class Reserva extends Model
     protected $table = 'reservas';
     protected $primaryKey = 'id_reserva';
 
-    // Configuración de Fechas (según tu script SQL)
-    // Tu tabla tiene 'fecha_creacion' pero no tiene 'updated_at'
-    const CREATED_AT = 'fecha_creacion';
-    const UPDATED_AT = null; 
+    // Configuración de Fechas
+    public $timestamps = false; // Disable automatic timestamps since 'fecha_creacion' column is missing in DB
+    // const CREATED_AT = 'fecha_creacion';
+    // const UPDATED_AT = null; 
 
     // 2. Asignación Masiva
     protected $fillable = [
@@ -32,8 +32,8 @@ class Reserva extends Model
     // Esto convierte automáticamente las fechas de string a objetos Carbon
     protected $casts = [
         'fecha_inicio' => 'datetime',
-        'fecha_fin'    => 'datetime',
-        'monto_total'  => 'decimal:2',
+        'fecha_fin' => 'datetime',
+        'monto_total' => 'decimal:2',
     ];
 
     // 4. Relaciones

@@ -33,4 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/espacios', [EspacioController::class, 'store']);
     Route::post('/espacios/{id}', [EspacioController::class, 'update']); // Using POST for file uploads via FormData simplicity
     Route::delete('/espacios/{id}', [EspacioController::class, 'destroy']);
+
+    // Booking actions
+    Route::post('/create-payment-intent', [App\Http\Controllers\ReservaController::class, 'createPaymentIntent']);
+    Route::post('/reservas', [App\Http\Controllers\ReservaController::class, 'store']);
 });

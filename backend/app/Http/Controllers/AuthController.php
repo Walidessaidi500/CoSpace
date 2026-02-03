@@ -31,6 +31,9 @@ class AuthController extends Controller
                 'estado_cuenta' => 'Activo',
             ]);
 
+            // Ensure Cliente entry is created for FK constraints
+            \App\Models\Cliente::firstOrCreate(['id_usuario' => $usuario->id_usuario]);
+
             DB::commit();
 
             return response()->json([

@@ -6,6 +6,7 @@ import { CrearEspacioComponent } from './components/crear-espacio/crear-espacio.
 import { MisAreasComponent } from './components/mis-areas/mis-areas.component';
 import { LoginComponent } from './components/login/login.component';
 import { EspaciosDetallesComponent } from './components/espacios-detalles/espacios-detalles.component';
+import { ReservaComponent } from './components/reserva/reserva';
 import { anfitrionGuard } from './guards/anfitrion.guard';
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
     { path: 'registro-cliente', component: RegistroClienteComponent },
     { path: 'explorar', loadComponent: () => import('./components/explorar/explorar.component').then(m => m.ExplorarComponent) },
     { path: 'espacios/:id', component: EspaciosDetallesComponent },
+    { path: 'reserva/:id', component: ReservaComponent },
 
     // Rutas de Anfitrión (Victor)
     {
