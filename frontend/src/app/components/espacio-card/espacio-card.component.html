@@ -1,15 +1,15 @@
 <div
-  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+  class="bg-white dark:bg-[#1a2736] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
   <div class="relative h-52 overflow-hidden">
     <img [src]="getFullUrl(espacio.fotos && espacio.fotos.length > 0 ? espacio.fotos[0].url_foto : null)"
       [alt]="espacio.titulo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
   </div>
 
   <div class="p-5">
-    <h3 class="text-xl font-bold text-slate-900 mb-1 truncate">{{ espacio.titulo }}</h3>
+    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1 truncate">{{ espacio.titulo }}</h3>
 
-    <div class="flex items-center text-gray-500 text-sm mb-4">
-      <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4">
+      <svg class="w-4 h-4 mr-1 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
       </svg>
@@ -17,18 +17,18 @@
     </div>
 
     <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center bg-orange-50 px-2 py-1 rounded-lg">
-        <span class="text-orange-500 mr-1 text-sm">★</span>
-        <span class="font-bold text-orange-700 text-sm">{{ espacio.rating_promedio }}</span>
+      <div class="flex items-center bg-orange-50 dark:bg-orange-900/20 px-2 py-1 rounded-lg">
+        <span class="text-orange-500 dark:text-orange-400 mr-1 text-sm">★</span>
+        <span class="font-bold text-orange-700 dark:text-orange-300 text-sm">{{ espacio.rating_promedio }}</span>
       </div>
-      <div class="text-slate-900">
+      <div class="text-slate-900 dark:text-white">
         <span class="font-black text-xl">{{ espacio.precio_hora }}€</span>
-        <span class="text-gray-400 text-sm font-normal">/hora</span>
+        <span class="text-gray-400 font-normal">/hora</span>
       </div>
     </div>
 
     <button [routerLink]="['/espacios', espacio.id_espacio]"
-      class="w-full bg-[#0f172a] text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transform active:scale-95 transition-all">
+      class="w-full bg-[#0f172a] dark:bg-white text-white dark:text-[#0f172a] py-3 rounded-xl font-semibold hover:bg-slate-800 dark:hover:bg-gray-100 transform active:scale-95 transition-all">
       Ver Detalles
     </button>
   </div>

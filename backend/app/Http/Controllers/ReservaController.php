@@ -11,12 +11,12 @@ use Carbon\Carbon;
 class ReservaController extends Controller
 {
     /**
-     * Step 1: Initialize Payment Intent
-     * Validates availability and creates a Stripe Intent. Does NOT save to DB yet.
+     * Paso 1: Inicializar Intención de Pago
+     * Valida disponibilidad y crea una Intención de Stripe. NO guarda en BD todavía.
      */
     public function createPaymentIntent(Request $request)
     {
-        // 1. Validation
+        // 1. Validación
         $validator = Validator::make($request->all(), [
             'id_espacio' => 'required|exists:espacios,id_espacio',
             'fecha_inicio' => 'required|date|after:now',
@@ -34,11 +34,11 @@ class ReservaController extends Controller
         try {
             $espacio = Espacio::findOrFail($request->id_espacio);
 
-            // Calculate Price
+            // Calcular Precio
             $start = Carbon::parse($request->fecha_inicio);
             $end = Carbon::parse($request->fecha_fin);
 
-            // Logic: Days * Price
+            // Lógica: Días * Precio
             $days = $start->diffInDays($end);
             if ($days < 1)
                 $days = ceil($start->diffInHours($end) / 24);
@@ -48,8 +48,8 @@ class ReservaController extends Controller
             $montoTotal = $days * $espacio->precio_hora;
             $amountCents = (int) ($montoTotal * 100);
 
-            // Stripe Init
-            $stripeSecret = env('STRIPE_SECRET');
+            // Inicializar Stripe
+            $stripeSecret = trim(config('services.stripe.secret'));
             if (!$stripeSecret) {
                 throw new \Exception("Stripe Secret not configured.");
             }
@@ -87,12 +87,12 @@ class ReservaController extends Controller
     }
 
     /**
-     * Step 2: Confirm & Store Reservation
-     * Called after frontend confirms payment. Verifies Stripe status then saves to DB.
+     * Paso 2: Confirmar y Guardar Reserva
+     * Se llama después de que el frontend confirma el pago. Verifica el estado en Stripe y luego guarda en BD.
      */
     public function store(Request $request)
     {
-        // Now 'store' acts as the finalization step
+        // Ahora 'store' actúa como el paso de finalización
         $validator = Validator::make($request->all(), [
             'payment_intent_id' => 'required|string',
             'id_espacio' => 'required|exists:espacios,id_espacio',
@@ -107,7 +107,7 @@ class ReservaController extends Controller
         $user = $request->user();
 
         try {
-            // 1. Verify Payment with Stripe
+            // 1. Verificar Pago con Stripe
             $stripeSecret = env('STRIPE_SECRET');
             \Stripe\Stripe::setApiKey($stripeSecret);
 
@@ -120,20 +120,20 @@ class ReservaController extends Controller
                 ], 400);
             }
 
-            // 2. Ensure Cliente Record Exists (Foreign Key Constraint Fix)
-            // Sometimes users exist in 'usuarios' but not 'clientes' due to legacy data or auth bugs
+            // 2. Asegurar que existe registro de Cliente (Corrección de Clave Foránea)
+            // A veces los usuarios existen en 'usuarios' pero no en 'clientes' debido a datos antiguos o bugs de auth
             if (!\App\Models\Cliente::where('id_usuario', $user->id_usuario)->exists()) {
                 \App\Models\Cliente::create(['id_usuario' => $user->id_usuario]);
             }
 
-            // 3. Create Reservation in DB
+            // 3. Crear Reserva en BD
             $espacio = Espacio::findOrFail($request->id_espacio);
-            // Re-calculate to match record (or trust metadata, but better to recalc or use amount from intent)
-            // Ideally we trust our own calculation or the intent amount
+            // Recalcular para coincidir con el registro (o confiar en metadata, pero mejor recalcular o usar monto del intent)
+            // Idealmente confiamos en nuestro propio cálculo o en el monto del intento
 
             $start = Carbon::parse($request->fecha_inicio);
             $end = Carbon::parse($request->fecha_fin);
-            // ... (re-calc logic or just use passed values if trusted, usually recalc is safer)
+            // ... (lógica de recálculo o usar valores pasados si son de confianza, normalmente recalcular es más seguro)
             $days = $start->diffInDays($end);
             if ($days < 1)
                 $days = ceil($start->diffInHours($end) / 24);
@@ -148,8 +148,8 @@ class ReservaController extends Controller
                 'fecha_inicio' => $start,
                 'fecha_fin' => $end,
                 'monto_total' => $montoTotal,
-                'estado' => 'Confirmada', // Directly confirmed as paid
-                // 'payment_id' => $paymentIntent->id // If you had a column for this
+                'estado' => 'Confirmada', // Confirmada directamente como pagada
+                // 'payment_id' => $paymentIntent->id // Si tuvieras una columna para esto
             ]);
 
             return response()->json([
@@ -168,10 +168,78 @@ class ReservaController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Muestra el recurso especificado.
      */
     public function show($id)
     {
-        // Implement if needed for details
+        // Implementar si se necesita para detalles
+    }
+    /**
+     * Listar reservas para los espacios propiedad del anfitrión autenticado.
+     */
+    public function indexAnfitrion(Request $request)
+    {
+        $user = $request->user();
+
+        \Illuminate\Support\Facades\Log::info("Fetching reservations for host: " . $user->id_usuario);
+
+        $reservas = Reserva::whereHas('espacio', function ($query) use ($user) {
+            $query->where('id_anfitrion', $user->id_usuario);
+        })->with([
+            'espacio' => function ($query) {
+                $query->select('id_espacio', 'titulo', 'ciudad', 'direccion');
+            },
+            'espacio.fotos',
+            'usuario:id_usuario,nombre_completo,email,foto_perfil' // Eager load usuario data
+        ])
+        ->orderBy('fecha_inicio', 'desc')
+        ->get();
+
+        return response()->json($reservas);
+    }
+
+    /**
+     * Listar reservas del cliente autenticado.
+     */
+    public function indexCliente(Request $request)
+    {
+        $user = $request->user();
+
+        $reservas = Reserva::where('id_cliente', $user->id_usuario)
+            ->with([
+                'espacio' => function ($query) {
+                    $query->select('id_espacio', 'titulo', 'ciudad', 'direccion', 'precio_hora');
+                },
+                'espacio.fotos'
+            ])
+            ->orderBy('fecha_inicio', 'desc')
+            ->get();
+
+        return response()->json($reservas);
+    }
+
+    /**
+     * Cancelar una reserva del cliente.
+     */
+    public function cancelar(Request $request, $id)
+    {
+        $user = $request->user();
+        
+        $reserva = Reserva::where('id_reserva', $id)
+            ->where('id_cliente', $user->id_usuario)
+            ->first();
+
+        if (!$reserva) {
+            return response()->json(['message' => 'Reserva no encontrada'], 404);
+        }
+
+        if ($reserva->estado === 'Cancelada') {
+            return response()->json(['message' => 'La reserva ya está cancelada'], 400);
+        }
+
+        $reserva->estado = 'Cancelada';
+        $reserva->save();
+
+        return response()->json(['message' => 'Reserva cancelada correctamente', 'reserva' => $reserva]);
     }
 }

@@ -14,7 +14,7 @@ class Reserva extends Model
     protected $primaryKey = 'id_reserva';
 
     // Configuración de Fechas
-    public $timestamps = false; // Disable automatic timestamps since 'fecha_creacion' column is missing in DB
+    public $timestamps = false; // Desactivar timestamps automáticos ya que falta la columna 'fecha_creacion' en DB
     // const CREATED_AT = 'fecha_creacion';
     // const UPDATED_AT = null; 
 
@@ -76,5 +76,13 @@ class Reserva extends Model
     public function valoracion()
     {
         return $this->hasOne(Valoracion::class, 'id_reserva', 'id_reserva');
+    }
+
+    /**
+     * Relación directa con el Usuario (Cliente) para evitar pasar por el modelo Cliente si no es necesario.
+     */
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'id_cliente', 'id_usuario');
     }
 }

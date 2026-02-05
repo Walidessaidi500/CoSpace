@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { EspaciosService } from '../../services/espacios';
 
 @Component({
@@ -13,10 +13,11 @@ export class ListaMisAreasComponent implements OnInit {
     espacios: any[] = [];
     errorMessage: string = '';
     isLoading: boolean = true;
-    backendUrl = 'http://127.0.0.1:8000'; // Base url for images
+    backendUrl = 'http://127.0.0.1:8000'; // Url base para imágenes
 
     constructor(
         private espaciosService: EspaciosService,
+        private router: Router,
         @Inject(PLATFORM_ID) private platformId: Object,
         private cdr: ChangeDetectorRef,
         private ngZone: NgZone // Importar NgZone de nuevo
@@ -80,6 +81,13 @@ export class ListaMisAreasComponent implements OnInit {
                     alert('Ocurrió un error al intentar borrar el espacio.');
                 }
             });
+        }
+    }
+
+    onCardClick(id: number) {
+        console.log('Card clicked, navigating to space:', id);
+        if (id) {
+            this.router.navigate(['/espacios', id]);
         }
     }
 }

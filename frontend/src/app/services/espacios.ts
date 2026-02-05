@@ -31,8 +31,8 @@ export class EspaciosService {
   }
 
   updateEspacio(id: string, data: any): Observable<any> {
-    // Note: Angular HttpClient defaults to JSON, but if 'data' is FormData, it handles the Content-Type automatically.
-    // However, Laravel PUT vs POST with Multipart is tricky. We created a POST route: /espacios/{id}
+    // Nota: Angular HttpClient usa JSON por defecto, pero si 'data' es FormData, maneja el Content-Type automáticamente.
+    // Sin embargo, PUT vs POST en Laravel con Multipart es complicado. Creamos una ruta POST: /espacios/{id}
     return this.http.post(`${this.apiUrl}/espacios/${id}`, data);
   }
 }
