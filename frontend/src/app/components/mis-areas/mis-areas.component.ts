@@ -11,6 +11,8 @@ import { ListaMisAreasComponent } from '../lista-mis-areas/lista-mis-areas.compo
 })
 export class MisAreasComponent {
     // La lógica se ha movido al componente ListaMisAreasComponent
-    constructor() { }
+    constructor() {
+        // Force rebuild 2
+    }
 }
 

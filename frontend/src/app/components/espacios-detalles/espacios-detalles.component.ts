@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-espacios-detalles',
@@ -15,11 +16,14 @@ import { GoogleMapsModule } from '@angular/google-maps';
 export class EspaciosDetallesComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private apiService = inject(ApiService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private sanitizer = inject(DomSanitizer);
 
   space: any = null;
   isLoading: boolean = true;
   errorMessage: string = '';
+  currentUserRole: string | null = null;
 
   // Google Maps Configuration
   mapOptions: google.maps.MapOptions = {
@@ -30,7 +34,16 @@ export class EspaciosDetallesComponent implements OnInit {
   };
   markerPosition: google.maps.LatLngLiteral = { lat: 40, lng: -3 };
 
+  isReservedMode: boolean = false;
+
   ngOnInit() {
+    this.currentUserRole = this.authService.getRole();
+
+    // Check for query params
+    this.route.queryParams.subscribe(params => {
+      this.isReservedMode = params['mode'] === 'reserved';
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     console.log('Componente Detalles inicializado con ID:', id);
     if (id) {
@@ -40,6 +53,10 @@ export class EspaciosDetallesComponent implements OnInit {
       this.isLoading = false;
       this.cdr.detectChanges();
     }
+  }
+
+  get isAnfitrion(): boolean {
+    return this.currentUserRole === 'Anfitrion';
   }
 
   fetchSpaceDetails(id: string) {
@@ -109,11 +126,6 @@ export class EspaciosDetallesComponent implements OnInit {
     return `http://127.0.0.1:8000${path}`;
   }
 
-  private sanitizer = inject(DomSanitizer);
-  // ... (previous properties)
-
-  // ... (previous methods)
-
   private getIconForService(name: string): SafeHtml {
     const icons: { [key: string]: string } = {
       'WiFi': '<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>',
@@ -135,5 +147,21 @@ export class EspaciosDetallesComponent implements OnInit {
       }
     }
     return this.sanitizer.bypassSecurityTrustHtml(svgStr);
+  }
+
+  // Modal Logic
+  isModalOpen: boolean = false;
+  selectedImage: string = '';
+
+  openModal(imageUrl: string) {
+    if (imageUrl) {
+      this.selectedImage = imageUrl;
+      this.isModalOpen = true;
+    }
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.selectedImage = '';
   }
 }

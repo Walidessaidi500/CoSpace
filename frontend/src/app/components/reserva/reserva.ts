@@ -88,7 +88,7 @@ export class ReservaComponent implements OnInit {
           }
           this.cdr.detectChanges();
         }
-      }, 5000); // Reduce to 5 seconds for faster feedback
+      }, 15000); // Increased to 15 seconds for local dev latency
     } catch (e: any) {
       console.error('ReservaComponent: Critical Init Error', e);
       this.errorMessage = 'Error de inicialización: ' + e.message;

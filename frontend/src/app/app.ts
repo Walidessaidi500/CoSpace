@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ApiService } from './services/api';
+import { ThemeService } from './services/theme.service';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -14,6 +15,7 @@ import { FooterComponent } from './components/footer/footer.component';
 export class AppComponent implements OnInit {
 
   private api = inject(ApiService);
+  private themeService = inject(ThemeService);
 
   ngOnInit(): void {
     this.api.testConexion().subscribe({

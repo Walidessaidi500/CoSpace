@@ -1,174 +1,184 @@
-<div *ngIf="isLoading" class="flex flex-col items-center justify-center min-h-[60vh]">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ff7a00] mb-4"></div>
-    <p class="text-gray-500">Cargando detalles de reserva...</p>
-</div>
+<div class="min-h-screen bg-gray-50 dark:bg-[#0d1b2a] transition-colors duration-300 py-10">
 
-<div *ngIf="errorMessage" class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-    <div class="bg-red-50 p-6 rounded-2xl max-w-md">
-        <h3 class="text-xl font-bold text-red-600 mb-2">Error</h3>
-        <p class="text-gray-700 mb-4">{{ errorMessage }}</p>
-        <button routerLink="/" class="text-sm font-semibold text-[#ff7a00] hover:underline">
-            Volver al inicio
-        </button>
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center min-h-[60vh]">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ff7a00] mb-4"></div>
+        <p class="text-gray-500 dark:text-gray-400">Cargando detalles de reserva...</p>
     </div>
-</div>
 
-<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10" *ngIf="!isLoading && !errorMessage && espacio">
+    <div *ngIf="errorMessage" class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div class="bg-red-50 dark:bg-red-900/30 p-6 rounded-2xl max-w-md border border-red-100 dark:border-red-800">
+            <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error</h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-4">{{ errorMessage }}</p>
+            <button routerLink="/" class="text-sm font-semibold text-[#ff7a00] hover:underline">
+                Volver al inicio
+            </button>
+        </div>
+    </div>
 
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8" *ngIf="!isLoading && !errorMessage && espacio">
 
-        <!-- Left Column: Selection (8 cols) -->
-        <div class="lg:col-span-8 bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-            <h2 class="text-xl font-medium text-gray-800 mb-8">Seleccionar Fecha y Hora</h2>
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-            <div class="space-y-8">
-                <!-- Date Selection Section -->
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">Selecciona una fecha</h3>
+            <!-- Left Column: Selection (8 cols) -->
+            <div
+                class="lg:col-span-8 bg-white dark:bg-[#1a2736] rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                <h2 class="text-xl font-medium text-gray-800 dark:text-white mb-8">Seleccionar Fecha y Hora</h2>
 
-                    <!-- Calendar Container (Now Functional) -->
-                    <div class="max-w-sm mx-auto bg-white rounded-2xl border border-gray-100 p-6 shadow-sm select-none">
+                <div class="space-y-8">
+                    <!-- Date Selection Section -->
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Selecciona una fecha</h3>
 
-                        <!-- Calendar Header -->
-                        <div class="flex items-center justify-between mb-6">
-                            <button (click)="prevMonth()"
-                                class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="m15 18-6-6 6-6" />
-                                </svg>
-                            </button>
-                            <span class="text-lg font-bold text-gray-800">{{ currentMonthName }}</span>
-                            <button (click)="nextMonth()"
-                                class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="m9 18 6-6-6-6" />
-                                </svg>
-                            </button>
-                        </div>
+                        <!-- Calendar Container (Now Functional) -->
+                        <div
+                            class="max-w-sm mx-auto bg-white dark:bg-[#0d1b2a] rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm select-none transition-colors">
 
-                        <!-- Days Header -->
-                        <div class="grid grid-cols-7 mb-4">
-                            <div *ngFor="let day of weekDays"
-                                class="text-center text-xs font-medium text-gray-400 py-1">
-                                {{ day }}
+                            <!-- Calendar Header -->
+                            <div class="flex items-center justify-between mb-6">
+                                <button (click)="prevMonth()"
+                                    class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="m15 18-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <span class="text-lg font-bold text-gray-800 dark:text-white">{{ currentMonthName
+                                    }}</span>
+                                <button (click)="nextMonth()"
+                                    class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="m9 18 6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Days Header -->
+                            <div class="grid grid-cols-7 mb-4">
+                                <div *ngFor="let day of weekDays"
+                                    class="text-center text-xs font-medium text-gray-400 py-1">
+                                    {{ day }}
+                                </div>
+                            </div>
+
+                            <!-- Calendar Grid -->
+                            <div class="grid grid-cols-7 gap-y-2">
+                                <ng-container *ngFor="let week of calendarDays">
+                                    <div *ngFor="let date of week" class="text-center">
+                                        <button *ngIf="date" (click)="selectDate(date)"
+                                            class="w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-200"
+                                            [ngClass]="{
+                                                'bg-[#0d1b2a] dark:bg-white text-white dark:text-[#0d1b2a] font-medium shadow-md scale-105': isDateSelected(date),
+                                                'bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-300': isDateInRange(date),
+                                                'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700': !isDateSelected(date) && !isDateInRange(date)
+                                            }">
+                                            {{ date.getDate() }}
+                                        </button>
+                                    </div>
+                                </ng-container>
                             </div>
                         </div>
-
-                        <!-- Calendar Grid -->
-                        <div class="grid grid-cols-7 gap-y-2">
-                            <ng-container *ngFor="let week of calendarDays">
-                                <div *ngFor="let date of week" class="text-center">
-                                    <button *ngIf="date" (click)="selectDate(date)"
-                                        class="w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-200"
-                                        [ngClass]="{
-                                            'bg-[#0d1b2a] text-white font-medium shadow-md scale-105': isDateSelected(date),
-                                            'bg-orange-100 text-orange-900': isDateInRange(date),
-                                            'text-gray-700 hover:bg-gray-50': !isDateSelected(date) && !isDateInRange(date)
-                                        }">
-                                        {{ date.getDate() }}
-                                    </button>
-                                </div>
-                            </ng-container>
-                        </div>
                     </div>
-                </div>
 
-                <!-- Date Inputs (Read Only ideally, displayed for confirmation) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-100 pt-8">
-                    <div class="space-y-3">
-                        <label class="block text-lg font-bold text-gray-900">Fecha Inicio</label>
-                        <div class="relative">
-                            <input type="datetime-local" [(ngModel)]="fechaInicio" (change)="onDateChange()"
-                                class="w-full bg-gray-100 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]">
+                    <!-- Date Inputs (Read Only ideally, displayed for confirmation) -->
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-100 dark:border-gray-700 pt-8">
+                        <div class="space-y-3">
+                            <label class="block text-lg font-bold text-gray-900 dark:text-white">Fecha Inicio</label>
+                            <div class="relative">
+                                <input type="datetime-local" [(ngModel)]="fechaInicio" (change)="onDateChange()"
+                                    class="w-full bg-gray-100 dark:bg-gray-700/50 rounded-xl px-4 py-3 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff7a00] border-transparent border dark:border-gray-600 transition-colors">
+                            </div>
                         </div>
-                    </div>
-                    <div class="space-y-3">
-                        <label class="block text-lg font-bold text-gray-900">Fecha Fin</label>
-                        <div class="relative">
-                            <input type="datetime-local" [(ngModel)]="fechaFin" (change)="onDateChange()"
-                                class="w-full bg-gray-100 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]">
+                        <div class="space-y-3">
+                            <label class="block text-lg font-bold text-gray-900 dark:text-white">Fecha Fin</label>
+                            <div class="relative">
+                                <input type="datetime-local" [(ngModel)]="fechaFin" (change)="onDateChange()"
+                                    class="w-full bg-gray-100 dark:bg-gray-700/50 rounded-xl px-4 py-3 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff7a00] border-transparent border dark:border-gray-600 transition-colors">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Column: Summary (4 cols) -->
-        <div class="lg:col-span-4">
-            <div class="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 sticky top-28">
-                <h2 class="text-xl font-medium text-gray-800 mb-6">Resumen de la reserva</h2>
+            <!-- Right Column: Summary (4 cols) -->
+            <div class="lg:col-span-4">
+                <div
+                    class="bg-white dark:bg-[#1a2736] rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 sticky top-28 transition-colors">
+                    <h2 class="text-xl font-medium text-gray-800 dark:text-white mb-6">Resumen de la reserva</h2>
 
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 mb-1">{{ espacio.titulo }}</h3>
-                    <p class="text-gray-500 text-sm">{{ espacio.direccion }}, {{ espacio.ciudad }}</p>
-                </div>
-
-                <div class="border-t border-gray-100 py-6 space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 font-medium">Fecha Inicio</span>
-                        <span class="text-gray-900 font-semibold text-sm text-right">{{ fechaInicio | date:'short'
-                            }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 font-medium">Fecha Fin</span>
-                        <span class="text-gray-900 font-semibold text-sm text-right">{{ fechaFin | date:'short'
-                            }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 font-medium">Duración</span>
-                        <span class="text-gray-900 font-semibold">{{ days }} Días</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 font-medium">Tasa</span>
-                        <span class="text-gray-900 font-semibold">{{ espacio.precio_hora }}€ / día</span>
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-100 pt-6 mb-8">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xl font-bold text-gray-900">Total</span>
-                        <span class="text-xl font-bold text-gray-900">{{ totalPrice | number:'1.2-2' }}€</span>
-                    </div>
-                </div>
-
-                <!-- Payment Section -->
-                <div *ngIf="showPayment" class="space-y-4">
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 min-h-[300px]">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Método de Pago</h4>
-
-                        <!-- Botón para Apple Pay / Google Pay (Express Checkout) -->
-                        <div id="payment-request-button" class="mb-4"></div>
-
-                        <div id="payment-element" class="w-full"></div>
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">{{ espacio.titulo }}</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ espacio.direccion }}, {{ espacio.ciudad
+                            }}</p>
                     </div>
 
-                    <button (click)="realizarPago()" [disabled]="isProcessingPayment"
-                        class="w-full bg-[#0d1b2a] hover:bg-black text-white font-bold py-4 rounded-xl shadow-sm transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
-                        <span *ngIf="!isProcessingPayment">Pagar {{ totalPrice | number:'1.2-2' }}€</span>
-                        <div *ngIf="isProcessingPayment"
-                            class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                    <div class="border-t border-gray-100 dark:border-gray-700 py-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Fecha Inicio</span>
+                            <span class="text-gray-900 dark:text-white font-semibold text-sm text-right">{{ fechaInicio
+                                | date:'short'
+                                }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Fecha Fin</span>
+                            <span class="text-gray-900 dark:text-white font-semibold text-sm text-right">{{ fechaFin |
+                                date:'short'
+                                }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Duración</span>
+                            <span class="text-gray-900 dark:text-white font-semibold">{{ days }} Días</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Tasa</span>
+                            <span class="text-gray-900 dark:text-white font-semibold">{{ espacio.precio_hora }}€ /
+                                día</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 dark:border-gray-700 pt-6 mb-8">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-gray-900 dark:text-white">Total</span>
+                            <span class="text-xl font-bold text-gray-900 dark:text-white">{{ totalPrice | number:'1.2-2'
+                                }}€</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div *ngIf="showPayment" class="space-y-4">
+                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 min-h-[300px]">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Método de Pago</h4>
+
+                            <div id="payment-element" class="w-full"></div>
+                        </div>
+
+                        <button (click)="realizarPago()" [disabled]="isProcessingPayment"
+                            class="w-full bg-[#0d1b2a] dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-[#0d1b2a] font-bold py-4 rounded-xl shadow-sm transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
+                            <span *ngIf="!isProcessingPayment">Pagar {{ totalPrice | number:'1.2-2' }}€</span>
+                            <div *ngIf="isProcessingPayment"
+                                class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white dark:border-[#0d1b2a]">
+                            </div>
+                        </button>
+
+                        <button (click)="showPayment = false"
+                            class="w-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm font-medium mt-2 underline">
+                            Cancelar pago
+                        </button>
+                    </div>
+
+                    <!-- Initial Confirmation Button -->
+                    <button *ngIf="!showPayment" (click)="iniciarProcesoReserva()"
+                        [disabled]="!fechaInicio || !fechaFin" [ngClass]="{
+                            'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500': !fechaInicio || !fechaFin,
+                            'bg-[#0d1b2a] dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-[#0d1b2a] shadow-lg': fechaInicio && fechaFin
+                        }" class="w-full font-bold py-4 rounded-xl transition-all duration-200 text-lg">
+                        Confirmar datos y pagar
                     </button>
-
-                    <button (click)="showPayment = false"
-                        class="w-full text-gray-500 hover:text-gray-700 text-sm font-medium mt-2 underline">
-                        Cancelar pago
-                    </button>
                 </div>
-
-                <!-- Initial Confirmation Button -->
-                <!-- Initial Confirmation Button -->
-                <button *ngIf="!showPayment" (click)="iniciarProcesoReserva()" [disabled]="!fechaInicio || !fechaFin"
-                    [ngClass]="{
-                        'bg-gray-200 text-gray-400 cursor-not-allowed': !fechaInicio || !fechaFin,
-                        'bg-[#0d1b2a] hover:bg-black text-white shadow-lg': fechaInicio && fechaFin
-                    }" class="w-full font-bold py-4 rounded-xl transition-all duration-200 text-lg">
-                    Confirmar datos y pagar
-                </button>
             </div>
         </div>
     </div>

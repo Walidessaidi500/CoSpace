@@ -22,7 +22,10 @@ class Usuario extends Authenticatable
         'password',
         'foto_perfil', // From HEAD
         'tipo_usuario',
-        'estado_cuenta'
+        'estado_cuenta',
+        'two_factor_enabled',
+        'two_factor_code',
+        'two_factor_expires_at'
     ];
 
     /**
@@ -45,6 +48,8 @@ class Usuario extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_enabled' => 'boolean',
+            'two_factor_expires_at' => 'datetime',
         ];
     }
 }

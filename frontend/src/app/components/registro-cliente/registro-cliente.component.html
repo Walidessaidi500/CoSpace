@@ -1,12 +1,14 @@
-<div class="min-h-screen flex items-center justify-center bg-[#f4f4f6] py-12 px-4 sm:px-6 lg:px-8">
+<div
+  class="min-h-screen flex items-center justify-center bg-[#f4f4f6] dark:bg-[#0d1b2a] py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
 
-  <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 md:p-10">
+  <div
+    class="w-full max-w-lg bg-white dark:bg-[#1a2736] rounded-2xl shadow-xl p-8 md:p-10 transition-colors duration-300">
 
     <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-slate-900 leading-tight mb-2">
+      <h2 class="text-3xl font-bold text-slate-900 dark:text-white leading-tight mb-2">
         Crear Cuenta de Cliente
       </h2>
-      <p class="text-gray-500">
+      <p class="text-gray-500 dark:text-gray-400">
         Unete a CoSpace y encuentra tu espacio ideal.
       </p>
     </div>
@@ -14,37 +16,37 @@
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
 
       <div>
-        <label for="fullName" class="block text-slate-700 text-sm font-bold mb-2">
+        <label for="fullName" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
           Nombre Completo
         </label>
         <div class="relative">
           <input id="fullName" type="text" formControlName="nombre_completo" placeholder="Jose Juan"
-            class="w-full bg-gray-100 text-slate-900 placeholder-gray-400 text-base rounded-lg px-4 py-3 outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300">
+            class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
         </div>
       </div>
 
       <div>
-        <label for="email" class="block text-slate-700 text-sm font-bold mb-2">
+        <label for="email" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
           Email
         </label>
         <input id="email" type="email" formControlName="email" placeholder="josejuan@email.com"
-          class="w-full bg-gray-100 text-slate-900 placeholder-gray-400 text-base rounded-lg px-4 py-3 outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300">
+          class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
       </div>
 
       <div>
-        <label for="password" class="block text-slate-700 text-sm font-bold mb-2">
+        <label for="password" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
           Contraseña
         </label>
         <input id="password" type="password" formControlName="password" placeholder="........"
-          class="w-full bg-gray-100 text-slate-900 placeholder-gray-400 text-base rounded-lg px-4 py-3 outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300">
+          class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
       </div>
 
       <div>
-        <label for="confirmPassword" class="block text-slate-700 text-sm font-bold mb-2">
+        <label for="confirmPassword" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
           Confirmar Contraseña
         </label>
         <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="........"
-          class="w-full bg-gray-100 text-slate-900 placeholder-gray-400 text-base rounded-lg px-4 py-3 outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300">
+          class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
       </div>
 
       <div class="pt-2">
@@ -57,14 +59,14 @@
     </form>
 
     <div class="mt-8 text-center space-y-2">
-      <p class="text-gray-600 text-sm">
+      <p class="text-gray-600 dark:text-gray-400 text-sm">
         ¿Ya tienes una cuenta?
         <a routerLink="/iniciar-sesion"
           class="text-orange-500 hover:text-orange-600 font-bold transition-colors cursor-pointer hover:underline">
           Iniciar Sesión
         </a>
       </p>
-      <p class="text-gray-600 text-sm">
+      <p class="text-gray-600 dark:text-gray-400 text-sm">
         ¿Quieres ser anfitrión?
         <a routerLink="/registro-anfitrion"
           class="text-orange-500 hover:text-orange-600 font-bold transition-colors cursor-pointer hover:underline">

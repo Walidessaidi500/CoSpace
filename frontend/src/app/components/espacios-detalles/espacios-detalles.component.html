@@ -1,119 +1,163 @@
-<div *ngIf="isLoading" class="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-    <div class="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-    <p class="text-gray-500 font-medium">Cargando detalles del espacio...</p>
-</div>
-
-<div *ngIf="errorMessage" class="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-6 text-center">
-    <div class="bg-red-50 p-6 rounded-3xl">
-        <span class="text-5xl mb-4 block">😕</span>
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">¡Ups! Algo salió mal</h2>
-        <p class="text-gray-600 mb-6">{{ errorMessage }}</p>
-        <button routerLink="/explorar"
-            class="bg-[#0f172a] text-white px-8 py-3 rounded-xl font-semibold hover:bg-slate-800 transition-all">
-            Volver a Explorar
-        </button>
+<div class="min-h-screen bg-white dark:bg-[#0d1b2a] transition-colors duration-300 pb-20 pt-24">
+    <div *ngIf="isLoading" class="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <div class="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+        <p class="text-gray-500 dark:text-gray-400 font-medium">Cargando detalles del espacio...</p>
     </div>
-</div>
 
-<main class="max-w-6xl mx-auto p-6 md:p-10 font-sans text-gray-800 mt-24" *ngIf="!isLoading && space">
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 h-[350px] md:h-[500px] mb-10">
-        <div class="md:col-span-2 rounded-3xl overflow-hidden shadow-sm bg-gray-100">
-            <img [src]="space.imagenes[0]" class="w-full h-full object-cover hover:scale-105 transition duration-500"
-                alt="Vista principal">
-        </div>
-
-        <div class="hidden md:grid md:col-span-1 grid-rows-2 gap-4">
-            <div class="rounded-3xl overflow-hidden shadow-sm bg-gray-100">
-                <img [src]="space.imagenes[1]"
-                    class="w-full h-full object-cover hover:scale-105 transition duration-500">
-            </div>
-            <div class="rounded-3xl overflow-hidden shadow-sm bg-gray-100">
-                <img [src]="space.imagenes[2]"
-                    class="w-full h-full object-cover hover:scale-105 transition duration-500">
-            </div>
-        </div>
-
-        <div class="hidden md:block md:col-span-1 rounded-3xl overflow-hidden shadow-sm bg-gray-100">
-            <img [src]="space.imagenes[3]" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+    <div *ngIf="errorMessage" class="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-6 text-center">
+        <div class="bg-red-50 dark:bg-red-900/30 p-6 rounded-3xl">
+            <span class="text-5xl mb-4 block">😕</span>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">¡Ups! Algo salió mal</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">{{ errorMessage }}</p>
+            <button routerLink="/explorar"
+                class="bg-[#0f172a] dark:bg-white text-white dark:text-[#0f172a] px-8 py-3 rounded-xl font-semibold hover:bg-slate-800 dark:hover:bg-gray-100 transition-all">
+                Volver a Explorar
+            </button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <main class="max-w-6xl mx-auto p-6 md:p-10 font-sans text-gray-800 dark:text-gray-200" *ngIf="!isLoading && space">
 
-        <div class="lg:col-span-2">
-            <div class="mb-8">
-                <h1 class="text-4xl font-bold tracking-tight mb-3">{{ space.titulo }}</h1>
-                <div class="flex flex-wrap items-center gap-6 text-gray-500">
-                    <span class="flex items-center gap-2">
-                        <span class="text-orange-500">📍</span> {{ space.direccion }}
-                    </span>
-                    <span class="flex items-center gap-2 font-medium text-gray-900">
-                        ⭐ {{ space.puntuacion }}
-                        <span class="text-gray-400 font-normal">({{ space.total_resenas }} reseñas)</span>
-                    </span>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 h-[350px] md:h-[500px] mb-10" *ngIf="space.imagenes?.length">
+
+            <div class="md:col-span-2 rounded-3xl overflow-hidden shadow-sm bg-gray-100 dark:bg-gray-700 cursor-pointer group relative"
+                (click)="openModal(space.imagenes[0])">
+                <img [src]="space.imagenes[0]"
+                    class="w-full h-full object-cover hover:scale-105 transition duration-500" alt="Vista principal">
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
             </div>
 
-            <div class="prose prose-slate max-w-none mb-12">
-                <h2 class="text-2xl font-bold mb-4 text-gray-900">Sobre Este Espacio</h2>
-                <p class="text-gray-600 leading-relaxed text-lg">{{ space.descripcion }}</p>
-            </div>
-
-            <section>
-                <h2 class="text-2xl font-bold mb-8 text-gray-900">Características</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    <div *ngFor="let item of space.caracteristicas" class="flex items-center gap-4 group">
-                        <div class="bg-orange-50 p-4 rounded-2xl text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center"
-                            [innerHTML]="item.icono">
-                        </div>
-                        <span class="font-semibold text-gray-700">{{ item.nombre }}</span>
+            <div class="hidden md:flex md:flex-col md:col-span-1 gap-4" *ngIf="space.imagenes[1]">
+                <div class="rounded-3xl overflow-hidden shadow-sm bg-gray-100 dark:bg-gray-700 flex-1 cursor-pointer group relative"
+                    (click)="openModal(space.imagenes[1])">
+                    <img [src]="space.imagenes[1]"
+                        class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300">
                     </div>
                 </div>
-            </section>
-
-            <section class="mt-12 mb-12">
-                <h2 class="text-2xl font-bold mb-8 text-gray-900">Localización</h2>
-                <div class="rounded-3xl overflow-hidden h-[400px] w-full bg-gray-100 shadow-sm relative z-0">
-                    <google-map *ngIf="space.latitud && space.longitud; else noMap" height="100%" width="100%"
-                        [options]="mapOptions">
-                        <map-marker [position]="markerPosition"></map-marker>
-                    </google-map>
-                    <ng-template #noMap>
-                        <div class="w-full h-full flex items-center justify-center bg-gray-50">
-                            <p class="text-gray-500">Ubicación exacta no disponible en el mapa</p>
-                        </div>
-                    </ng-template>
+                <div class="rounded-3xl overflow-hidden shadow-sm bg-gray-100 dark:bg-gray-700 flex-1 cursor-pointer group relative"
+                    *ngIf="space.imagenes[2]" (click)="openModal(space.imagenes[2])">
+                    <img [src]="space.imagenes[2]"
+                        class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300">
+                    </div>
                 </div>
-            </section>
+            </div>
+
+            <div class="hidden md:block md:col-span-1 rounded-3xl overflow-hidden shadow-sm bg-gray-100 dark:bg-gray-700 cursor-pointer group relative"
+                *ngIf="space.imagenes[3]" (click)="openModal(space.imagenes[3])">
+                <img [src]="space.imagenes[3]"
+                    class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+            </div>
         </div>
 
-        <div class="lg:col-span-1">
-            <div
-                class="sticky top-10 bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+            <div class="lg:col-span-2">
                 <div class="mb-8">
-                    <span class="text-gray-400 text-sm font-medium uppercase tracking-wider">Precio por hora</span>
-                    <div class="flex items-baseline gap-1 mt-1">
-                        <span class="text-5xl font-black text-gray-900">{{ space.precio }}€</span>
+                    <h1 class="text-4xl font-bold tracking-tight mb-3 dark:text-white text-gray-900">{{ space.titulo }}
+                    </h1>
+                    <div class="flex flex-wrap items-center gap-6 text-gray-500 dark:text-gray-400">
+                        <span class="flex items-center gap-2">
+                            <span class="text-orange-500">📍</span> {{ space.direccion }}
+                        </span>
+                        <span class="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-200">
+                            ⭐ {{ space.puntuacion }}
+                            <span class="text-gray-400 font-normal">({{ space.total_resenas }} reseñas)</span>
+                        </span>
                     </div>
                 </div>
 
-                <div class="space-y-4">
-                    <button [routerLink]="['/reserva', space.id]"
-                        class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl shadow-lg shadow-orange-200 transition-all active:scale-95">
-                        Reservar Ya
-                    </button>
-                    <button
-                        class="w-full bg-white border-2 border-gray-100 hover:border-gray-200 text-gray-600 font-bold py-5 rounded-2xl transition-all">
-                        Contactar Anfitrión
-                    </button>
+                <div class="prose prose-slate dark:prose-invert max-w-none mb-12">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Sobre Este Espacio</h2>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">{{ space.descripcion }}</p>
                 </div>
 
-                <p class="text-center text-gray-400 text-xs mt-6 px-4">
-                    No se te cobrará nada hasta que confirmes la reserva.
-                </p>
-            </div>
-        </div>
+                <section>
+                    <h2 class="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Características</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div *ngFor="let item of space.caracteristicas" class="flex items-center gap-4 group">
+                            <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-2xl text-orange-600 dark:text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center"
+                                [innerHTML]="item.icono">
+                            </div>
+                            <span class="font-semibold text-gray-700 dark:text-gray-200">{{ item.nombre }}</span>
+                        </div>
+                    </div>
+                </section>
 
+                <section class="mt-12 mb-12">
+                    <h2 class="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Localización</h2>
+                    <div
+                        class="rounded-3xl overflow-hidden h-[400px] w-full bg-gray-100 dark:bg-gray-700 shadow-sm relative z-0">
+                        <google-map *ngIf="space.latitud && space.longitud; else noMap" height="100%" width="100%"
+                            [options]="mapOptions">
+                            <map-marker [position]="markerPosition"></map-marker>
+                        </google-map>
+                        <ng-template #noMap>
+                            <div class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                                <p class="text-gray-500 dark:text-gray-400">Ubicación exacta no disponible en el mapa
+                                </p>
+                            </div>
+                        </ng-template>
+                    </div>
+                </section>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div
+                    class="sticky top-28 bg-white dark:bg-[#1a2736] p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                    <div class="mb-8">
+                        <span class="text-gray-400 text-sm font-medium uppercase tracking-wider">Precio por hora</span>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span class="text-5xl font-black text-gray-900 dark:text-white">{{ space.precio }}€</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <button *ngIf="!isAnfitrion && !isReservedMode" [routerLink]="['/reserva', space.id]"
+                            class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl shadow-lg shadow-orange-200 dark:shadow-none transition-all active:scale-95">
+                            Reservar Ya
+                        </button>
+                        <button *ngIf="!isAnfitrion && isReservedMode" disabled
+                            class="w-full bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold py-5 rounded-2xl cursor-not-allowed opacity-75">
+                            Espacio Reservado
+                        </button>
+                        <button *ngIf="isAnfitrion" disabled
+                            class="w-full bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold py-5 rounded-2xl cursor-not-allowed opacity-75">
+                            Reservar (No disponible para Anfitriones)
+                        </button>
+                        <button
+                            class="w-full bg-white dark:bg-transparent border-2 border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 text-gray-600 dark:text-gray-300 font-bold py-5 rounded-2xl transition-all">
+                            Contactar Anfitrión
+                        </button>
+                    </div>
+
+                    <p class="text-center text-gray-400 text-xs mt-6 px-4">
+                        No se te cobrará nada hasta que confirmes la reserva.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal de Imagen -->
+    <div *ngIf="isModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 transition-all duration-300 animate-fade-in"
+        (click)="closeModal()">
+        <button
+            class="absolute top-6 right-6 text-white hover:text-gray-300 focus:outline-none z-50 p-2 transition-transform hover:scale-110"
+            (click)="closeModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="relative max-w-7xl w-full max-h-screen flex items-center justify-center p-2"
+            (click)="$event.stopPropagation()">
+            <img [src]="selectedImage"
+                class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl transition-transform duration-300">
+        </div>
     </div>
-</main>
+</div>

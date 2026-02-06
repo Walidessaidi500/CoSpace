@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Auth;
 
 class EspacioController extends Controller
 {
-    // Public endpoint for searching spaces (HEAD logic extended)
+    // Endpoint público para buscar espacios (Lógica HEAD extendida)
     public function index()
     {
         try {
-            // Include relations for display
+            // Incluir relaciones para visualización
             $espacios = Espacio::with(['fotos', 'servicios'])->get();
             return response()->json($espacios);
         } catch (\Exception $e) {
@@ -23,7 +23,7 @@ class EspacioController extends Controller
         }
     }
 
-    // Host endpoint for managing their spaces (Victor logic)
+    // Endpoint de anfitrión para gestionar sus espacios (Lógica Victor)
     public function indexAnfitrion()
     {
         $anfitrionId = Auth::id();
@@ -44,7 +44,7 @@ class EspacioController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string|max:100',
-            'ciudad' => 'required|string|max:100', // ciudad is required
+            'ciudad' => 'required|string|max:100', // ciudad es obligatoria
             'direccion' => 'required|string|max:255',
             'descripcion' => 'required|string|min:20',
             'precio_hora' => 'required|numeric|min:0',
@@ -67,12 +67,12 @@ class EspacioController extends Controller
         try {
             return DB::transaction(function () use ($request) {
 
-                // Remove hardcoded test logic for production, but keep fallback if Auth fails during strict mode dev
+                // Eliminar lógica de prueba hardcoded para producción, pero mantener fallback si Auth falla durante desarrollo estricto
                 $anfitrionId = Auth::id();
 
                 if (!$anfitrionId) {
-                    // Fallback/Test only - maybe remove if not needed? 
-                    // Assuming Auth is handled correcty via Sanctum
+                    // Fallback/Solo Prueba - ¿quizás eliminar si no se necesita?
+                    // Asumiendo que Auth se maneja correctamente vía Sanctum
                     return response()->json(['message' => 'Unauthenticated'], 401);
                 }
 
@@ -179,9 +179,9 @@ class EspacioController extends Controller
             'capacidad' => 'sometimes|required|integer|min:1',
             'servicios' => 'array',
             'servicios.*' => 'integer|exists:servicios,id_servicio',
-            // Photos handling in update can be complex (add/remove), 
-            // for simplicity we might only allow adding new ones here or handle separately
-            // depending on frontend implementation.
+            // El manejo de fotos en actualización puede ser complejo (añadir/quitar),
+            // por simplicidad podríamos solo permitir añadir nuevas aquí o manejarlo por separado
+            // dependiendo de la implementación del frontend.
             'latitud' => 'sometimes|nullable|numeric',
             'longitud' => 'sometimes|nullable|numeric'
         ]);
@@ -210,7 +210,7 @@ class EspacioController extends Controller
                     $espacio->servicios()->sync($request->servicios);
                 }
 
-                // Photo upload logic for update (Appending new photos)
+                // Lógica de subida de fotos para actualización (Añadiendo nuevas fotos)
                 if ($request->hasFile('fotos')) {
                     foreach ($request->file('fotos') as $foto) {
                         $path = $foto->store('espacios', 'public');

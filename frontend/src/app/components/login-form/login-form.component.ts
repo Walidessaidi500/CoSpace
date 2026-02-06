@@ -51,6 +51,13 @@ export class LoginFormComponent {
 
         this.authService.login(credentials).subscribe({
             next: (res) => {
+                // Check if 2FA is required
+                if (res.status === '2fa_required') {
+                    this.router.navigate(['/verify-2fa'], { queryParams: { email: res.email } });
+                    this.isLoading = false;
+                    return;
+                }
+
                 const role = res.data.role;
                 this.successMessage = `Login exitoso como ${role}.`;
 
@@ -60,10 +67,13 @@ export class LoginFormComponent {
                         });
                         this.isLoading = false; // Stop loading after nav starts or delay
                     }, 1500);
+                } else if (role === 'Cliente') {
+                    setTimeout(() => {
+                        this.router.navigate(['/cliente/panel']);
+                        this.isLoading = false;
+                    }, 500);
                 } else {
                     setTimeout(() => {
-                        // this.isLoading = false; // logic for other roles
-                        alert(`Bienvenido ${role}! El panel está en construcción.`);
                         this.router.navigate(['/explorar']);
                         this.isLoading = false;
                     }, 500);

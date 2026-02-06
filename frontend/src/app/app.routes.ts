@@ -41,7 +41,38 @@ export const routes: Routes = [
         component: LoginComponent,
         title: 'CoSpace - Iniciar Sesión'
     },
-    { path: 'anfitrion/reservas', redirectTo: 'anfitrion/crear-espacio' },
+    {
+        path: 'cliente/panel',
+        loadComponent: () => import('./components/panel-cliente/panel-cliente.component').then(m => m.PanelClienteComponent),
+        title: 'CoSpace - Mi Panel'
+    },
+    {
+        path: 'configuracion',
+        loadComponent: () => import('./components/configuracion/configuracion.component').then(m => m.ConfiguracionComponent),
+        title: 'CoSpace - Configuración'
+    },
+    {
+        path: 'anfitrion/reservas',
+        loadComponent: () => import('./components/reservas-anfitrion/reservas-anfitrion.component').then(m => m.ReservasAnfitrionComponent),
+        title: 'CoSpace - Reservas Recibidas',
+        canActivate: [anfitrionGuard]
+    },
 
+    // Auth
+    {
+        path: 'verify-2fa',
+        loadComponent: () => import('./components/verify-2fa/verify-2fa.component').then(m => m.Verify2faComponent),
+        title: 'CoSpace - Verificación 2FA'
+    },
+    {
+        path: 'forgot-password',
+        loadComponent: () => import('./components/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+        title: 'CoSpace - Recuperar Contraseña'
+    },
+    {
+        path: 'reset-password',
+        loadComponent: () => import('./components/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+        title: 'CoSpace - Resetear Contraseña'
+    },
     { path: '**', redirectTo: '' }
 ];

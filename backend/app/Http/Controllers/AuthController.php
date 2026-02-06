@@ -9,6 +9,10 @@ use App\Models\Espacio;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TwoFactorCode;
+use App\Mail\ResetPasswordBrevo;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -31,7 +35,7 @@ class AuthController extends Controller
                 'estado_cuenta' => 'Activo',
             ]);
 
-            // Ensure Cliente entry is created for FK constraints
+            // Asegurar que se cree el registro de Cliente para restricciones de clave foránea
             \App\Models\Cliente::firstOrCreate(['id_usuario' => $usuario->id_usuario]);
 
             DB::commit();
@@ -67,7 +71,7 @@ class AuthController extends Controller
         try {
             DB::beginTransaction();
 
-            // 1. Create Usuario
+            // 1. Crear Usuario
             $usuario = Usuario::create([
                 'nombre_completo' => $validatedData['nombre_completo'],
                 'email' => $validatedData['email'],
@@ -76,7 +80,7 @@ class AuthController extends Controller
                 'estado_cuenta' => 'Pendiente',
             ]);
 
-            // 2. Create Anfitrion entry
+            // 2. Crear entrada de Anfitrión
             Anfitrion::create([
                 'id_usuario' => $usuario->id_usuario,
                 'biografia' => '',
@@ -84,7 +88,7 @@ class AuthController extends Controller
                 'cantidad_espacios' => 1,
             ]);
 
-            // 3. Create Espacio
+            // 3. Crear Espacio
             Espacio::create([
                 'id_anfitrion' => $usuario->id_usuario,
                 'titulo' => $validatedData['titulo'],
@@ -128,8 +132,18 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Optional: Check if account is active
-        // Assuming estado_cuenta exists on Usuario
+        // 2FA Logic
+        if ($usuario->two_factor_enabled) {
+            $this->generate2FACode($usuario);
+            return response()->json([
+                'status' => '2fa_required',
+                'message' => 'Código de verificación enviado a su correo.',
+                'email' => $usuario->email
+            ]);
+        }
+
+        // Opcional: Verificar si la cuenta está activa
+        // Asumiendo que estado_cuenta existe en Usuario
         if ($usuario->estado_cuenta === 'Suspendido') {
             return response()->json([
                 'status' => 'error',
@@ -150,4 +164,187 @@ class AuthController extends Controller
             ]
         ]);
     }
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        // Validar
+        $validatedData = $request->validate([
+            'nombre_completo' => 'required|string|max:100',
+            'email' => 'required|email|max:150|unique:usuarios,email,' . $user->id_usuario . ',id_usuario',
+            'foto_perfil' => 'nullable|image|max:5120', // Máx 5MB
+            'telefono' => 'nullable|string|max:20' // Si añades teléfono a usuarios o tabla relacionada
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $user->nombre_completo = $validatedData['nombre_completo'];
+            $user->email = $validatedData['email'];
+
+            // Manejar subida de foto
+            if ($request->hasFile('foto_perfil')) {
+                $path = $request->file('foto_perfil')->store('perfiles', 'public');
+                $user->foto_perfil = $path;
+            }
+
+            // Manejar Teléfono (Si está en una tabla relacionada como Clientes/Anfitriones o Users si lo añadiste)
+            // Por ahora asumiendo que podría estar en 'usuarios' o manejado por separado.
+            // Si 'telefono' NO está en la tabla 'usuarios' sino en 'clientes'/'anfitriones', necesitas lógica aquí.
+            // Basado en contexto previo, 'telefono' estaba en 'clientes'. Verificamos tipo de usuario.
+            if ($request->has('telefono')) {
+                 if ($user->tipo_usuario === 'Cliente') {
+                     \App\Models\Cliente::updateOrCreate(
+                         ['id_usuario' => $user->id_usuario],
+                         ['telefono' => $request->telefono]
+                     );
+                 }
+                 // Añadir lógica para Anfitrión si es necesario, o si Usuario tiene columna telefono
+            }
+
+            $user->save();
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Perfil actualizado correctamente',
+                'user' => $user
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Error al actualizar perfil'], 500);
+        }
+    }
+
+    // --- 2FA & Password Reset Logic ---
+
+    public function generate2FACode(Usuario $usuario)
+    {
+        $code = rand(100000, 999999);
+        $usuario->two_factor_code = $code;
+        $usuario->two_factor_expires_at = Carbon::now()->addMinutes(10);
+        $usuario->save();
+
+        try {
+            Mail::to($usuario->email)->send(new TwoFactorCode($code));
+        } catch (\Exception $e) {
+            Log::error('Error sending 2FA email: ' . $e->getMessage());
+        }
+    }
+
+    public function verify2FA(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string',
+        ]);
+
+        $usuario = Usuario::where('email', $request->email)->first();
+
+        if (!$usuario) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        if ($usuario->two_factor_code === $request->code && Carbon::now()->lt($usuario->two_factor_expires_at)) {
+            // Reset code
+            $usuario->two_factor_code = null;
+            $usuario->two_factor_expires_at = null;
+            $usuario->save();
+
+            $token = $usuario->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Login exitoso',
+                'data' => [
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                    'user' => $usuario,
+                    'role' => $usuario->tipo_usuario
+                ]
+            ]);
+        }
+
+        return response()->json(['message' => 'Código inválido o expirado'], 401);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $usuario = Usuario::where('email', $request->email)->first();
+
+        if (!$usuario) {
+            return response()->json(['message' => 'Si el correo existe, se ha enviado un código.'], 200);
+        }
+
+        $code = rand(100000, 999999);
+        $usuario->two_factor_code = $code;
+        $usuario->two_factor_expires_at = Carbon::now()->addMinutes(15);
+        $usuario->save();
+
+        try {
+            Mail::to($usuario->email)->send(new ResetPasswordBrevo($code));
+        } catch (\Exception $e) {
+            Log::error('Forgot Password Email Error: ' . $e->getMessage());
+        }
+
+        return response()->json(['message' => 'Si el correo existe, se ha enviado un código.'], 200);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string',
+            'password' => 'required|string|min:8|confirmed'
+        ]);
+
+        $usuario = Usuario::where('email', $request->email)->first();
+
+        if (!$usuario) {
+            return response()->json(['message' => 'Error al restablecer contraseña'], 400);
+        }
+
+        if ($usuario->two_factor_code === $request->code && Carbon::now()->lt($usuario->two_factor_expires_at)) {
+            $usuario->password = Hash::make($request->password);
+            $usuario->two_factor_code = null;
+            $usuario->two_factor_expires_at = null;
+            $usuario->save();
+
+            return response()->json(['message' => 'Contraseña restablecida correctamente'], 200);
+        }
+
+        return response()->json(['message' => 'Código inválido o expirado'], 400);
+    }
+
+    public function update2FASettings(Request $request) {
+        $user = $request->user();
+        $request->validate(['enabled' => 'required|boolean']);
+
+        $user->two_factor_enabled = $request->enabled;
+        $user->save();
+
+        return response()->json(['message' => 'Configuración de 2FA actualizada', 'enabled' => $user->two_factor_enabled]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed'
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'La contraseña actual no es correcta.'], 400);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json(['message' => 'Contraseña actualizada correctamente.']);
+    }
+
 }
