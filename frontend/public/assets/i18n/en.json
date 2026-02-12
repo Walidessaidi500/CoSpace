@@ -1,0 +1,254 @@
+{
+    "HEADER": {
+        "HOME": "Home",
+        "COWORKINGS": "Coworkings",
+        "LOGIN": "Log In",
+        "REGISTER": "Register",
+        "PROFILE": "Profile",
+        "LOGOUT": "Log Out",
+        "HOST_PANEL": "Host Dashboard",
+        "CLIENT_PANEL": "My Dashboard",
+        "ADMIN_PANEL": "Admin Dashboard",
+        "SETTINGS": "Settings",
+        "DARK_MODE": "Dark Mode",
+        "LIGHT_MODE": "Light Mode"
+    },
+    "FOOTER": {
+        "DESCRIPTION": "Find your ideal workspace anywhere. Connecting professionals with the best spaces.",
+        "PLATFORM": "Platform",
+        "PRICING": "Pricing",
+        "COMPANY": "Company",
+        "ABOUT": "About",
+        "BLOG": "Blog",
+        "CONTACT": "Contact",
+        "LEGAL": "Legal",
+        "PRIVACY": "Privacy",
+        "TERMS": "Terms",
+        "RIGHTS": "All rights reserved."
+    },
+    "SIDEBAR_ADMIN": {
+        "TITLE": "Admin Dashboard",
+        "DASHBOARD": "Dashboard",
+        "USERS": "Users",
+        "SPACES": "Spaces",
+        "BOOKINGS": "Bookings",
+        "PAYMENTS": "Payments",
+        "REPORTS": "Reports",
+        "SETTINGS": "Settings"
+    },
+    "SIDEBAR_HOST": {
+        "TITLE": "Host Dashboard",
+        "MY_AREAS": "My Areas",
+        "ADD_AREAS": "Add Areas",
+        "MY_BOOKINGS": "My Bookings"
+    },
+    "LANDING": {
+        "HERO_TITLE": "Find your Workspace",
+        "HERO_SUBTITLE": "Discover inspiring coworking spaces and boost your productivity",
+        "CTA_EXPLORE": "Explore Coworkings",
+        "WHY_TITLE": "Why Choose CoSpace",
+        "FEATURES": {
+            "WIFI_TITLE": "High-Speed Wi-Fi",
+            "WIFI_DESC": "Fast internet for uninterrupted work",
+            "COFFEE_TITLE": "Coffee",
+            "COFFEE_DESC": "Drinks included",
+            "NETWORKING_TITLE": "Networking",
+            "NETWORKING_DESC": "Connect with like-minded professionals",
+            "EASY_BOOKING_TITLE": "Easy Booking",
+            "EASY_BOOKING_DESC": "Book your space in seconds"
+        },
+        "READY_TITLE": "Ready to Start?",
+        "READY_DESC": "Join thousands of professionals working in amazing spaces.",
+        "CTA_SEARCH": "Search Spaces"
+    },
+    "AUTH": {
+        "LOGIN": {
+            "TITLE": "Welcome Back",
+            "SUBTITLE": "Log in to your CoSpace account",
+            "EMAIL_LABEL": "Email",
+            "EMAIL_PLACEHOLDER": "you@email.com",
+            "PASSWORD_LABEL": "Password",
+            "PASSWORD_PLACEHOLDER": "........",
+            "SUBMIT": "Log In",
+            "SUBMITTING": "Logging in...",
+            "NO_ACCOUNT": "Don't have an account?",
+            "REGISTER_LINK": "Register",
+            "FORGOT_PASSWORD": "Forgot your password?",
+            "RECOVER_LINK": "Recover password",
+            "ERRORS": {
+                "REQUIRED_EMAIL": "Email is required.",
+                "INVALID_EMAIL": "Please enter a valid email.",
+                "REQUIRED_PASSWORD": "Password is required."
+            }
+        },
+        "REGISTER_CLIENT": {
+            "TITLE": "Create Client Account",
+            "SUBTITLE": "Join CoSpace and find your perfect space.",
+            "FULL_NAME": "Full Name",
+            "FULL_NAME_PLACEHOLDER": "John Doe",
+            "CONFIRM_PASSWORD": "Confirm Password",
+            "SUBMIT": "Create Client Account",
+            "SUBMITTING": "Creating...",
+            "ALREADY_ACCOUNT": "Already have an account?",
+            "WANT_HOST": "Want to be a host?",
+            "REGISTER_HOST_LINK": "Register as a host"
+        },
+        "REGISTER_HOST": {
+            "TITLE": "Create Host Account",
+            "SUBTITLE": "Advertise your coworking space on CoSpace.",
+            "WORKSPACE_NAME": "Workspace Name",
+            "WORKSPACE_PLACEHOLDER": "My Workspace",
+            "ADDRESS": "Address",
+            "ADDRESS_PLACEHOLDER": "123 Main St, Floor 3, New York, NY",
+            "CITY": "City",
+            "CITY_PLACEHOLDER": "New York",
+            "CAPACITY": "Capacity (People)",
+            "CAPACITY_PLACEHOLDER": "Ex. 10",
+            "PRICE": "Price per Hour (€)",
+            "PRICE_PLACEHOLDER": "Ex. 15.50",
+            "DESCRIPTION": "Short Description",
+            "DESCRIPTION_PLACEHOLDER": "Describe your workspace",
+            "SUBMIT": "Create Host Account",
+            "ERROR_PASSWORD_MISMATCH": "Passwords do not match",
+            "LOOKING_FOR_SPACE": "Looking for a space?",
+            "REGISTER_CLIENT_LINK": "Register as a Client"
+        },
+        "FORGOT_PASSWORD": {
+            "TITLE": "Recover Password",
+            "SUBTITLE": "Enter your email and we will send you a code to reset your password.",
+            "SUBMIT": "Send Code",
+            "SUBMITTING": "Sending...",
+            "HAVE_CODE_BTN": "I have my code",
+            "HAVE_CODE_LINK": "Already have a code? Enter it here",
+            "BACK_TO_LOGIN": "Back to login",
+            "LOADING_TEXT": "Sending instructions..."
+        },
+        "RESET_PASSWORD": {
+            "TITLE": "New Password",
+            "SUBTITLE": "Enter the code, your email, and your new password.",
+            "CODE_LABEL": "Verification Code",
+            "CODE_PLACEHOLDER": "123456",
+            "NEW_PASSWORD_LABEL": "New Password",
+            "NEW_PASSWORD_PLACEHOLDER": "Min. 8 characters",
+            "CONFIRM_PASSWORD_PLACEHOLDER": "Repeat password",
+            "SUBMIT": "Reset Password",
+            "SUBMITTING": "Resetting..."
+        }
+    },
+    "EXPLORE": {
+        "TITLE": "Explore Coworking Spaces",
+        "SEARCH_PLACEHOLDER": "Search city...",
+        "FILTERS": {
+            "ALL_PRICES": "All amounts",
+            "LESS_THAN_20": "Less than 20€/h",
+            "BETWEEN_20_50": "20€ - 50€/h",
+            "MORE_THAN_50": "More than 50€/h",
+            "ALL_STATUS": "All statuses",
+            "AVAILABLE": "Available",
+            "MAINTENANCE": "Maintenance",
+            "ALL_RATINGS": "All ratings",
+            "STARS": "stars",
+            "STARS_OR_MORE": "stars or more",
+            "STAR_OR_MORE": "star or more"
+        },
+        "LOADING": "Loading amazing spaces for you...",
+        "NO_RESULTS": "No spaces available at that moment.",
+        "ERROR_TITLE": "Error!",
+        "CARD": {
+            "PER_HOUR": "/hour",
+            "DETAILS_BTN": "View Details"
+        }
+    },
+    "SPACE_DETAILS": {
+        "LOADING": "Loading space details...",
+        "ERROR_TITLE": "Oops! Something went wrong",
+        "BACK_BTN": "Back to Explore",
+        "REVIEWS": "reviews",
+        "ABOUT_TITLE": "About This Space",
+        "FEATURES_TITLE": "Features",
+        "LOCATION_TITLE": "Location",
+        "NO_MAP": "Exact location not available on map",
+        "PRICE_LABEL": "Price per hour",
+        "BOOK_BTN": "Book Now",
+        "RESERVED_BTN": "Space Reserved",
+        "HOST_BTN": "Book (Not available for Hosts)",
+        "CONTACT_BTN": "Contact Host",
+        "NO_CHARGE_NOTE": "You won't be charged until you confirm the reservation."
+    },
+    "CLIENT_DASHBOARD": {
+        "TITLE": "My Dashboard",
+        "SUBTITLE": "Manage your bookings and explore new spaces.",
+        "TABS": {
+            "ACTIVE": "Active Bookings",
+            "PAST": "Previous Bookings"
+        },
+        "LOADING": "Loading your bookings...",
+        "RETRY_BTN": "Retry",
+        "STATUS": {
+            "CANCELLED": "Cancelled",
+            "CONFIRMED": "Confirmed"
+        },
+        "NO_LOCATION": "No location",
+        "ACTIONS": {
+            "DETAILS": "View Details",
+            "CANCEL": "Cancel",
+            "EXPLORE": "Explore Spaces"
+        },
+        "EMPTY_STATE": "You have no bookings in this section."
+    },
+    "SETTINGS": {
+        "TITLE": "Settings",
+        "DESCRIPTION": "Manage your profile and application preferences.",
+        "PROFILE": {
+            "TITLE": "Personal Information",
+            "CHANGE_PHOTO": "Change profile picture",
+            "FULL_NAME": "Full Name",
+            "EMAIL": "Email Address",
+            "PHONE": "Phone (Optional)",
+            "SAVE": "Save Changes",
+            "SAVING": "Saving..."
+        },
+        "PREFERENCES": {
+            "TITLE": "Preferences and Accessibility",
+            "DARK_MODE": "Dark Mode",
+            "DARK_MODE_DESC": "Change the application appearance to dark tones.",
+            "TEXT_SIZE": "Text Size",
+            "TEXT_SIZE_DESC": "Adjust font size for better readability.",
+            "TEXT_SIZE_SMALL": "Small",
+            "TEXT_SIZE_NORMAL": "Normal",
+            "TEXT_SIZE_LARGE": "Large",
+            "TEXT_SIZE_XL": "Very Large",
+            "LANGUAGE": "Language"
+        },
+        "SECURITY": {
+            "TITLE": "Security",
+            "CHANGE_PASSWORD": "Change Password",
+            "TWO_FACTOR": "Two-factor authentication",
+            "ENABLED": "Enabled",
+            "DISABLED": "Disabled"
+        },
+        "MODALS": {
+            "CHANGE_PASSWORD": {
+                "TITLE": "Change Password",
+                "CURRENT_PASSWORD": "Current Password",
+                "NEW_PASSWORD": "New Password",
+                "NEW_PASSWORD_PLACEHOLDER": "Minimum 8 characters",
+                "CONFIRM_PASSWORD": "Confirm Password",
+                "CONFIRM_PASSWORD_PLACEHOLDER": "Repeat password",
+                "CANCEL": "Cancel",
+                "UPDATE": "Update",
+                "SUCCESS": "Password updated successfully.",
+                "ERROR_MATCH": "New passwords do not match.",
+                "ERROR_GENERIC": "Error changing password"
+            },
+            "SUCCESS_TOAST": {
+                "TITLE": "Changes Saved!",
+                "MESSAGE": "Your profile has been updated successfully."
+            }
+        },
+        "ERRORS": {
+            "UPDATE_PROFILE": "Error updating profile",
+            "UPDATE_2FA": "Error updating 2FA"
+        }
+    }
+}

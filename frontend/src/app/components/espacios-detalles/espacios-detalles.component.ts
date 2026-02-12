@@ -6,10 +6,12 @@ import { ApiService } from '../../services/api';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { AuthService } from '../../services/auth.service';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-espacios-detalles',
   standalone: true,
-  imports: [CommonModule, RouterModule, GoogleMapsModule],
+  imports: [CommonModule, RouterModule, GoogleMapsModule, TranslateModule],
   templateUrl: './espacios-detalles.component.html',
   styleUrl: './espacios-detalles.component.css',
 })

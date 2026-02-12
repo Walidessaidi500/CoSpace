@@ -3,8 +3,9 @@
 
         <!-- Header -->
         <div class="text-left">
-            <h1 class="text-3xl font-extrabold text-[#0d1b2a] dark:text-white tracking-tight">Configuración</h1>
-            <p class="mt-2 text-lg text-gray-500 dark:text-gray-400">Gestiona tu perfil y preferencias de la aplicación.
+            <h1 class="text-3xl font-extrabold text-[#0d1b2a] dark:text-white tracking-tight">{{ 'SETTINGS.TITLE' |
+                translate }}</h1>
+            <p class="mt-2 text-lg text-gray-500 dark:text-gray-400">{{ 'SETTINGS.DESCRIPTION' | translate }}
             </p>
         </div>
 
@@ -28,7 +29,7 @@
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </span>
-                            Información Personal
+                            {{ 'SETTINGS.PROFILE.TITLE' | translate }}
                         </h2>
                     </div>
                     <div class="p-6">
@@ -60,32 +61,30 @@
                                         accept="image/*">
                                 </label>
                             </div>
-                            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Cambiar foto de perfil</p>
+                            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">{{ 'SETTINGS.PROFILE.CHANGE_PHOTO'
+                                | translate }}</p>
                         </div>
 
                         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="space-y-5">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <!-- Nombre -->
                                 <div>
-                                    <label
-                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Nombre
-                                        Completo</label>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{
+                                        'SETTINGS.PROFILE.FULL_NAME' | translate }}</label>
                                     <input formControlName="nombre_completo" type="text"
                                         class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 transition-all outline-none bg-gray-50 dark:bg-gray-700/50 focus:bg-white dark:focus:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-400">
                                 </div>
                                 <!-- Email -->
                                 <div>
-                                    <label
-                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Correo
-                                        Electrónico</label>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{
+                                        'SETTINGS.PROFILE.EMAIL' | translate }}</label>
                                     <input formControlName="email" type="email"
                                         class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 transition-all outline-none bg-gray-50 dark:bg-gray-700/50 focus:bg-white dark:focus:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-400">
                                 </div>
                                 <!-- Telefono -->
                                 <div class="md:col-span-2">
-                                    <label
-                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Teléfono
-                                        (Opcional)</label>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{
+                                        'SETTINGS.PROFILE.PHONE' | translate }}</label>
                                     <input formControlName="telefono" type="tel"
                                         class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 transition-all outline-none bg-gray-50 dark:bg-gray-700/50 focus:bg-white dark:focus:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-400">
                                 </div>
@@ -94,7 +93,8 @@
                             <div class="pt-4 flex justify-end">
                                 <button type="submit" [disabled]="profileForm.invalid || isLoading"
                                     class="px-6 py-2.5 bg-[#0d1b2a] dark:bg-blue-600 text-white font-medium rounded-xl shadow-lg hover:bg-black dark:hover:bg-blue-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                                    {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+                                    {{ isLoading ? ('SETTINGS.PROFILE.SAVING' | translate) : ('SETTINGS.PROFILE.SAVE' |
+                                    translate) }}
                                 </button>
                             </div>
                         </form>
@@ -116,7 +116,7 @@
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </span>
-                            Preferencias y Accesibilidad
+                            {{ 'SETTINGS.PREFERENCES.TITLE' | translate }}
                         </h2>
                     </div>
                     <div class="p-6 space-y-6">
@@ -124,9 +124,10 @@
                         <!-- Dark Mode Toggle -->
                         <div class="flex items-center justify-between">
                             <div>
-                                <h3 class="font-semibold text-gray-900 dark:text-white">Modo Oscuro</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Cambia la apariencia de la
-                                    aplicación a tonos oscuros.
+                                <h3 class="font-semibold text-gray-900 dark:text-white">{{
+                                    'SETTINGS.PREFERENCES.DARK_MODE' | translate }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{
+                                    'SETTINGS.PREFERENCES.DARK_MODE_DESC' | translate }}
                                 </p>
                             </div>
                             <button (click)="toggleDarkMode()" [class.bg-[#0d1b2a]]="themeService.darkMode()"
@@ -144,9 +145,10 @@
                         <!-- Text Size -->
                         <div>
                             <div class="mb-3">
-                                <h3 class="font-semibold text-gray-900 dark:text-white">Tamaño del Texto</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Ajusta el tamaño de la fuente para
-                                    mejor legibilidad.</p>
+                                <h3 class="font-semibold text-gray-900 dark:text-white">{{
+                                    'SETTINGS.PREFERENCES.TEXT_SIZE' | translate }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{
+                                    'SETTINGS.PREFERENCES.TEXT_SIZE_DESC' | translate }}</p>
                             </div>
 
                             <div class="grid grid-cols-4 gap-2">
@@ -156,7 +158,8 @@
                                     [class.ring-indigo-500]="themeService.textSize() === 'text-scale-sm'"
                                     class="py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all dark:ring-offset-[#1a2736] flex flex-col items-center justify-center gap-1 h-20">
                                     <span class="text-xs font-bold text-gray-700 dark:text-gray-200">A</span>
-                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">Pequeño</span>
+                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">{{
+                                        'SETTINGS.PREFERENCES.TEXT_SIZE_SMALL' | translate }}</span>
                                 </button>
 
                                 <button (click)="themeService.setTextSize('text-scale-base')"
@@ -165,7 +168,8 @@
                                     [class.ring-indigo-500]="themeService.textSize() === 'text-scale-base'"
                                     class="py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all dark:ring-offset-[#1a2736] flex flex-col items-center justify-center gap-1 h-20">
                                     <span class="text-base font-bold text-gray-700 dark:text-gray-200">A</span>
-                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">Normal</span>
+                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">{{
+                                        'SETTINGS.PREFERENCES.TEXT_SIZE_NORMAL' | translate }}</span>
                                 </button>
 
                                 <button (click)="themeService.setTextSize('text-scale-lg')"
@@ -174,7 +178,8 @@
                                     [class.ring-indigo-500]="themeService.textSize() === 'text-scale-lg'"
                                     class="py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all dark:ring-offset-[#1a2736] flex flex-col items-center justify-center gap-1 h-20">
                                     <span class="text-xl font-bold text-gray-700 dark:text-gray-200">A</span>
-                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">Grande</span>
+                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">{{
+                                        'SETTINGS.PREFERENCES.TEXT_SIZE_LARGE' | translate }}</span>
                                 </button>
 
                                 <button (click)="themeService.setTextSize('text-scale-xl')"
@@ -183,7 +188,8 @@
                                     [class.ring-indigo-500]="themeService.textSize() === 'text-scale-xl'"
                                     class="py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all dark:ring-offset-[#1a2736] flex flex-col items-center justify-center gap-1 h-20">
                                     <span class="text-2xl font-bold text-gray-700 dark:text-gray-200">A</span>
-                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">Muy Grande</span>
+                                    <span class="text-[10px] text-gray-500 dark:text-gray-400">{{
+                                        'SETTINGS.PREFERENCES.TEXT_SIZE_XL' | translate }}</span>
                                 </button>
                             </div>
                         </div>
@@ -192,21 +198,17 @@
 
                         <!-- Language -->
                         <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Idioma</h3>
-                            <div class="flex gap-4">
-                                <button (click)="toggleLanguage('es')" [class.ring-2]="language === 'es'"
-                                    [class.ring-offset-2]="language === 'es'"
-                                    [class.ring-orange-500]="language === 'es'"
-                                    class="flex-1 py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 transition-all dark:ring-offset-[#1a2736]">
-                                    <span class="text-2xl">🇪🇸</span>
-                                    <span class="font-medium text-gray-700 dark:text-gray-200">Español</span>
-                                </button>
-                                <button (click)="toggleLanguage('en')" [class.ring-2]="language === 'en'"
-                                    [class.ring-offset-2]="language === 'en'"
-                                    [class.ring-orange-500]="language === 'en'"
-                                    class="flex-1 py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 transition-all dark:ring-offset-[#1a2736]">
-                                    <span class="text-2xl">🇺🇸</span>
-                                    <span class="font-medium text-gray-700 dark:text-gray-200">English</span>
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">{{
+                                'SETTINGS.PREFERENCES.LANGUAGE' | translate }}</h3>
+                            <div class="flex gap-4 flex-wrap">
+                                <button *ngFor="let lang of languageService.availableLanguages"
+                                    (click)="toggleLanguage(lang.code)"
+                                    [class.ring-2]="languageService.getCurrentLanguage() === lang.code"
+                                    [class.ring-offset-2]="languageService.getCurrentLanguage() === lang.code"
+                                    [class.ring-orange-500]="languageService.getCurrentLanguage() === lang.code"
+                                    class="flex-1 min-w-[120px] py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 transition-all dark:ring-offset-[#1a2736]">
+                                    <span class="text-2xl">{{ lang.flag }}</span>
+                                    <span class="font-medium text-gray-700 dark:text-gray-200">{{ lang.label }}</span>
                                 </button>
                             </div>
                         </div>
@@ -230,29 +232,30 @@
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </span>
-                            Seguridad
+                            {{ 'SETTINGS.SECURITY.TITLE' | translate }}
                         </h2>
                     </div>
                     <div class="p-6 space-y-4">
                         <button (click)="openPasswordModal()"
                             class="w-full text-left px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex justify-between items-center group">
                             <span
-                                class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Cambiar
-                                Contraseña</span>
+                                class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{{
+                                'SETTINGS.SECURITY.CHANGE_PASSWORD' | translate }}</span>
                             <span class="text-gray-400 dark:text-gray-500">→</span>
                         </button>
                         <button (click)="toggle2FA()"
                             class="w-full text-left px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex justify-between items-center group">
                             <span
-                                class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Autenticación
-                                en 2 pasos</span>
+                                class="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{{
+                                'SETTINGS.SECURITY.TWO_FACTOR' | translate }}</span>
                             <div class="flex items-center gap-2">
                                 <span [class.bg-green-100]="user?.two_factor_enabled"
                                     [class.text-green-700]="user?.two_factor_enabled"
                                     [class.bg-gray-100]="!user?.two_factor_enabled"
                                     [class.text-gray-500]="!user?.two_factor_enabled"
                                     class="text-xs px-2 py-1 rounded dark:bg-opacity-20 transition-colors">
-                                    {{ user?.two_factor_enabled ? 'Activado' : 'Desactivado' }}
+                                    {{ (user?.two_factor_enabled ? 'SETTINGS.SECURITY.ENABLED' :
+                                    'SETTINGS.SECURITY.DISABLED') | translate }}
                                 </span>
                                 <!-- Toggle Switch Visual -->
                                 <div [class.bg-green-500]="user?.two_factor_enabled"
@@ -279,7 +282,7 @@
     <div
         class="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 dark:border-gray-700 border-t-primary-orange">
     </div>
-    <p class="mt-4 text-gray-600 dark:text-gray-300 font-medium">Guardando cambios...</p>
+    <p class="mt-4 text-gray-600 dark:text-gray-300 font-medium">{{ 'SETTINGS.PROFILE.SAVING' | translate }}</p>
 </div>
 
 <!-- Success Toast -->
@@ -293,8 +296,10 @@
             </svg>
         </div>
         <div>
-            <h4 class="font-bold text-gray-900 dark:text-white text-sm">¡Cambios Guardados!</h4>
-            <p class="text-gray-600 dark:text-gray-300 text-xs mt-0.5">Tu perfil se ha actualizado correctamente.</p>
+            <h4 class="font-bold text-gray-900 dark:text-white text-sm">{{ 'SETTINGS.MODALS.SUCCESS_TOAST.TITLE' |
+                translate }}</h4>
+            <p class="text-gray-600 dark:text-gray-300 text-xs mt-0.5">{{ 'SETTINGS.MODALS.SUCCESS_TOAST.MESSAGE' |
+                translate }}</p>
         </div>
         <button (click)="closeToast()"
             class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
@@ -316,7 +321,7 @@
         <div
             class="px-6 py-4 bg-gray-50 dark:bg-[#0d1b2a] border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                Cambiar Contraseña
+                {{ 'SETTINGS.MODALS.CHANGE_PASSWORD.TITLE' | translate }}
             </h3>
             <button (click)="closePasswordModal()"
                 class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
@@ -340,32 +345,35 @@
 
             <form [formGroup]="changePasswordForm" (ngSubmit)="submitChangePassword()" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Contraseña
-                        Actual</label>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{{
+                        'SETTINGS.MODALS.CHANGE_PASSWORD.CURRENT_PASSWORD' | translate }}</label>
                     <input type="password" formControlName="current_password"
                         class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Nueva
-                        Contraseña</label>
-                    <input type="password" formControlName="new_password" placeholder="Mínimo 8 caracteres"
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{{
+                        'SETTINGS.MODALS.CHANGE_PASSWORD.NEW_PASSWORD' | translate }}</label>
+                    <input type="password" formControlName="new_password"
+                        [placeholder]="'SETTINGS.MODALS.CHANGE_PASSWORD.NEW_PASSWORD_PLACEHOLDER' | translate"
                         class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Confirmar
-                        Contraseña</label>
-                    <input type="password" formControlName="confirm_password" placeholder="Repite la contraseña"
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{{
+                        'SETTINGS.MODALS.CHANGE_PASSWORD.CONFIRM_PASSWORD' | translate }}</label>
+                    <input type="password" formControlName="confirm_password"
+                        [placeholder]="'SETTINGS.MODALS.CHANGE_PASSWORD.CONFIRM_PASSWORD_PLACEHOLDER' | translate"
                         class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400">
                 </div>
 
                 <div class="pt-4 flex gap-3">
                     <button type="button" (click)="closePasswordModal()"
                         class="flex-1 py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                        Cancelar
+                        {{ 'SETTINGS.MODALS.CHANGE_PASSWORD.CANCEL' | translate }}
                     </button>
                     <button type="submit" [disabled]="changePasswordForm.invalid || isLoading"
                         class="flex-1 py-3 px-4 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
-                        {{ isLoading ? 'Guardando...' : 'Actualizar' }}
+                        {{ isLoading ? ('SETTINGS.PROFILE.SAVING' | translate) :
+                        ('SETTINGS.MODALS.CHANGE_PASSWORD.UPDATE' | translate) }}
                     </button>
                 </div>
             </form>

@@ -1,15 +1,17 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 declare var google: any;
 
+import { TranslateModule } from '@ngx-translate/core';
+
 @Component({
     selector: 'app-registro-anfitrion',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [RouterLink, ReactiveFormsModule, CommonModule, TranslateModule],
     templateUrl: './registro-anfitrion.component.html',
     styleUrl: './registro-anfitrion.component.css'
 })

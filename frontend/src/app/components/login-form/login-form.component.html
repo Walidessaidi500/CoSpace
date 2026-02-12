@@ -1,9 +1,10 @@
 <div
     class="bg-white dark:bg-[#1a2736] p-10 rounded-2xl shadow-lg w-full max-w-[440px] mx-auto border border-[rgba(0,0,0,0.05)] dark:border-gray-700 transition-colors duration-300">
     <div class="text-center mb-10">
-        <h2 class="text-[32px] font-semibold text-[#0d1b2a] dark:text-white mb-2 font-['Poppins']">Bienvenido de nuevo
+        <h2 class="text-[32px] font-semibold text-[#0d1b2a] dark:text-white mb-2 font-['Poppins']">{{ 'AUTH.LOGIN.TITLE'
+            | translate }}
         </h2>
-        <p class="text-[#717182] dark:text-gray-400 text-[16px]">Inicia sesión en tu cuenta de CoSpace</p>
+        <p class="text-[#717182] dark:text-gray-400 text-[16px]">{{ 'AUTH.LOGIN.SUBTITLE' | translate }}</p>
     </div>
 
     <div *ngIf="successMessage"
@@ -18,29 +19,35 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
         <!-- Email Field -->
         <div class="space-y-2">
-            <label for="email" class="text-[14px] font-medium text-[#0d1b2a] dark:text-gray-200 block">Email</label>
-            <input id="email" type="email" formControlName="email" placeholder="tu@email.com"
+            <label for="email" class="text-[14px] font-medium text-[#0d1b2a] dark:text-gray-200 block">{{
+                'AUTH.LOGIN.EMAIL_LABEL' | translate }}</label>
+            <input id="email" type="email" formControlName="email"
+                [placeholder]="'AUTH.LOGIN.EMAIL_PLACEHOLDER' | translate"
                 class="w-full px-4 py-3 rounded-2xl bg-[#f3f3f5] dark:bg-gray-700/50 border-none focus:ring-2 focus:ring-[#ff7a00]/20 outline-none transition-all placeholder-[#717182] dark:placeholder-gray-500 text-[#0d1b2a] dark:text-white font-medium"
                 [class.ring-2]="form.controls['email'].invalid && form.controls['email'].touched"
                 [class.ring-red-500]="form.controls['email'].invalid && form.controls['email'].touched">
             <div *ngIf="form.controls['email'].invalid && form.controls['email'].touched"
                 class="text-red-500 text-xs mt-1">
-                <span *ngIf="form.controls['email'].hasError('required')">El email es obligatorio.</span>
-                <span *ngIf="form.controls['email'].hasError('email')">Introduce un email válido.</span>
+                <span *ngIf="form.controls['email'].hasError('required')">{{ 'AUTH.LOGIN.ERRORS.REQUIRED_EMAIL' |
+                    translate }}</span>
+                <span *ngIf="form.controls['email'].hasError('email')">{{ 'AUTH.LOGIN.ERRORS.INVALID_EMAIL' | translate
+                    }}</span>
             </div>
         </div>
 
         <!-- Password Field -->
         <div class="space-y-2">
-            <label for="password"
-                class="text-[14px] font-medium text-[#0d1b2a] dark:text-gray-200 block">Contraseña</label>
-            <input id="password" type="password" formControlName="password" placeholder="........"
+            <label for="password" class="text-[14px] font-medium text-[#0d1b2a] dark:text-gray-200 block">{{
+                'AUTH.LOGIN.PASSWORD_LABEL' | translate }}</label>
+            <input id="password" type="password" formControlName="password"
+                [placeholder]="'AUTH.LOGIN.PASSWORD_PLACEHOLDER' | translate"
                 class="w-full px-4 py-3 rounded-2xl bg-[#f3f3f5] dark:bg-gray-700/50 border-none focus:ring-2 focus:ring-[#ff7a00]/20 outline-none transition-all placeholder-[#717182] dark:placeholder-gray-500 text-[#0d1b2a] dark:text-white font-medium"
                 [class.ring-2]="form.controls['password'].invalid && form.controls['password'].touched"
                 [class.ring-red-500]="form.controls['password'].invalid && form.controls['password'].touched">
             <div *ngIf="form.controls['password'].invalid && form.controls['password'].touched"
                 class="text-red-500 text-xs mt-1">
-                <span *ngIf="form.controls['password'].hasError('required')">La contraseña es obligatoria.</span>
+                <span *ngIf="form.controls['password'].hasError('required')">{{ 'AUTH.LOGIN.ERRORS.REQUIRED_PASSWORD' |
+                    translate }}</span>
             </div>
         </div>
 
@@ -49,20 +56,20 @@
             class="w-full py-3.5 px-6 bg-[#ff7a00] hover:bg-[#e66e00] text-white rounded-full font-medium shadow-md hover:shadow-lg transform active:scale-[0.98] transition-all duration-200 mt-2 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
             <span *ngIf="isLoading"
                 class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            <span>{{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}</span>
+            <span>{{ (isLoading ? 'AUTH.LOGIN.SUBMITTING' : 'AUTH.LOGIN.SUBMIT') | translate }}</span>
         </button>
     </form>
 
     <div class="mt-8 text-center text-[14px] text-[#4a5565] dark:text-gray-400">
-        ¿No tienes una cuenta?
+        {{ 'AUTH.LOGIN.NO_ACCOUNT' | translate }}
         <a routerLink="/registro-cliente" class="text-[#ff7a00] font-medium hover:text-[#e66e00] transition-colors">
-            Regístrate
+            {{ 'AUTH.LOGIN.REGISTER_LINK' | translate }}
         </a>
     </div>
     <div class="mt-8 text-center text-[14px] text-[#4a5565] dark:text-gray-400">
-        ¿Has olvidado tu contraseña?
+        {{ 'AUTH.LOGIN.FORGOT_PASSWORD' | translate }}
         <a routerLink="/forgot-password" class="text-[#ff7a00] font-medium hover:text-[#e66e00] transition-colors">
-            Recuperar contraseña
+            {{ 'AUTH.LOGIN.RECOVER_LINK' | translate }}
         </a>
     </div>
 </div>

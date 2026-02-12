@@ -22,10 +22,12 @@ interface Reserva {
     };
 }
 
+import { TranslateModule } from '@ngx-translate/core';
+
 @Component({
     selector: 'app-panel-cliente',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, TranslateModule],
     templateUrl: './panel-cliente.component.html',
 })
 export class PanelClienteComponent implements OnInit {

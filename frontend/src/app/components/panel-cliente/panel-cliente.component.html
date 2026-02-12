@@ -1,8 +1,8 @@
 <div class="container mx-auto px-4 py-8 mb-4 max-w-5xl">
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mi Panel</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-2">Gestiona tus reservas y explora nuevos espacios.</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ 'CLIENT_DASHBOARD.TITLE' | translate }}</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">{{ 'CLIENT_DASHBOARD.SUBTITLE' | translate }}</p>
     </div>
 
     <!-- Tabs (Pills) -->
@@ -15,7 +15,7 @@
             [class.dark:text-gray-400]="activeTab !== 'active'"
             class="px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none border border-transparent"
             [class.border-gray-200]="activeTab === 'active'" [class.dark:border-gray-600]="activeTab === 'active'">
-            Reservas Activas
+            {{ 'CLIENT_DASHBOARD.TABS.ACTIVE' | translate }}
         </button>
         <button (click)="setTab('past')" [class.bg-white]="activeTab === 'past'"
             [class.dark:bg-[#0d1b2a]]="activeTab === 'past'" [class.shadow-sm]="activeTab === 'past'"
@@ -24,7 +24,7 @@
             [class.dark:text-gray-400]="activeTab !== 'past'"
             class="px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none border border-transparent"
             [class.border-gray-200]="activeTab === 'past'" [class.dark:border-gray-600]="activeTab === 'past'">
-            Anteriores Reservas
+            {{ 'CLIENT_DASHBOARD.TABS.PAST' | translate }}
         </button>
     </div>
 
@@ -33,7 +33,7 @@
         <div
             class="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 dark:border-gray-700 border-t-blue-500 mb-4">
         </div>
-        <p class="text-gray-500 dark:text-gray-400 font-medium">Cargando tus reservas...</p>
+        <p class="text-gray-500 dark:text-gray-400 font-medium">{{ 'CLIENT_DASHBOARD.LOADING' | translate }}</p>
     </div>
 
     <!-- Error State -->
@@ -42,7 +42,7 @@
         <p class="text-red-600 dark:text-red-400 font-medium">{{ errorMessage }}</p>
         <button (click)="loadReservations()"
             class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-            Reintentar
+            {{ 'CLIENT_DASHBOARD.RETRY_BTN' | translate }}
         </button>
     </div>
 
@@ -64,11 +64,11 @@
                     </h3>
                     <span *ngIf="res.estado === 'Cancelada'"
                         class="px-2 py-1 text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full">
-                        Cancelada
+                        {{ 'CLIENT_DASHBOARD.STATUS.CANCELLED' | translate }}
                     </span>
                     <span *ngIf="res.estado === 'Confirmada'"
                         class="px-2 py-1 text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full">
-                        Confirmada
+                        {{ 'CLIENT_DASHBOARD.STATUS.CONFIRMED' | translate }}
                     </span>
                 </div>
 
@@ -81,7 +81,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span class="font-medium">{{ res.espacio?.ciudad || 'Sin ubicación' }}</span>
+                    <span class="font-medium">{{ res.espacio?.ciudad || ('CLIENT_DASHBOARD.NO_LOCATION' | translate)
+                        }}</span>
                 </div>
 
                 <div class="flex items-center text-gray-500 dark:text-gray-400 text-base">
@@ -102,12 +103,12 @@
                 <div class="flex gap-3 w-full md:w-auto">
                     <button [routerLink]="['/espacios', res.espacio?.id_espacio]" [queryParams]="{mode: 'reserved'}"
                         class="flex-1 md:flex-none px-5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold transition-colors duration-200">
-                        Ver Detalles
+                        {{ 'CLIENT_DASHBOARD.ACTIONS.DETAILS' | translate }}
                     </button>
                     <button *ngIf="activeTab === 'active' && res.estado !== 'Cancelada'"
                         (click)="cancelReservation(res)"
                         class="flex-1 md:flex-none px-5 py-2.5 text-sm bg-rose-500 dark:bg-rose-600 text-white rounded-full hover:bg-rose-600 dark:hover:bg-rose-700 font-semibold transition-colors duration-200 shadow-sm shadow-rose-200 dark:shadow-none">
-                        Cancelar
+                        {{ 'CLIENT_DASHBOARD.ACTIONS.CANCEL' | translate }}
                     </button>
                 </div>
             </div>
@@ -122,10 +123,10 @@
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
             </div>
-            <p class="text-gray-500 dark:text-gray-400 font-medium">No tienes reservas en esta sección.</p>
+            <p class="text-gray-500 dark:text-gray-400 font-medium">{{ 'CLIENT_DASHBOARD.EMPTY_STATE' | translate }}</p>
             <a routerLink="/explorar"
                 class="inline-block mt-4 px-6 py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors">
-                Explorar Espacios
+                {{ 'CLIENT_DASHBOARD.ACTIONS.EXPLORE' | translate }}
             </a>
         </div>
     </div>

@@ -3,17 +3,21 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
+import { LanguageService } from '../../services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-configuracion',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, TranslateModule],
     templateUrl: './configuracion.component.html',
 })
 export class ConfiguracionComponent implements OnInit {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
     public themeService = inject(ThemeService);
+    public languageService = inject(LanguageService);
+    private translate = inject(TranslateService);
 
     user = this.authService.getUser();
 
@@ -26,7 +30,6 @@ export class ConfiguracionComponent implements OnInit {
 
     // Settings mock state
     highContrast = false;
-    language = 'es';
     notifications = true;
 
     profilePictureUrl: string | ArrayBuffer | null = null;
@@ -90,7 +93,7 @@ export class ConfiguracionComponent implements OnInit {
                 error: (err) => {
                     this.isLoading = false;
                     console.error('Error updating profile:', err);
-                    alert('Error al actualizar el perfil: ' + (err.error?.message || err.message));
+                    alert(this.translate.instant('SETTINGS.ERRORS.UPDATE_PROFILE') + ': ' + (err.error?.message || err.message));
                 }
             });
         }
@@ -105,7 +108,7 @@ export class ConfiguracionComponent implements OnInit {
     }
 
     toggleLanguage(lang: string) {
-        this.language = lang;
+        this.languageService.setLanguage(lang);
     }
 
     toggle2FA() {
@@ -126,7 +129,7 @@ export class ConfiguracionComponent implements OnInit {
                 // Revert on error
                 if (this.user) this.user.two_factor_enabled = !newState;
                 console.error(err);
-                alert('Error al actualizar 2FA');
+                alert(this.translate.instant('SETTINGS.ERRORS.UPDATE_2FA'));
             }
         });
     }
@@ -158,7 +161,7 @@ export class ConfiguracionComponent implements OnInit {
         const { current_password, new_password, confirm_password } = this.changePasswordForm.value;
 
         if (new_password !== confirm_password) {
-            this.passwordError = 'Las contraseñas nuevas no coinciden.';
+            this.passwordError = this.translate.instant('SETTINGS.MODALS.CHANGE_PASSWORD.ERROR_MATCH');
             return;
         }
 
@@ -172,14 +175,14 @@ export class ConfiguracionComponent implements OnInit {
         }).subscribe({
             next: (res) => {
                 this.isLoading = false;
-                this.passwordSuccess = 'Contraseña actualizada correctamente.';
+                this.passwordSuccess = this.translate.instant('SETTINGS.MODALS.CHANGE_PASSWORD.SUCCESS');
                 setTimeout(() => {
                     this.closePasswordModal();
                 }, 2000);
             },
             error: (err) => {
                 this.isLoading = false;
-                this.passwordError = err.error?.message || 'Error al cambiar la contraseña';
+                this.passwordError = err.error?.message || this.translate.instant('SETTINGS.MODALS.CHANGE_PASSWORD.ERROR_GENERIC');
             }
         });
     }

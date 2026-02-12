@@ -6,10 +6,10 @@
 
     <div class="text-center mb-8">
       <h2 class="text-3xl font-bold text-slate-900 dark:text-white leading-tight mb-2">
-        Crear Cuenta de Cliente
+        {{ 'AUTH.REGISTER_CLIENT.TITLE' | translate }}
       </h2>
       <p class="text-gray-500 dark:text-gray-400">
-        Unete a CoSpace y encuentra tu espacio ideal.
+        {{ 'AUTH.REGISTER_CLIENT.SUBTITLE' | translate }}
       </p>
     </div>
 
@@ -17,42 +17,46 @@
 
       <div>
         <label for="fullName" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
-          Nombre Completo
+          {{ 'AUTH.REGISTER_CLIENT.FULL_NAME' | translate }}
         </label>
         <div class="relative">
-          <input id="fullName" type="text" formControlName="nombre_completo" placeholder="Jose Juan"
+          <input id="fullName" type="text" formControlName="nombre_completo"
+            [placeholder]="'AUTH.REGISTER_CLIENT.FULL_NAME_PLACEHOLDER' | translate"
             class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
         </div>
       </div>
 
       <div>
         <label for="email" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
-          Email
+          {{ 'AUTH.LOGIN.EMAIL_LABEL' | translate }}
         </label>
-        <input id="email" type="email" formControlName="email" placeholder="josejuan@email.com"
+        <input id="email" type="email" formControlName="email"
+          [placeholder]="'AUTH.LOGIN.EMAIL_PLACEHOLDER' | translate"
           class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
       </div>
 
       <div>
         <label for="password" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
-          Contraseña
+          {{ 'AUTH.LOGIN.PASSWORD_LABEL' | translate }}
         </label>
-        <input id="password" type="password" formControlName="password" placeholder="........"
+        <input id="password" type="password" formControlName="password"
+          [placeholder]="'AUTH.LOGIN.PASSWORD_PLACEHOLDER' | translate"
           class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
       </div>
 
       <div>
         <label for="confirmPassword" class="block text-slate-700 dark:text-gray-300 text-sm font-bold mb-2">
-          Confirmar Contraseña
+          {{ 'AUTH.REGISTER_CLIENT.CONFIRM_PASSWORD' | translate }}
         </label>
-        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="........"
+        <input id="confirmPassword" type="password" formControlName="confirmPassword"
+          [placeholder]="'AUTH.LOGIN.PASSWORD_PLACEHOLDER' | translate"
           class="w-full bg-gray-100 dark:bg-gray-700/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base rounded-lg px-4 py-3 outline-none focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-orange-500/50 transition-all border border-transparent focus:border-gray-300 dark:focus:border-gray-600">
       </div>
 
       <div class="pt-2">
         <button type="submit" [disabled]="registerForm.invalid || loading"
           class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg py-3 px-6 rounded-full transition-colors shadow-lg hover:shadow-xl disabled:bg-orange-300 disabled:cursor-not-allowed transform active:scale-[0.99]">
-          {{ loading ? 'Creando...' : 'Crear Cuenta de Cliente' }}
+          {{ (loading ? 'AUTH.REGISTER_CLIENT.SUBMITTING' : 'AUTH.REGISTER_CLIENT.SUBMIT') | translate }}
         </button>
       </div>
 
@@ -60,17 +64,17 @@
 
     <div class="mt-8 text-center space-y-2">
       <p class="text-gray-600 dark:text-gray-400 text-sm">
-        ¿Ya tienes una cuenta?
+        {{ 'AUTH.REGISTER_CLIENT.ALREADY_ACCOUNT' | translate }}
         <a routerLink="/iniciar-sesion"
           class="text-orange-500 hover:text-orange-600 font-bold transition-colors cursor-pointer hover:underline">
-          Iniciar Sesión
+          {{ 'AUTH.LOGIN.SUBMIT' | translate }}
         </a>
       </p>
       <p class="text-gray-600 dark:text-gray-400 text-sm">
-        ¿Quieres ser anfitrión?
+        {{ 'AUTH.REGISTER_CLIENT.WANT_HOST' | translate }}
         <a routerLink="/registro-anfitrion"
           class="text-orange-500 hover:text-orange-600 font-bold transition-colors cursor-pointer hover:underline">
-          Registrarse como anfitrión
+          {{ 'AUTH.REGISTER_CLIENT.REGISTER_HOST_LINK' | translate }}
         </a>
       </p>
     </div>

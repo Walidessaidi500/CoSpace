@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common'; // Necesario para async pipe y n
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [RouterLink, RouterLinkActive, CommonModule],
+    imports: [RouterLink, RouterLinkActive, CommonModule, TranslateModule],
     templateUrl: './header.component.html',
 })
 export class HeaderComponent {

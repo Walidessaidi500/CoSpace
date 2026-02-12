@@ -9,14 +9,14 @@
 
     <div class="relative z-10 max-w-4xl mx-auto text-white">
         <h1 class="text-4xl md:text-6xl font-bold mb-6">
-            Encuentra tu Espacio de trabajo
+            {{ 'LANDING.HERO_TITLE' | translate }}
         </h1>
         <p class="text-lg md:text-xl mb-8 font-light text-gray-200">
-            Descubre espacios de coworking inspiradores y mejora tu productividad
+            {{ 'LANDING.HERO_SUBTITLE' | translate }}
         </p>
         <button routerLink="/explorar"
             class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-8 rounded-full text-lg transition shadow-lg">
-            Explora Coworkings
+            {{ 'LANDING.CTA_EXPLORE' | translate }}
         </button>
     </div>
 </header>
@@ -24,7 +24,7 @@
 <section class="py-20 px-6 bg-white dark:bg-[#0d1b2a] transition-colors duration-300">
     <div class="max-w-7xl mx-auto">
         <h2 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white text-center mb-16">
-            Porque elegir CoSpace
+            {{ 'LANDING.WHY_TITLE' | translate }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-center">
@@ -38,9 +38,10 @@
                             d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Velocidad Wi-Fi</h3>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ 'LANDING.FEATURES.WIFI_TITLE' |
+                    translate }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
-                    Alta velocidad de internet para un trabajo sin interrupciones
+                    {{ 'LANDING.FEATURES.WIFI_DESC' | translate }}
                 </p>
             </div>
 
@@ -55,9 +56,10 @@
                             d="M6 1v3M10 1v3M14 1v3" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Cafe</h3>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ 'LANDING.FEATURES.COFFEE_TITLE' |
+                    translate }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
-                    Bebidas incluidas
+                    {{ 'LANDING.FEATURES.COFFEE_DESC' | translate }}
                 </p>
             </div>
 
@@ -70,9 +72,10 @@
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Networking</h3>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ 'LANDING.FEATURES.NETWORKING_TITLE'
+                    | translate }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
-                    Conecta con profesionales afines
+                    {{ 'LANDING.FEATURES.NETWORKING_DESC' | translate }}
                 </p>
             </div>
 
@@ -85,9 +88,10 @@
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Reserva Facil</h3>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{
+                    'LANDING.FEATURES.EASY_BOOKING_TITLE' | translate }}</h3>
                 <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
-                    Reserva tu espacio en segundos
+                    {{ 'LANDING.FEATURES.EASY_BOOKING_DESC' | translate }}
                 </p>
             </div>
 
@@ -98,14 +102,14 @@
 <section class="py-24 bg-gray-50 dark:bg-[#1a2736] text-center px-4 transition-colors duration-300">
     <div class="max-w-3xl mx-auto">
         <h2 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">
-            ¿Preparado para empezar?
+            {{ 'LANDING.READY_TITLE' | translate }}
         </h2>
         <p class="text-gray-600 dark:text-gray-300 text-lg mb-10">
-            Únete a miles de profesionales que trabajan en espacios increíbles.
+            {{ 'LANDING.READY_DESC' | translate }}
         </p>
         <button routerLink="/explorar"
             class="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-gray-100 text-white dark:text-slate-900 font-medium py-3 px-8 rounded-full text-lg transition shadow-lg">
-            Buscar Espacios
+            {{ 'LANDING.CTA_SEARCH' | translate }}
         </button>
     </div>
 </section>

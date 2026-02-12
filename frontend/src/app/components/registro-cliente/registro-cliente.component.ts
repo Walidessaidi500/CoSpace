@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api';
+
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-registro-cliente',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, TranslateModule],
   templateUrl: './registro-cliente.component.html',
   styleUrl: './registro-cliente.component.css',
 })
@@ -36,8 +38,8 @@ export class RegistroClienteComponent {
 
   onSubmit() {
     if (this.registerForm.invalid) {
-        this.registerForm.markAllAsTouched();
-        return;
+      this.registerForm.markAllAsTouched();
+      return;
     }
 
     this.loading = true;
@@ -45,17 +47,17 @@ export class RegistroClienteComponent {
     const { confirmPassword, ...dataToSend } = this.registerForm.value;
 
     this.apiService.registerClient(dataToSend).subscribe({
-    next: (res: any) => {
+      next: (res: any) => {
         console.log('Cliente registrado:', res);
         alert('Cuenta de cliente creada con éxito');
         this.router.navigate(['/login']);
         this.loading = false;
-    },
-    error: (err: any) => {
+      },
+      error: (err: any) => {
         console.error('Error al registrar cliente:', err);
         alert('Error al registrar. Por favor intenta de nuevo.');
         this.loading = false;
-    }
+      }
     });
   }
 }

@@ -4,10 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { EspacioCardComponent } from '../espacio-card/espacio-card.component';
 import { ApiService } from '../../services/api';
 
+import { TranslateModule } from '@ngx-translate/core';
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-explorar',
   standalone: true,
-  imports: [CommonModule, FormsModule, EspacioCardComponent],
+  imports: [CommonModule, RouterModule, FormsModule, EspacioCardComponent, TranslateModule],
   templateUrl: './explorar.component.html',
   styleUrl: './explorar.component.css',
 })

@@ -23,13 +23,13 @@
       </div>
       <div class="text-slate-900 dark:text-white">
         <span class="font-black text-xl">{{ espacio.precio_hora }}€</span>
-        <span class="text-gray-400 font-normal">/hora</span>
+        <span class="text-gray-400 font-normal">{{ 'EXPLORE.CARD.PER_HOUR' | translate }}</span>
       </div>
     </div>
 
     <button [routerLink]="['/espacios', espacio.id_espacio]"
       class="w-full bg-[#0f172a] dark:bg-white text-white dark:text-[#0f172a] py-3 rounded-xl font-semibold hover:bg-slate-800 dark:hover:bg-gray-100 transform active:scale-95 transition-all">
-      Ver Detalles
+      {{ 'EXPLORE.CARD.DETAILS_BTN' | translate }}
     </button>
   </div>
 </div>
