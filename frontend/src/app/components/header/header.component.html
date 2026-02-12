@@ -87,7 +87,7 @@
                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg> Mi Panel
                                 </a>
-                                <a *ngSwitchCase="'Admin'" routerLink="/admin" (click)="closeDropdown()"
+                                <a *ngSwitchCase="'Admin'" routerLink="/admin/panel" (click)="closeDropdown()"
                                     class="flex items-center gap-3 px-6 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-colors mx-2 rounded-xl">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
@@ -107,6 +107,23 @@
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg> Configuración
                             </a>
+                        </div>
+
+                        <!-- Theme Toggle -->
+                        <!-- Theme Toggle (Fixed) -->
+                        <div class="px-6 py-2 border-t border-gray-50 dark:border-gray-700">
+                            <button (click)="themeService.toggleDarkMode()"
+                                class="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                                <span class="flex items-center gap-2">
+                                    <span>{{ isDarkMode ? 'Modo Oscuro' : 'Modo Claro' }}</span>
+                                </span>
+                                <!-- Simple toggle indicator -->
+                                <div
+                                    class="w-8 h-4 bg-gray-300 dark:bg-orange-500 rounded-full relative transition-colors">
+                                    <div class="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform"
+                                        [class.translate-x-4]="isDarkMode"></div>
+                                </div>
+                            </button>
                         </div>
 
                         <!-- Footer Logout -->

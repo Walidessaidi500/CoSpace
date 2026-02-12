@@ -58,6 +58,43 @@ export const routes: Routes = [
         canActivate: [anfitrionGuard]
     },
 
+    // Rutas de Administrador
+    {
+        path: 'admin/panel',
+        loadComponent: () => import('./components/panel-admin/panel-admin.component').then(m => m.PanelAdminComponent),
+        title: 'CoSpace - Admin Dashboard'
+    },
+    {
+        path: 'admin/espacios',
+        loadComponent: () => import('./components/espacios-admin/espacios-admin.component').then(m => m.EspaciosAdminComponent),
+        title: 'CoSpace - Gestión de Espacios'
+    },
+    {
+        path: 'admin/editar-espacio/:id',
+        loadComponent: () => import('./components/espacio-admin-edit/espacio-admin-edit.component').then(m => m.EspacioAdminEditComponent),
+        title: 'CoSpace - Editar Espacio (Admin)'
+    },
+    {
+        path: 'admin/usuarios',
+        loadComponent: () => import('./components/usuarios-admin/usuarios-admin.component').then(m => m.UsuariosAdminComponent),
+        title: 'CoSpace - Gestión de Usuarios'
+    },
+    {
+        path: 'admin/editar-usuario/:id',
+        loadComponent: () => import('./components/usuario-admin-edit/usuario-admin-edit.component').then(m => m.UsuarioAdminEditComponent),
+        title: 'CoSpace - Editar Usuario (Admin)'
+    },
+    {
+        path: 'admin/reservas',
+        loadComponent: () => import('./components/reservas-admin/reservas-admin.component').then(m => m.ReservasAdminComponent),
+        title: 'CoSpace - Gestión de Reservas'
+    },
+    {
+        path: 'admin/editar-reserva/:id',
+        loadComponent: () => import('./components/reserva-admin-edit/reserva-admin-edit.component').then(m => m.ReservaAdminEditComponent),
+        title: 'CoSpace - Editar Reserva (Admin)'
+    },
+
     // Auth
     {
         path: 'verify-2fa',

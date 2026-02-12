@@ -30,6 +30,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    
+    // Admin Routes
+    Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'getDashboardStats']);
+    
+    // Admin Spaces Management
+    Route::get('/admin/espacios', [App\Http\Controllers\AdminController::class, 'getAllSpaces']);
+    Route::delete('/admin/espacios/{id}', [App\Http\Controllers\AdminController::class, 'destroy']);
+    Route::post('/admin/espacios/{id}', [App\Http\Controllers\AdminController::class, 'update']);
+
+    // Admin Users Management
+    Route::get('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'getAllUsers']);
+    Route::delete('/admin/usuarios/{id}', [App\Http\Controllers\AdminController::class, 'destroyUser']);
+    Route::post('/admin/usuarios/{id}', [App\Http\Controllers\AdminController::class, 'updateUser']);
+
+    // Admin Reservations Management
+    Route::get('/admin/reservas', [App\Http\Controllers\AdminController::class, 'getAllReservations']);
+    Route::delete('/admin/reservas/{id}', [App\Http\Controllers\AdminController::class, 'destroyReservation']);
+    Route::post('/admin/reservas/{id}', [App\Http\Controllers\AdminController::class, 'updateReservation']);
+
     Route::post('/update-profile', [AuthController::class, 'updateProfile']);
     Route::post('/update-2fa-settings', [AuthController::class, 'update2FASettings']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);

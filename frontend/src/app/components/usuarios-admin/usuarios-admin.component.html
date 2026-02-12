@@ -1,0 +1,131 @@
+<div class="flex h-screen bg-gray-50 dark:bg-[#0b1120] overflow-hidden">
+    <!-- Sidebar -->
+    <app-sidebar-admin></app-sidebar-admin>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white dark:bg-[#111827] border-b border-gray-200 dark:border-gray-800 z-10">
+            <div class="px-8 py-6">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Usuarios</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Administra todos los usuarios registrados en la
+                    plataforma</p>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 overflow-y-auto p-8 relative">
+
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <p class="text-gray-500 dark:text-gray-400">Cargando usuarios...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="errorMessage && !isLoading"
+                class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg mb-6">
+                {{ errorMessage }}
+                <button (click)="loadUsuarios()" class="underline ml-2">Reintentar</button>
+            </div>
+
+            <!-- Table -->
+            <div *ngIf="!isLoading && !errorMessage"
+                class="bg-white dark:bg-[#111827] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+                                <th
+                                    class="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    ID</th>
+                                <th
+                                    class="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Usuario</th>
+                                <th
+                                    class="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Rol</th>
+                                <th
+                                    class="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Email</th>
+                                <th
+                                    class="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Fecha Registro</th>
+                                <th
+                                    class="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">
+                                    Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tr *ngFor="let user of usuarios"
+                                class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors group">
+                                <td class="p-4 text-sm text-gray-500 dark:text-gray-400">#{{ user.id }}</td>
+                                <td class="p-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-medium text-xs">
+                                            {{ user.nombre.charAt(0) }}
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{
+                                                user.nombre }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
+                                        [ngClass]="{
+                                            'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300': user.rol === 'admin',
+                                            'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300': user.rol === 'anfitrion',
+                                            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': user.rol === 'cliente'
+                                        }">
+                                        {{ user.rol }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-sm text-gray-600 dark:text-gray-300">{{ user.email }}</td>
+                                <td class="p-4 text-sm text-gray-500 dark:text-gray-400">{{ user.fecha_registro }}</td>
+                                <td class="p-4 text-right">
+                                    <div
+                                        class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button [routerLink]="['/admin/editar-usuario', user.id]"
+                                            class="p-1.5 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                                            title="Editar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z">
+                                                </path>
+                                            </svg>
+                                            </svg>
+                                        </button>
+                                        <button (click)="initiateDelete(user.id)" [disabled]="deletingId === user.id"
+                                            class="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                            title="Eliminar">
+                                            <svg *ngIf="deletingId !== user.id" xmlns="http://www.w3.org/2000/svg"
+                                                width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                            </svg>
+                                            <div *ngIf="deletingId === user.id"
+                                                class="animate-spin h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full px-0.5">
+                                            </div>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirm Modal -->
+    <app-confirm-modal [isOpen]="showDeleteModal" [title]="modalTitle" [message]="dialogMessage"
+        [isLoading]="deletingId !== null" (confirm)="confirmDelete()" (cancel)="closeDeleteModal()">
+    </app-confirm-modal>
+</div>
