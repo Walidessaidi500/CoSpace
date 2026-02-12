@@ -65,6 +65,7 @@ class ReservaController extends Controller
                     'fecha_inicio' => $request->fecha_inicio,
                     'fecha_fin' => $request->fecha_fin
                 ],
+                'description' => 'Reserva de espacio: ' . $espacio->titulo,
             ]);
 
             return response()->json([

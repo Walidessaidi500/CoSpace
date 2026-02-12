@@ -48,6 +48,7 @@ export class ReservaComponent implements OnInit {
   showPayment: boolean = false;
   isProcessingPayment: boolean = false;
   elements: StripeElements | undefined;
+  paymentRequest: any; // Stores the Payment Request object
 
 
   ngOnInit() {
@@ -210,13 +211,28 @@ export class ReservaComponent implements OnInit {
 
   isDateSelected(date: Date): boolean {
     if (!date || !this.selectedStartDate) return false;
-    return date.getTime() === this.selectedStartDate.getTime() ||
-      (this.selectedEndDate ? date.getTime() === this.selectedEndDate.getTime() : false);
+
+    const isStart = this.isSameDay(date, this.selectedStartDate);
+    const isEnd = this.selectedEndDate ? this.isSameDay(date, this.selectedEndDate) : false;
+
+    return isStart || isEnd;
   }
 
   isDateInRange(date: Date): boolean {
     if (!date || !this.selectedStartDate || !this.selectedEndDate) return false;
-    return date > this.selectedStartDate && date < this.selectedEndDate;
+
+    // Normalize to 00:00:00 for range comparison
+    const d = new Date(date).setHours(0, 0, 0, 0);
+    const start = new Date(this.selectedStartDate).setHours(0, 0, 0, 0);
+    const end = new Date(this.selectedEndDate).setHours(0, 0, 0, 0);
+
+    return d > start && d < end;
+  }
+
+  private isSameDay(d1: Date, d2: Date): boolean {
+    return d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate();
   }
 
   loadEspacio(id: string) {
@@ -268,16 +284,67 @@ export class ReservaComponent implements OnInit {
           this.showPayment = true;
           this.cdr.detectChanges();
 
-          this.stripeService.elements({
-            clientSecret: res.clientSecret,
-            appearance: { theme: 'stripe' },
-            locale: 'es'
-          }).subscribe(elements => {
-            this.elements = elements;
-            const paymentElement = this.elements.create('payment', {
-              layout: 'tabs'
+          // 1. Setup Payment Request (Apple Pay / Google Pay)
+          const amount = Math.round(res.details.monto_total * 100);
+          const prOptions = {
+            country: 'ES',
+            currency: 'eur',
+            total: {
+              label: 'Reserva Total',
+              amount: amount
+            },
+            requestPayerName: true,
+            requestPayerEmail: true
+          };
+
+          const pr = this.stripeService.paymentRequest(prOptions);
+          this.paymentRequest = pr;
+
+          // Check availability (Apple Pay needs HTTPS/valid domain, Google Pay needs HTTPS/localhost)
+          pr.canMakePayment().then((result: any) => {
+            const walletAvailable = !!result;
+
+            if (walletAvailable) {
+              // Handle Wallet Payment
+              pr.on('paymentmethod', (ev: any) => {
+                this.stripeService.confirmCardPayment(res.clientSecret, {
+                  payment_method: ev.paymentMethod.id
+                }).subscribe(confirmResult => {
+                  if (confirmResult.error) {
+                    ev.complete('fail');
+                    alert('Error en pago con Wallet: ' + confirmResult.error.message);
+                  } else {
+                    ev.complete('success');
+                    if (confirmResult.paymentIntent && confirmResult.paymentIntent.status === 'succeeded') {
+                      this.finalizarReservaEnBD(confirmResult.paymentIntent.id);
+                    }
+                  }
+                });
+              });
+            }
+
+            // 2. Initialize Standard Elements (Always)
+            this.stripeService.elements({
+              clientSecret: res.clientSecret,
+              appearance: { theme: 'stripe' },
+              locale: 'es'
+            }).subscribe(elements => {
+              this.elements = elements;
+
+              // Mount Standard Payment Element
+              const paymentElement = this.elements.create('payment', {
+                layout: 'tabs'
+              });
+              paymentElement.mount('#payment-element');
+
+              // Mount Wallet Button if available
+              if (walletAvailable) {
+                const prButton = this.elements.create('paymentRequestButton', {
+                  paymentRequest: pr
+                });
+                prButton.mount('#payment-request-button');
+              }
             });
-            paymentElement.mount('#payment-element');
           });
 
         } else {
@@ -289,7 +356,7 @@ export class ReservaComponent implements OnInit {
         console.error('Error detallado:', err);
         this.isLoading = false;
 
-        // Debugging: Show full structure if message is missing
+        // Debugging
         let errorDetails = '';
         if (err.error && typeof err.error === 'object') {
           errorDetails = JSON.stringify(err.error, null, 2);
