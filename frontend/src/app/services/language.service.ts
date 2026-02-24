@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
@@ -6,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class LanguageService {
     private translate = inject(TranslateService);
+    private platformId = inject(PLATFORM_ID);
 
     // Lista centralizada de idiomas disponibles
     availableLanguages = [
@@ -20,8 +22,12 @@ export class LanguageService {
         this.translate.addLangs(this.availableLanguages.map(l => l.code));
         this.translate.setDefaultLang('es');
 
-        const savedLang = localStorage.getItem('language');
-        const browserLang = this.translate.getBrowserLang();
+        let savedLang = null;
+        if (isPlatformBrowser(this.platformId)) {
+            savedLang = localStorage.getItem('language');
+        }
+
+        const browserLang = isPlatformBrowser(this.platformId) ? this.translate.getBrowserLang() : 'es';
         // Usa el idioma guardado, o el del navegador si está soportado, o español por defecto
         const defaultLang = savedLang || (browserLang && this.availableLanguages.some(l => l.code === browserLang) ? browserLang : 'es');
 
@@ -30,7 +36,9 @@ export class LanguageService {
 
     setLanguage(lang: string) {
         this.translate.use(lang);
-        localStorage.setItem('language', lang);
+        if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('language', lang);
+        }
     }
 
     getCurrentLanguage() {
