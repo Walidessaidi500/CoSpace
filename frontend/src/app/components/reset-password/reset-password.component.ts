@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -25,6 +25,7 @@ export class ResetPasswordComponent {
     private authService = inject(AuthService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private cdr = inject(ChangeDetectorRef);
 
     ngOnInit() {
         // Pre-fill email if passed from forgot-password
@@ -40,11 +41,13 @@ export class ResetPasswordComponent {
         this.isLoading = true;
         this.message = '';
         this.errorMessage = '';
+        this.cdr.detectChanges();
 
         this.authService.resetPassword(this.email, this.code, this.password, this.password_confirmation).subscribe({
             next: (res: any) => {
                 this.isLoading = false;
                 this.message = 'Contraseña restablecida correctamente. Redirigiendo...';
+                this.cdr.detectChanges();
                 setTimeout(() => {
                     this.router.navigate(['/iniciar-sesion']);
                 }, 3000);
@@ -52,6 +55,7 @@ export class ResetPasswordComponent {
             error: (err) => {
                 this.isLoading = false;
                 this.errorMessage = err.error?.message || 'Error al restablecer contraseña.';
+                this.cdr.detectChanges();
             }
         });
     }

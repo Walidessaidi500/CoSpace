@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\TwoFactorCode;
 use App\Mail\ResetPasswordBrevo;
 use Carbon\Carbon;
+use Brevo\Brevo;
+use Brevo\TransactionalEmails\Requests\SendTransacEmailRequest;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestSender;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestToItem;
+use Illuminate\Support\Facades\View;
 
 class AuthController extends Controller
 {
@@ -193,13 +198,13 @@ class AuthController extends Controller
             // Si 'telefono' NO está en la tabla 'usuarios' sino en 'clientes'/'anfitriones', necesitas lógica aquí.
             // Basado en contexto previo, 'telefono' estaba en 'clientes'. Verificamos tipo de usuario.
             if ($request->has('telefono')) {
-                 if ($user->tipo_usuario === 'Cliente') {
-                     \App\Models\Cliente::updateOrCreate(
-                         ['id_usuario' => $user->id_usuario],
-                         ['telefono' => $request->telefono]
-                     );
-                 }
-                 // Añadir lógica para Anfitrión si es necesario, o si Usuario tiene columna telefono
+                if ($user->tipo_usuario === 'Cliente') {
+                    \App\Models\Cliente::updateOrCreate(
+                        ['id_usuario' => $user->id_usuario],
+                        ['telefono' => $request->telefono]
+                    );
+                }
+                // Añadir lógica para Anfitrión si es necesario, o si Usuario tiene columna telefono
             }
 
             $user->save();
@@ -285,8 +290,32 @@ class AuthController extends Controller
         $usuario->save();
 
         try {
-            Mail::to($usuario->email)->send(new ResetPasswordBrevo($code));
-        } catch (\Exception $e) {
+            // Configurar integración de la API de Brevo (v4.x)
+            $brevo = new Brevo(env('BREVO_API_KEY', ''));
+
+            // Renderizar la vista de correo existente en HTML
+            $htmlContent = View::make('emails.reset_password', ['code' => $code])->render();
+
+            $requestSmtpEmail = new SendTransacEmailRequest([
+                'subject' => 'Restablecer Contraseña - CoSpace',
+                'htmlContent' => $htmlContent,
+                'sender' => new SendTransacEmailRequestSender([
+                    'name' => env('APP_NAME', 'CoSpace'),
+                    'email' => env('MAIL_FROM_ADDRESS', 'no-reply@cospace.com')
+                ]),
+                'to' => [
+                    new SendTransacEmailRequestToItem([
+                        'email' => $usuario->email,
+                        'name' => $usuario->nombre_completo
+                    ])
+                ]
+            ]);
+
+            // Enviar a través de Brevo API
+            $brevo->transactionalEmails->sendTransacEmail($requestSmtpEmail);
+        } catch (\Brevo\Exceptions\BrevoApiException $e) {
+            Log::error('Forgot Password Email Error (Brevo API): ' . $e->getMessage() . ' | Body: ' . json_encode($e->getBody()));
+        } catch (\Throwable $e) {
             Log::error('Forgot Password Email Error: ' . $e->getMessage());
         }
 
@@ -319,7 +348,8 @@ class AuthController extends Controller
         return response()->json(['message' => 'Código inválido o expirado'], 400);
     }
 
-    public function update2FASettings(Request $request) {
+    public function update2FASettings(Request $request)
+    {
         $user = $request->user();
         $request->validate(['enabled' => 'required|boolean']);
 
