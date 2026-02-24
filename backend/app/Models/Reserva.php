@@ -85,4 +85,23 @@ class Reserva extends Model
     {
         return $this->belongsTo(Usuario::class, 'id_cliente', 'id_usuario');
     }
+
+    /**
+     * Eliminar en cascada a través de Eloquent
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($reserva) {
+            // Eliminar dependencias antes de borrar la reserva para evitar error 1451 FK constraint
+            if ($reserva->pago) {
+                $reserva->pago->delete();
+            }
+            if ($reserva->valoracion) {
+                $reserva->valoracion->delete();
+            }
+            $reserva->ajustes()->delete(); // hasMany
+        });
+    }
 }

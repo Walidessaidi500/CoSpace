@@ -59,7 +59,7 @@ class UsersTestSeeder extends Seeder
                 [
                     'nombre_completo' => "Admin Prueba {$i}",
                     'password'        => Hash::make('password123'),
-                    'tipo_usuario'    => 'Admin', // Corregido: 'Admin' en lugar de 'Administrador'
+                    'tipo_usuario'    => 'Admin', 
                     'estado_cuenta'   => 'Activo'
                 ]
             );

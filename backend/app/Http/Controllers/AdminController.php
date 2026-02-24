@@ -175,6 +175,7 @@ class AdminController extends Controller
                     'nombre' => $user->nombre_completo,
                     'email' => $user->email,
                     'rol' => $user->tipo_usuario,
+                    'estado_cuenta' => $user->estado_cuenta,
                     'fecha_registro' => $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A',
                 ];
             });
@@ -211,14 +212,15 @@ class AdminController extends Controller
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'nombre_completo' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|max:255|unique:usuarios,email,' . $id . ',id_usuario',
-            'tipo_usuario' => 'sometimes|required|string|in:cliente,anfitrion,admin', // Adjust roles as needed
+            'tipo_usuario' => 'sometimes|required|string|in:Cliente,Anfitrion,Admin', // Fix the roles here
+            'estado_cuenta' => 'sometimes|required|string|in:Activo,Suspendido,Pendiente',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['message' => 'Datos inválidos', 'errors' => $validator->errors()], 422);
         }
 
-        $user->update($request->only(['nombre_completo', 'email', 'tipo_usuario']));
+        $user->update($request->only(['nombre_completo', 'email', 'tipo_usuario', 'estado_cuenta']));
 
         return response()->json([
             'message' => 'Usuario actualizado exitosamente',
@@ -229,6 +231,18 @@ class AdminController extends Controller
 
     public function getAllReservations()
     {
+        $now = Carbon::now();
+
+        // Auto-sync statuses before returning
+        Reserva::where('estado', 'Confirmada')
+            ->where('fecha_inicio', '<=', $now)
+            ->where('fecha_fin', '>=', $now)
+            ->update(['estado' => 'En_Curso']);
+
+        Reserva::whereIn('estado', ['Confirmada', 'En_Curso'])
+            ->where('fecha_fin', '<', $now)
+            ->update(['estado' => 'Finalizada']);
+
         $reservas = Reserva::with(['usuario', 'espacio'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -283,5 +297,47 @@ class AdminController extends Controller
             'message' => 'Reserva actualizada exitosamente',
             'data' => $reserva
         ]);
+    }
+
+    // --- Gestión de Pagos ---
+
+    public function getAllPagos()
+    {
+        $pagos = \App\Models\Pago::with([
+            'reserva',
+            'reserva.usuario',
+            'reserva.espacio'
+        ])
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($pago) {
+            return [
+                'id'             => $pago->id_pago,
+                'id_reserva'     => $pago->id_reserva,
+                'cliente'        => optional(optional($pago->reserva)->usuario)->nombre_completo ?? 'N/A',
+                'email'          => optional(optional($pago->reserva)->usuario)->email ?? 'N/A',
+                'espacio'        => optional(optional($pago->reserva)->espacio)->titulo ?? 'N/A',
+                'monto'          => $pago->monto_pagado,
+                'metodo_pago'    => $pago->metodo_pago ?? 'Tarjeta',
+                'estado_pago'    => $pago->estado_pago ?? 'Completado',
+                'fecha_pago'     => $pago->created_at ? $pago->created_at->format('d/m/Y H:i') : 'N/A',
+                'id_transaccion' => '', // Ya no tenemos esta columna en la DB
+            ];
+        });
+
+        return response()->json($pagos);
+    }
+
+    public function destroyPago($id)
+    {
+        $pago = \App\Models\Pago::find($id);
+
+        if (!$pago) {
+            return response()->json(['message' => 'Pago no encontrado'], 404);
+        }
+
+        $pago->delete();
+
+        return response()->json(['message' => 'Pago eliminado correctamente']);
     }
 }

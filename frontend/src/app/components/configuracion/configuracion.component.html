@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-gray-50 dark:bg-[#0d1b2a] py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+<div class="min-h-screen bg-gray-50 dark:bg-primary-blue py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
     <div class="max-w-6xl mx-auto space-y-8">
 
         <!-- Header -->
         <div class="text-left">
-            <h1 class="text-3xl font-extrabold text-[#0d1b2a] dark:text-white tracking-tight">{{ 'SETTINGS.TITLE' |
+            <h1 class="text-3xl font-extrabold text-primary-blue dark:text-white tracking-tight">{{ 'SETTINGS.TITLE' |
                 translate }}</h1>
             <p class="mt-2 text-lg text-gray-500 dark:text-gray-400">{{ 'SETTINGS.DESCRIPTION' | translate }}
             </p>
@@ -51,7 +51,7 @@
                                     </span>
                                 </div>
                                 <label for="fileInput"
-                                    class="absolute bottom-0 right-0 bg-[#0d1b2a] dark:bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors cursor-pointer">
+                                    class="absolute bottom-0 right-0 bg-primary-blue dark:bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -92,7 +92,7 @@
 
                             <div class="pt-4 flex justify-end">
                                 <button type="submit" [disabled]="profileForm.invalid || isLoading"
-                                    class="px-6 py-2.5 bg-[#0d1b2a] dark:bg-blue-600 text-white font-medium rounded-xl shadow-lg hover:bg-black dark:hover:bg-blue-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                    class="px-6 py-2.5 bg-primary-blue dark:bg-blue-600 text-white font-medium rounded-xl shadow-lg hover:bg-black dark:hover:bg-blue-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                     {{ isLoading ? ('SETTINGS.PROFILE.SAVING' | translate) : ('SETTINGS.PROFILE.SAVE' |
                                     translate) }}
                                 </button>
@@ -130,10 +130,10 @@
                                     'SETTINGS.PREFERENCES.DARK_MODE_DESC' | translate }}
                                 </p>
                             </div>
-                            <button (click)="toggleDarkMode()" [class.bg-[#0d1b2a]]="themeService.darkMode()"
+                            <button (click)="toggleDarkMode()" [class.bg-primary-blue]="themeService.darkMode()"
                                 [class.bg-gray-200]="!themeService.darkMode()"
                                 [class.dark:bg-blue-600]="themeService.darkMode()"
-                                class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0d1b2a] dark:focus:ring-blue-500">
+                                class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue dark:focus:ring-blue-500">
                                 <span [class.translate-x-6]="themeService.darkMode()"
                                     [class.translate-x-1]="!themeService.darkMode()"
                                     class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-300 shadow-md"></span>
@@ -278,7 +278,7 @@
 
 <!-- Loading Overlay -->
 <div *ngIf="isLoading"
-    class="fixed inset-0 bg-white/80 dark:bg-[#0d1b2a]/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-all">
+    class="fixed inset-0 bg-white/80 dark:bg-primary-blue/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-all">
     <div
         class="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 dark:border-gray-700 border-t-primary-orange">
     </div>
@@ -319,7 +319,7 @@
 
         <!-- Header -->
         <div
-            class="px-6 py-4 bg-gray-50 dark:bg-[#0d1b2a] border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            class="px-6 py-4 bg-gray-50 dark:bg-primary-blue border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                 {{ 'SETTINGS.MODALS.CHANGE_PASSWORD.TITLE' | translate }}
             </h3>

@@ -42,11 +42,11 @@ export class Verify2faComponent {
                 // Auth service logic inside verify2FA should handle token storage
                 const role = this.authService.getRole();
                 if (role === 'Anfitrion') {
-                    this.router.navigate(['/anfitrion/mis-areas']);
+                    setTimeout(() => this.router.navigate(['/anfitrion/mis-areas']), 500);
                 } else if (role === 'Cliente') {
-                    this.router.navigate(['/explorar']); // O panel de cliente
+                    setTimeout(() => this.router.navigate(['/cliente/panel']), 500);
                 } else {
-                    this.router.navigate(['/']);
+                    setTimeout(() => this.router.navigate(['/explorar']), 500);
                 }
             },
             error: (err) => {

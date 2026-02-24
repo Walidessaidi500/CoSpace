@@ -74,17 +74,15 @@ export class PanelClienteComponent implements OnInit {
     }
 
     filterReservations() {
-        const now = new Date();
-
         if (this.activeTab === 'active') {
-            // Active: future reservations that are not cancelled
+            // Active: Confirmada or En_Curso (not cancelled, not finished)
             this.filteredReservations = this.reservations.filter(r =>
-                new Date(r.fecha_fin) >= now && r.estado !== 'Cancelada'
+                r.estado === 'Confirmada' || r.estado === 'En_Curso' || r.estado === 'Pendiente'
             );
         } else {
-            // Past: past reservations or cancelled ones
+            // Past: Finalizada or Cancelada
             this.filteredReservations = this.reservations.filter(r =>
-                new Date(r.fecha_fin) < now || r.estado === 'Cancelada'
+                r.estado === 'Finalizada' || r.estado === 'Cancelada'
             );
         }
     }
@@ -140,9 +138,10 @@ export class PanelClienteComponent implements OnInit {
         if (reserva.espacio?.fotos && reserva.espacio.fotos.length > 0) {
             // Find principal photo or fallback to first one
             // Note: es_principal might be 1/0 or true/false depending on backend serialization
-            const principalPhoto = reserva.espacio.fotos.find((f: any) => f.es_principal) || reserva.espacio.fotos[0];
+            const principalPhoto = reserva.espacio.fotos.find((f: any) => f.es_principal == 1 || f.es_principal === true) || reserva.espacio.fotos[0];
             const url = principalPhoto.url_foto;
 
+            if (url.startsWith('http')) return url;
             const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
             const cleanUrl = url.startsWith('/') ? url : `/${url}`;
             return `${baseUrl}${cleanUrl}`;

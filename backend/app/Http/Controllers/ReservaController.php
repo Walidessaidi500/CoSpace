@@ -11,6 +11,26 @@ use Carbon\Carbon;
 class ReservaController extends Controller
 {
     /**
+     * Auto-sync reservation statuses based on current date.
+     * - Confirmada + fecha_inicio <= now => En_Curso
+     * - En_Curso/Confirmada + fecha_fin < now => Finalizada
+     */
+    private function autoSyncEstados()
+    {
+        $now = Carbon::now();
+
+        // Reservas confirmadas cuyo plazo ya ha empezado => En_Curso
+        Reserva::where('estado', 'Confirmada')
+            ->where('fecha_inicio', '<=', $now)
+            ->where('fecha_fin', '>=', $now)
+            ->update(['estado' => 'En_Curso']);
+
+        // Reservas en curso o confirmadas cuyo plazo ya ha terminado => Finalizada
+        Reserva::whereIn('estado', ['Confirmada', 'En_Curso'])
+            ->where('fecha_fin', '<', $now)
+            ->update(['estado' => 'Finalizada']);
+    }
+    /**
      * Paso 1: Inicializar Intención de Pago
      * Valida disponibilidad y crea una Intención de Stripe. NO guarda en BD todavía.
      */
@@ -150,7 +170,14 @@ class ReservaController extends Controller
                 'fecha_fin' => $end,
                 'monto_total' => $montoTotal,
                 'estado' => 'Confirmada', // Confirmada directamente como pagada
-                // 'payment_id' => $paymentIntent->id // Si tuvieras una columna para esto
+            ]);
+
+            // Registrar el pago en la base de datos
+            \App\Models\Pago::create([
+                'id_reserva' => $reserva->id_reserva,
+                'monto_pagado' => $montoTotal,
+                'metodo_pago' => 'Tarjeta',
+                'estado_pago' => 'Completado'
             ]);
 
             return response()->json([
@@ -182,6 +209,9 @@ class ReservaController extends Controller
     {
         $user = $request->user();
 
+        // Auto-sync statuses before returning
+        $this->autoSyncEstados();
+
         \Illuminate\Support\Facades\Log::info("Fetching reservations for host: " . $user->id_usuario);
 
         $reservas = Reserva::whereHas('espacio', function ($query) use ($user) {
@@ -191,7 +221,7 @@ class ReservaController extends Controller
                 $query->select('id_espacio', 'titulo', 'ciudad', 'direccion');
             },
             'espacio.fotos',
-            'usuario:id_usuario,nombre_completo,email,foto_perfil' // Eager load usuario data
+            'usuario:id_usuario,nombre_completo,email,foto_perfil'
         ])
         ->orderBy('fecha_inicio', 'desc')
         ->get();
@@ -205,6 +235,9 @@ class ReservaController extends Controller
     public function indexCliente(Request $request)
     {
         $user = $request->user();
+
+        // Auto-sync statuses before returning
+        $this->autoSyncEstados();
 
         $reservas = Reserva::where('id_cliente', $user->id_usuario)
             ->with([
@@ -242,5 +275,38 @@ class ReservaController extends Controller
         $reserva->save();
 
         return response()->json(['message' => 'Reserva cancelada correctamente', 'reserva' => $reserva]);
+    }
+
+    /**
+     * Anfitrión cambia el estado de una reserva de sus espacios.
+     */
+    public function updateEstadoAnfitrion(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'estado' => 'required|string|in:Confirmada,En_Curso,Finalizada,Cancelada',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Estado no válido', 'errors' => $validator->errors()], 422);
+        }
+
+        // Find the reservation and verify it belongs to one of the host's spaces
+        $reserva = Reserva::whereHas('espacio', function ($query) use ($user) {
+            $query->where('id_anfitrion', $user->id_usuario);
+        })->where('id_reserva', $id)->first();
+
+        if (!$reserva) {
+            return response()->json(['message' => 'Reserva no encontrada o no tienes permisos'], 404);
+        }
+
+        $reserva->estado = $request->estado;
+        $reserva->save();
+
+        return response()->json([
+            'message' => 'Estado actualizado correctamente',
+            'reserva' => $reserva
+        ]);
     }
 }

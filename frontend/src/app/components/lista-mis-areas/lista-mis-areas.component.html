@@ -14,7 +14,7 @@
     <div *ngFor="let item of [1,2,3]"
         class="bg-white dark:bg-[#1a2736] rounded-2xl shadow-lg border border-neutral-200 dark:border-gray-700 overflow-hidden flex flex-col h-[480px]">
         <div class="h-56 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-        <div class="p-6 flex-grow flex flex-col justify-between">
+        <div class="p-6 grow flex flex-col justify-between">
             <div>
                 <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4 animate-pulse"></div>
                 <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-6 animate-pulse"></div>
@@ -41,7 +41,7 @@
         </div>
 
         <!-- Contenido -->
-        <div class="p-6 flex-grow flex flex-col justify-between">
+        <div class="p-6 grow flex flex-col justify-between">
             <div>
                 <h3
                     class="text-xl font-bold text-slate-900 dark:text-white mb-1 truncate group-hover:text-primary-orange transition-colors">
@@ -59,7 +59,7 @@
 
                 <div class="text-slate-900 dark:text-white">
                     <span class="font-black text-xl">{{ espacio.precio_hora }}€</span>
-                    <span class="text-gray-400 font-normal">/hora</span>
+                    <span class="text-gray-400 font-normal">/día</span>
                 </div>
             </div>
 

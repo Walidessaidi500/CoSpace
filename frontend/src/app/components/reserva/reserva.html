@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-gray-50 dark:bg-[#0d1b2a] transition-colors duration-300 py-10">
+<div class="min-h-screen bg-gray-50 dark:bg-primary-blue transition-colors duration-300 py-10">
 
     <div *ngIf="isLoading" class="flex flex-col items-center justify-center min-h-[60vh]">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ff7a00] mb-4"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-orange mb-4"></div>
         <p class="text-gray-500 dark:text-gray-400">Cargando detalles de reserva...</p>
     </div>
 
@@ -9,7 +9,7 @@
         <div class="bg-red-50 dark:bg-red-900/30 p-6 rounded-2xl max-w-md border border-red-100 dark:border-red-800">
             <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error</h3>
             <p class="text-gray-700 dark:text-gray-300 mb-4">{{ errorMessage }}</p>
-            <button routerLink="/" class="text-sm font-semibold text-[#ff7a00] hover:underline">
+            <button routerLink="/" class="text-sm font-semibold text-primary-orange hover:underline">
                 Volver al inicio
             </button>
         </div>
@@ -23,7 +23,7 @@
             <!-- Left Column: Selection (8 cols) -->
             <div
                 class="lg:col-span-8 bg-white dark:bg-[#1a2736] rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
-                <h2 class="text-xl font-medium text-gray-800 dark:text-white mb-8">Seleccionar Fecha y Hora</h2>
+                <h2 class="text-xl font-medium text-gray-800 dark:text-white mb-8">Seleccionar Fechas</h2>
 
                 <div class="space-y-8">
                     <!-- Date Selection Section -->
@@ -32,7 +32,7 @@
 
                         <!-- Calendar Container (Now Functional) -->
                         <div
-                            class="max-w-sm mx-auto bg-white dark:bg-[#0d1b2a] rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm select-none transition-colors">
+                            class="max-w-sm mx-auto bg-white dark:bg-primary-blue rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm select-none transition-colors">
 
                             <!-- Calendar Header -->
                             <div class="flex items-center justify-between mb-6">
@@ -71,7 +71,7 @@
                                         <button *ngIf="date" (click)="selectDate(date)"
                                             class="w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-200"
                                             [ngClass]="{
-                                                'bg-[#0d1b2a] dark:bg-white text-white dark:text-[#0d1b2a] font-medium shadow-md scale-105': isDateSelected(date),
+                                                'bg-primary-blue dark:bg-white text-white dark:text-primary-blue font-medium shadow-md scale-105': isDateSelected(date),
                                                 'bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-300': isDateInRange(date),
                                                 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700': !isDateSelected(date) && !isDateInRange(date)
                                             }">
@@ -90,14 +90,14 @@
                             <label class="block text-lg font-bold text-gray-900 dark:text-white">Fecha Inicio</label>
                             <div class="relative">
                                 <input type="datetime-local" [(ngModel)]="fechaInicio" (change)="onDateChange()"
-                                    class="w-full bg-gray-100 dark:bg-gray-700/50 rounded-xl px-4 py-3 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff7a00] border-transparent border dark:border-gray-600 transition-colors">
+                                    class="w-full bg-gray-100 dark:bg-gray-700/50 rounded-xl px-4 py-3 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-orange border-transparent border dark:border-gray-600 transition-colors">
                             </div>
                         </div>
                         <div class="space-y-3">
                             <label class="block text-lg font-bold text-gray-900 dark:text-white">Fecha Fin</label>
                             <div class="relative">
                                 <input type="datetime-local" [(ngModel)]="fechaFin" (change)="onDateChange()"
-                                    class="w-full bg-gray-100 dark:bg-gray-700/50 rounded-xl px-4 py-3 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff7a00] border-transparent border dark:border-gray-600 transition-colors">
+                                    class="w-full bg-gray-100 dark:bg-gray-700/50 rounded-xl px-4 py-3 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-orange border-transparent border dark:border-gray-600 transition-colors">
                             </div>
                         </div>
                     </div>
@@ -157,10 +157,10 @@
                         </div>
 
                         <button (click)="realizarPago()" [disabled]="isProcessingPayment"
-                            class="w-full bg-[#0d1b2a] dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-[#0d1b2a] font-bold py-4 rounded-xl shadow-sm transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
+                            class="w-full bg-primary-blue dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-primary-blue font-bold py-4 rounded-xl shadow-sm transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
                             <span *ngIf="!isProcessingPayment">Pagar {{ totalPrice | number:'1.2-2' }}€</span>
                             <div *ngIf="isProcessingPayment"
-                                class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white dark:border-[#0d1b2a]">
+                                class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white dark:border-primary-blue">
                             </div>
                         </button>
 
@@ -174,7 +174,7 @@
                     <button *ngIf="!showPayment" (click)="iniciarProcesoReserva()"
                         [disabled]="!fechaInicio || !fechaFin" [ngClass]="{
                             'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500': !fechaInicio || !fechaFin,
-                            'bg-[#0d1b2a] dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-[#0d1b2a] shadow-lg': fechaInicio && fechaFin
+                            'bg-primary-blue dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-primary-blue shadow-lg': fechaInicio && fechaFin
                         }" class="w-full font-bold py-4 rounded-xl transition-all duration-200 text-lg">
                         Confirmar datos y pagar
                     </button>

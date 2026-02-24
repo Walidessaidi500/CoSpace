@@ -13,24 +13,20 @@ class Pago extends Model
     protected $table = 'pagos';
     protected $primaryKey = 'id_pago';
 
-    // Desactivamos timestamps si tu tabla no tiene created_at/updated_at
-    // Normalmente la fecha importante aquí es 'fecha_pago'
-    public $timestamps = false; 
+    // Activamos timestamps ya que la migración incluye $table->timestamps()
+    public $timestamps = true; 
 
     // 2. Asignación Masiva
     protected $fillable = [
         'id_reserva',
-        'monto',            // La cantidad cobrada (puede diferir del total de reserva si hay descuentos)
+        'monto_pagado',     
         'metodo_pago',      // 'Tarjeta', 'PayPal', 'Transferencia'
         'estado_pago',      // 'Pendiente', 'Completado', 'Fallido', 'Reembolsado'
-        'fecha_pago',       // Fecha y hora real de la transacción
-        'id_transaccion'    // ID externo de Stripe/PayPal (vital para reembolsos)
     ];
 
     // 3. Casteo de Tipos
     protected $casts = [
-        'monto' => 'decimal:2',
-        'fecha_pago' => 'datetime',
+        'monto_pagado' => 'decimal:2',
     ];
 
     // 4. Relaciones

@@ -1,24 +1,24 @@
 <header
-    class="bg-white dark:bg-[#0d1b2a] border-b border-[rgba(0,0,0,0.05)] dark:border-gray-800 fixed w-full top-0 z-50 font-sans transition-colors duration-300">
+    class="bg-white dark:bg-primary-blue border-b border-[rgba(0,0,0,0.05)] dark:border-gray-800 fixed w-full top-0 z-50 font-sans transition-colors duration-300">
     <div class="w-full px-8 sm:px-12 lg:px-16">
         <div class="flex justify-between items-center h-20">
             <!-- Logo -->
-            <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" routerLink="/">
+            <div class="shrink-0 flex items-center gap-3 cursor-pointer" routerLink="/">
                 <div
-                    class="w-10 h-10 bg-[#0d1b2a] dark:bg-white rounded-xl flex items-center justify-center text-white dark:text-[#0d1b2a] font-semibold text-lg transition-colors">
+                    class="w-10 h-10 bg-primary-blue dark:bg-white rounded-xl flex items-center justify-center text-white dark:text-primary-blue font-semibold text-lg transition-colors">
                     C
                 </div>
                 <span
-                    class="font-bold text-2xl text-[#0d1b2a] dark:text-white tracking-tight transition-colors">CoSpace</span>
+                    class="font-bold text-2xl text-primary-blue dark:text-white tracking-tight transition-colors">CoSpace</span>
             </div>
 
             <!-- Navigation -->
             <nav class="hidden md:flex gap-8 items-center">
                 <a routerLink="/"
-                    class="text-[#4a5565] dark:text-gray-300 hover:text-[#0d1b2a] dark:hover:text-white font-medium transition-colors text-[16px]">{{
+                    class="text-neutral-text dark:text-gray-300 hover:text-primary-blue dark:hover:text-white font-medium transition-colors text-[16px]">{{
                     'HEADER.HOME' | translate }}</a>
                 <a routerLink="/explorar"
-                    class="text-[#4a5565] dark:text-gray-300 hover:text-[#0d1b2a] dark:hover:text-white font-medium transition-colors text-[16px]">{{
+                    class="text-neutral-text dark:text-gray-300 hover:text-primary-blue dark:hover:text-white font-medium transition-colors text-[16px]">{{
                     'HEADER.COWORKINGS' | translate }}</a>
 
                 <div *ngIf="currentUser$ | async as user; else loginBlock" class="relative z-50">
@@ -26,18 +26,18 @@
                     <button (click)="toggleDropdown()"
                         class="flex items-center gap-3 focus:outline-none bg-white dark:bg-[#1a2736] p-1 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-600">
                         <div *ngIf="user.foto_perfil; else initialBlock"
-                            class="w-10 h-10 rounded-full border-2 border-white dark:border-[#0d1b2a] shadow-md overflow-hidden">
+                            class="w-10 h-10 rounded-full border-2 border-white dark:border-primary-blue shadow-md overflow-hidden">
                             <img [src]="'http://127.0.0.1:8000/storage/' + user.foto_perfil" alt="Perfil"
                                 class="w-full h-full object-cover">
                         </div>
                         <ng-template #initialBlock>
                             <div
-                                class="w-10 h-10 rounded-full bg-[#ff7a00] flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white dark:ring-[#0d1b2a]">
+                                class="w-10 h-10 rounded-full bg-primary-orange flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white dark:ring-primary-blue">
                                 {{ user.nombre_completo.charAt(0).toUpperCase() }}
                             </div>
                         </ng-template>
                         <div class="hidden lg:flex flex-col items-start mr-1">
-                            <span class="text-[14px] font-semibold text-[#0d1b2a] dark:text-gray-100 leading-tight">
+                            <span class="text-[14px] font-semibold text-primary-blue dark:text-gray-100 leading-tight">
                                 {{ user.nombre_completo }}
                             </span>
                             <span
@@ -146,10 +146,10 @@
                 <!-- Bloque Else: Botones de Login/Registro -->
                 <ng-template #loginBlock>
                     <a routerLink="/iniciar-sesion"
-                        class="text-[#4a5565] dark:text-gray-300 hover:text-[#0d1b2a] dark:hover:text-white font-medium transition-colors text-[16px]">{{
+                        class="text-neutral-text dark:text-gray-300 hover:text-primary-blue dark:hover:text-white font-medium transition-colors text-[16px]">{{
                         'HEADER.LOGIN' | translate }}</a>
                     <a routerLink="/registro-cliente"
-                        class="bg-[#ff7a00] hover:bg-[#e66e00] text-white px-6 py-2.5 rounded-full font-medium transition-colors shadow-sm hover:shadow-md text-[14px]">
+                        class="bg-primary-orange hover:bg-[#e66e00] text-white px-6 py-2.5 rounded-full font-medium transition-colors shadow-sm hover:shadow-md text-[14px]">
                         {{ 'HEADER.REGISTER' | translate }}
                     </a>
                 </ng-template>

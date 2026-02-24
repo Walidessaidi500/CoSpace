@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef, NgZone } fro
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { EspaciosService } from '../../services/espacios';
+import { environment } from '../../../environments/enviroments';
 
 @Component({
     selector: 'app-lista-mis-areas',
@@ -56,13 +57,15 @@ export class ListaMisAreasComponent implements OnInit {
     getImagenPrincipal(espacio: any): string {
         if (espacio.fotos && espacio.fotos.length > 0) {
             // Buscamos la principal
-            const principal = espacio.fotos.find((f: any) => f.es_principal);
+            const principal = espacio.fotos.find((f: any) => f.es_principal == 1 || f.es_principal === true);
             const relativeUrl = principal ? principal.url_foto : espacio.fotos[0].url_foto;
 
             if (relativeUrl.startsWith('http')) {
                 return relativeUrl;
             }
-            return this.backendUrl + relativeUrl;
+            const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+            const cleanUrl = relativeUrl.startsWith('/') ? relativeUrl : `/${relativeUrl}`;
+            return `${baseUrl}${cleanUrl}`;
         }
         // Imagen por defecto si no hay fotos (placeholder)
         return 'https://via.placeholder.com/400x300?text=No+Image';

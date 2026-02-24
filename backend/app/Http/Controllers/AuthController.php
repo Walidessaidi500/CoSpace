@@ -137,6 +137,14 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Verificar si la cuenta está suspendida antes de 2FA
+        if ($usuario->estado_cuenta === 'Suspendido') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Su cuenta ha sido suspendida.',
+            ], 403);
+        }
+
         // 2FA Logic
         if ($usuario->two_factor_enabled) {
             $this->generate2FACode($usuario);
@@ -145,15 +153,6 @@ class AuthController extends Controller
                 'message' => 'Código de verificación enviado a su correo.',
                 'email' => $usuario->email
             ]);
-        }
-
-        // Opcional: Verificar si la cuenta está activa
-        // Asumiendo que estado_cuenta existe en Usuario
-        if ($usuario->estado_cuenta === 'Suspendido') {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Su cuenta ha sido suspendida.',
-            ], 403);
         }
 
         $token = $usuario->createToken('auth_token')->plainTextToken;
@@ -233,8 +232,29 @@ class AuthController extends Controller
         $usuario->save();
 
         try {
-            Mail::to($usuario->email)->send(new TwoFactorCode($code));
-        } catch (\Exception $e) {
+            $brevo = new Brevo(env('BREVO_API_KEY', ''));
+
+            $htmlContent = View::make('emails.two_factor_code', ['code' => $code])->render();
+
+            $requestSmtpEmail = new SendTransacEmailRequest([
+                'subject' => 'Código de Verificación - CoSpace',
+                'htmlContent' => $htmlContent,
+                'sender' => new SendTransacEmailRequestSender([
+                    'name' => env('APP_NAME', 'CoSpace'),
+                    'email' => env('MAIL_FROM_ADDRESS', 'no-reply@cospace.com')
+                ]),
+                'to' => [
+                    new SendTransacEmailRequestToItem([
+                        'email' => $usuario->email,
+                        'name' => $usuario->nombre_completo
+                    ])
+                ]
+            ]);
+
+            $brevo->transactionalEmails->sendTransacEmail($requestSmtpEmail);
+        } catch (\Brevo\Exceptions\BrevoApiException $e) {
+            Log::error('Error sending 2FA email (Brevo API): ' . $e->getMessage() . ' | Body: ' . json_encode($e->getBody()));
+        } catch (\Throwable $e) {
             Log::error('Error sending 2FA email: ' . $e->getMessage());
         }
     }
@@ -252,7 +272,14 @@ class AuthController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
         }
 
-        if ($usuario->two_factor_code === $request->code && Carbon::now()->lt($usuario->two_factor_expires_at)) {
+        if ($usuario->estado_cuenta === 'Suspendido') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Su cuenta ha sido suspendida.',
+            ], 403);
+        }
+
+        if ($usuario->two_factor_code == $request->code && Carbon::now()->lt($usuario->two_factor_expires_at)) {
             // Reset code
             $usuario->two_factor_code = null;
             $usuario->two_factor_expires_at = null;

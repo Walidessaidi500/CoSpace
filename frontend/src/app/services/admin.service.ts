@@ -55,4 +55,26 @@ export class AdminService {
     deleteReservation(id: number): Observable<any> {
         return this.http.delete<any>(`${this.apiUrl}/reservas/${id}`);
     }
+
+    // Gestión de Reportes
+    getAllReportes(): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/reportes`);
+    }
+
+    updateReporteEstado(id: number, estado: string): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/reportes/${id}`, { estado });
+    }
+
+    deleteReporte(id: number): Observable<any> {
+        return this.http.delete<any>(`${this.apiUrl}/reportes/${id}`);
+    }
+
+    // Gestión de Pagos
+    getAllPagos(): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/pagos`);
+    }
+
+    deletePago(id: number): Observable<any> {
+        return this.http.delete<any>(`${this.apiUrl}/pagos/${id}`);
+    }
 }

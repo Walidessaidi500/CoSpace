@@ -13,23 +13,21 @@ class Valoracion extends Model
     protected $table = 'valoraciones';
     protected $primaryKey = 'id_valoracion';
 
-    // Desactivamos timestamps automáticos si usas una columna propia 'fecha_valoracion'
-    public $timestamps = false;
+    // Usar timestamps automáticos (created_at / updated_at)
+    public $timestamps = true;
 
     // 2. Asignación Masiva
     protected $fillable = [
         'id_reserva',
-        'id_espacio',     // Guardamos el ID del espacio para consultas rápidas sin pasar por reserva
-        'id_usuario',     // El autor de la reseña (Cliente)
-        'calificacion',   // Entero (ej: 1 a 5)
-        'comentario',     // Texto de la opinión
-        'fecha_valoracion'
+        'id_espacio',
+        'id_usuario',
+        'puntuacion',
+        'comentario',
     ];
 
     // 3. Casteo de Tipos
     protected $casts = [
-        'fecha_valoracion' => 'datetime',
-        'calificacion'     => 'integer',
+        'puntuacion' => 'integer',
     ];
 
     // 4. Relaciones
@@ -55,6 +53,6 @@ class Valoracion extends Model
      */
     public function autor()
     {
-        return $this->belongsTo(User::class, 'id_usuario', 'id_usuario');
+        return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
     }
 }

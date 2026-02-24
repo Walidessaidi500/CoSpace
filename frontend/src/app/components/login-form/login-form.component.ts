@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -16,6 +16,7 @@ export class LoginFormComponent {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
     private router = inject(Router);
+    private cdr = inject(ChangeDetectorRef);
 
     form = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
@@ -29,6 +30,7 @@ export class LoginFormComponent {
     successMessage: string = '';
 
     isLoading: boolean = false;
+    isSuspended: boolean = false;
 
     onSubmit() {
         console.log('Login Submit Triggered');
@@ -57,34 +59,49 @@ export class LoginFormComponent {
                 if (res.status === '2fa_required') {
                     this.router.navigate(['/verify-2fa'], { queryParams: { email: res.email } });
                     this.isLoading = false;
+                    this.cdr.detectChanges();
                     return;
                 }
 
                 const role = res.data.role;
                 this.successMessage = `Login exitoso como ${role}.`;
+                this.cdr.detectChanges();
 
                 if (role === 'Anfitrion') {
                     setTimeout(() => {
                         this.router.navigate(['/anfitrion/mis-areas']).catch(() => {
                         });
                         this.isLoading = false; // Stop loading after nav starts or delay
+                        this.cdr.detectChanges();
                     }, 1500);
                 } else if (role === 'Cliente') {
                     setTimeout(() => {
                         this.router.navigate(['/cliente/panel']);
                         this.isLoading = false;
+                        this.cdr.detectChanges();
                     }, 500);
                 } else {
                     setTimeout(() => {
                         this.router.navigate(['/explorar']);
                         this.isLoading = false;
+                        this.cdr.detectChanges();
                     }, 500);
                 }
             },
             error: (err) => {
-                console.error(err);
-                this.errorMessage = err.error?.message || 'Error al iniciar sesión. Verifique sus credenciales.';
+                console.error('Error during login:', err);
+
+                const errorMsg = err.error?.message || '';
+
+                if (err.status === 403 && errorMsg.toLowerCase().includes('suspendida')) {
+                    console.log('Account is suspended. Triggering isSuspended view.');
+                    this.isSuspended = true;
+                } else {
+                    this.errorMessage = errorMsg || 'Error al iniciar sesión. Verifique sus credenciales.';
+                }
+
                 this.isLoading = false; // Stop loading on error
+                this.cdr.detectChanges();
             }
         });
     }

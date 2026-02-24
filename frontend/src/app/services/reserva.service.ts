@@ -31,4 +31,8 @@ export class ReservaService {
     getHostReservations(): Observable<any> {
         return this.http.get(`${this.apiUrl}/anfitrion/reservas-recibidas`, { headers: this.getHeaders() });
     }
+
+    updateEstadoAnfitrion(reservaId: number, estado: string): Observable<any> {
+        return this.http.post(`${this.apiUrl}/anfitrion/reservas/${reservaId}/estado`, { estado }, { headers: this.getHeaders() });
+    }
 }

@@ -104,7 +104,7 @@
             "CITY_PLACEHOLDER": "Valencia",
             "CAPACITY": "Capacidad (Personas)",
             "CAPACITY_PLACEHOLDER": "Ej. 10",
-            "PRICE": "Precio por Hora (€)",
+            "PRICE": "Precio por Día (€)",
             "PRICE_PLACEHOLDER": "Ej. 15.50",
             "DESCRIPTION": "Corta Descripción",
             "DESCRIPTION_PLACEHOLDER": "Describe tu espacio de trabajo",
@@ -140,9 +140,9 @@
         "SEARCH_PLACEHOLDER": "Buscar ciudad...",
         "FILTERS": {
             "ALL_PRICES": "Todos los precios",
-            "LESS_THAN_20": "Menos de 20€/h",
-            "BETWEEN_20_50": "20€ - 50€/h",
-            "MORE_THAN_50": "Más de 50€/h",
+            "LESS_THAN_20": "Menos de 20€/d",
+            "BETWEEN_20_50": "20€ - 50€/d",
+            "MORE_THAN_50": "Más de 50€/d",
             "ALL_STATUS": "Todos los estados",
             "AVAILABLE": "Disponible",
             "MAINTENANCE": "En Mantenimiento",
@@ -155,7 +155,7 @@
         "NO_RESULTS": "No se encontraron espacios disponibles en este momento.",
         "ERROR_TITLE": "Error!",
         "CARD": {
-            "PER_HOUR": "/hora",
+            "PER_HOUR": "/día",
             "DETAILS_BTN": "Ver Detalles"
         }
     },
@@ -168,7 +168,7 @@
         "FEATURES_TITLE": "Características",
         "LOCATION_TITLE": "Localización",
         "NO_MAP": "Ubicación exacta no disponible en el mapa",
-        "PRICE_LABEL": "Precio por hora",
+        "PRICE_LABEL": "Precio por día",
         "BOOK_BTN": "Reservar Ya",
         "RESERVED_BTN": "Espacio Reservado",
         "HOST_BTN": "Reservar (No disponible para Anfitriones)",

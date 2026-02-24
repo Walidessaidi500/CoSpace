@@ -94,6 +94,16 @@ export const routes: Routes = [
         loadComponent: () => import('./components/reserva-admin-edit/reserva-admin-edit.component').then(m => m.ReservaAdminEditComponent),
         title: 'CoSpace - Editar Reserva (Admin)'
     },
+    {
+        path: 'admin/reportes',
+        loadComponent: () => import('./components/reportes-admin/reportes-admin.component').then(m => m.ReportesAdminComponent),
+        title: 'CoSpace - Gestión de Reportes'
+    },
+    {
+        path: 'admin/pagos',
+        loadComponent: () => import('./components/pagos-admin/pagos-admin.component').then(m => m.PagosAdminComponent),
+        title: 'CoSpace - Gestión de Pagos'
+    },
 
     // Auth
     {

@@ -69,4 +69,28 @@ class Espacio extends Model
     {
         return $this->hasMany(Reserva::class, 'id_espacio');
     }
+
+    /**
+     * Un espacio tiene muchas Valoraciones.
+     */
+    public function valoraciones()
+    {
+        return $this->hasMany(Valoracion::class, 'id_espacio', 'id_espacio');
+    }
+
+    /**
+     * Eliminar dependencias en cascada a nivel de Eloquent
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($espacio) {
+            // Eliminar todas las reservas asociadas una por una para disparar sus propios eventos 'deleting'
+            // Esto evita errores de Foreign Key constraint (1451)
+            $espacio->reservas->each(function ($reserva) {
+                $reserva->delete();
+            });
+        });
+    }
 }
