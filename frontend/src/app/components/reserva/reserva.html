@@ -68,7 +68,21 @@
                             <div class="grid grid-cols-7 gap-y-2">
                                 <ng-container *ngFor="let week of calendarDays">
                                     <div *ngFor="let date of week" class="text-center">
-                                        <button *ngIf="date" (click)="selectDate(date)"
+                                        <!-- Día no disponible (completo) -->
+                                        <button *ngIf="date && isDateUnavailable(date)"
+                                            class="w-10 h-10 rounded-full flex items-center justify-center text-sm bg-red-100 dark:bg-red-900/30 text-red-400 dark:text-red-500 cursor-not-allowed line-through opacity-60"
+                                            disabled title="No disponible - Completo">
+                                            {{ date.getDate() }}
+                                        </button>
+                                        <!-- Día pasado -->
+                                        <button *ngIf="date && !isDateUnavailable(date) && isDatePast(date)"
+                                            class="w-10 h-10 rounded-full flex items-center justify-center text-sm text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                                            disabled>
+                                            {{ date.getDate() }}
+                                        </button>
+                                        <!-- Día disponible -->
+                                        <button *ngIf="date && !isDateUnavailable(date) && !isDatePast(date)"
+                                            (click)="selectDate(date)"
                                             class="w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-200"
                                             [ngClass]="{
                                                 'bg-primary-blue dark:bg-white text-white dark:text-primary-blue font-medium shadow-md scale-105': isDateSelected(date),
@@ -80,7 +94,49 @@
                                     </div>
                                 </ng-container>
                             </div>
+
+                            <!-- Leyenda -->
+                            <div
+                                class="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="w-3 h-3 rounded-full bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700"></span>
+                                    Completo
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="w-3 h-3 rounded-full bg-primary-blue dark:bg-white border border-blue-400 dark:border-gray-300"></span>
+                                    Seleccionado
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="w-3 h-3 rounded-full bg-orange-100 dark:bg-orange-900/30 border border-orange-300 dark:border-orange-700"></span>
+                                    Rango
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Aviso de disponibilidad -->
+                    <div *ngIf="availabilityWarning"
+                        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mt-0.5 shrink-0"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold text-red-700 dark:text-red-400">No hay disponibilidad</p>
+                            <p class="text-sm text-red-600 dark:text-red-400 mt-0.5">{{ availabilityWarning }}</p>
+                        </div>
+                        <button (click)="availabilityWarning = null" class="ml-auto text-red-400 hover:text-red-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
                     </div>
 
                     <!-- Date Inputs (Read Only ideally, displayed for confirmation) -->

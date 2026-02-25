@@ -26,6 +26,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/espacios', [EspacioController::class, 'index']); // Exploración Pública
 Route::get('/espacios/{id}', [EspacioController::class, 'show']);
 Route::get('/espacios/{id}/valoraciones', [ValoracionController::class, 'index']); // Valoraciones públicas
+Route::get('/espacios/{id}/disponibilidad', [App\Http\Controllers\ReservaController::class, 'checkDisponibilidad']); // Disponibilidad
 
 // Rutas Protegidas
 Route::middleware('auth:sanctum')->group(function () {

@@ -330,7 +330,10 @@ export class EspaciosDetallesComponent implements OnInit {
     if (valoracion.autor?.foto_perfil) {
       const foto = valoracion.autor.foto_perfil;
       if (foto.startsWith('http')) return foto;
-      return `http://127.0.0.1:8000${foto}`;
+      const storagePath = foto.startsWith('/storage/') ? foto
+        : foto.startsWith('storage/') ? `/${foto}`
+          : `/storage/${foto}`;
+      return this.getFullUrl(storagePath);
     }
     return null;
   }

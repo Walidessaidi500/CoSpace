@@ -14,9 +14,7 @@ class Reserva extends Model
     protected $primaryKey = 'id_reserva';
 
     // Configuración de Fechas
-    public $timestamps = false; // Desactivar timestamps automáticos ya que falta la columna 'fecha_creacion' en DB
-    // const CREATED_AT = 'fecha_creacion';
-    // const UPDATED_AT = null; 
+    public $timestamps = true; // La tabla tiene columnas created_at y updated_at
 
     // 2. Asignación Masiva
     protected $fillable = [

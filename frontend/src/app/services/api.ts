@@ -32,4 +32,9 @@ export class ApiService {
   getEspacioById(id: string | number) {
     return this.http.get(`${environment.apiUrl}/espacios/${id}`);
   }
+
+  /** Método genérico para peticiones GET a la API */
+  get(path: string) {
+    return this.http.get(`${environment.apiUrl}${path}`);
+  }
 }

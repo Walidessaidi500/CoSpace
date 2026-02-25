@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarAdminComponent } from '../sidebar-admin/sidebar-admin.component';
 import { AdminService } from '../../services/admin.service';
@@ -11,7 +11,7 @@ import { RouterLink } from '@angular/router';
     imports: [CommonModule, SidebarAdminComponent, RouterLink],
     templateUrl: './panel-admin.component.html',
 })
-export class PanelAdminComponent implements OnInit {
+export class PanelAdminComponent implements OnInit, OnDestroy {
     private adminService = inject(AdminService);
     private cdr = inject(ChangeDetectorRef);
 
@@ -22,18 +22,38 @@ export class PanelAdminComponent implements OnInit {
     isLoading = true;
     errorMessage: string | null = null;
 
+    private pollingInterval: any = null;
+
     ngOnInit() {
         this.loadDashboardData();
+        // Polling cada 10 segundos para datos en tiempo real
+        this.pollingInterval = setInterval(() => {
+            this.refreshData();
+        }, 10000);
     }
 
+    ngOnDestroy() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+        }
+    }
+
+    /** Carga inicial con indicador de carga */
     loadDashboardData() {
         this.isLoading = true;
         this.errorMessage = null;
+        this.fetchData();
+    }
 
-        console.log('PanelAdminComponent: Starting loadDashboardData');
+    /** Refresco silencioso (sin indicador de carga) */
+    refreshData() {
+        this.fetchData();
+    }
+
+    private fetchData() {
         this.adminService.getDashboardStats().subscribe({
             next: (data) => {
-                console.log('PanelAdminComponent: Data received', data);
                 try {
                     this.stats = [
                         {
@@ -68,9 +88,8 @@ export class PanelAdminComponent implements OnInit {
                     this.recentReservations = data.recentReservations;
                     this.popularSpaces = data.popularSpaces;
 
-                    console.log('PanelAdminComponent: improved stats mapping success');
                     this.isLoading = false;
-                    this.cdr.detectChanges(); // Force UI update
+                    this.cdr.detectChanges();
                 } catch (error) {
                     console.error('PanelAdminComponent: Error processing data', error);
                     this.errorMessage = 'Error procesando datos del servidor.';

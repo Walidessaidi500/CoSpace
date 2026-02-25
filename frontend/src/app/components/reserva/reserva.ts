@@ -47,6 +47,11 @@ export class ReservaComponent implements OnInit {
   selectedStartDate: Date | null = null;
   selectedEndDate: Date | null = null;
 
+  // Disponibilidad
+  unavailableDates: Set<string> = new Set();
+  capacidad: number = 0;
+  availabilityWarning: string | null = null;
+
   // Stripe Payment Data
   showPayment: boolean = false;
   isProcessingPayment: boolean = false;
@@ -136,15 +141,18 @@ export class ReservaComponent implements OnInit {
   prevMonth() {
     this.currentDate.setMonth(this.currentDate.getMonth() - 1);
     this.generateCalendar();
+    if (this.espacioId) this.loadDisponibilidad(this.espacioId);
   }
 
   nextMonth() {
     this.currentDate.setMonth(this.currentDate.getMonth() + 1);
     this.generateCalendar();
+    if (this.espacioId) this.loadDisponibilidad(this.espacioId);
   }
 
   selectDate(date: Date) {
     if (!date) return;
+    if (this.isDateUnavailable(date)) return; // No permitir seleccionar días ocupados
 
     // Reset if both selected or if clicking before start
     if (this.selectedStartDate && this.selectedEndDate) {
@@ -250,6 +258,9 @@ export class ReservaComponent implements OnInit {
         console.log('API Response:', data);
         if (data) {
           this.espacio = data;
+          this.capacidad = data.capacidad || 1;
+          // Cargar disponibilidad del mes actual
+          this.loadDisponibilidad(id);
         } else {
           this.errorMessage = 'No se encontraron datos para este espacio';
         }
@@ -263,6 +274,47 @@ export class ReservaComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  /**
+   * Carga los días no disponibles del mes visible del calendario
+   */
+  loadDisponibilidad(id: string) {
+    const year = this.currentDate.getFullYear();
+    const month = String(this.currentDate.getMonth() + 1).padStart(2, '0');
+    const mes = `${year}-${month}`;
+
+    this.apiService.get(`/espacios/${id}/disponibilidad?mes=${mes}`).subscribe({
+      next: (data: any) => {
+        this.unavailableDates = new Set(data.dias_ocupados || []);
+        this.capacidad = data.capacidad || 1;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error cargando disponibilidad:', err);
+      }
+    });
+  }
+
+  /**
+   * Comprobar si un día está lleno
+   */
+  isDateUnavailable(date: Date): boolean {
+    if (!date) return false;
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return this.unavailableDates.has(dateStr);
+  }
+
+  /**
+   * Comprobar si un día es pasado
+   */
+  isDatePast(date: Date): boolean {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d < today;
   }
 
   iniciarProcesoReserva() {
@@ -361,15 +413,21 @@ export class ReservaComponent implements OnInit {
         console.error('Error detallado:', err);
         this.isLoading = false;
 
-        // Debugging
-        let errorDetails = '';
-        if (err.error && typeof err.error === 'object') {
-          errorDetails = JSON.stringify(err.error, null, 2);
+        // Error 409: Conflicto de disponibilidad
+        if (err.status === 409 && err.error?.message) {
+          this.availabilityWarning = err.error.message;
+          // Recargar disponibilidad para actualizar el calendario
+          if (this.espacioId) this.loadDisponibilidad(this.espacioId);
         } else {
-          errorDetails = JSON.stringify(err, null, 2);
+          let errorDetails = '';
+          if (err.error && typeof err.error === 'object') {
+            errorDetails = err.error.message || JSON.stringify(err.error, null, 2);
+          } else {
+            errorDetails = JSON.stringify(err, null, 2);
+          }
+          alert('Error al iniciar pago: ' + errorDetails);
         }
 
-        alert('Error al iniciar pago (Debug):\n' + errorDetails);
         this.cdr.detectChanges();
       }
     });

@@ -31,6 +31,59 @@ class ReservaController extends Controller
             ->update(['estado' => 'Finalizada']);
     }
     /**
+     * GET /api/espacios/{id}/disponibilidad?mes=2026-02
+     * Devuelve las fechas ocupadas (no disponibles) para un espacio en un mes dado.
+     */
+    public function checkDisponibilidad(Request $request, $id)
+    {
+        $espacio = Espacio::find($id);
+        if (!$espacio) {
+            return response()->json(['message' => 'Espacio no encontrado'], 404);
+        }
+
+        $mes = $request->get('mes', Carbon::now()->format('Y-m'));
+        $inicioMes = Carbon::parse($mes . '-01')->startOfMonth();
+        $finMes = $inicioMes->copy()->endOfMonth();
+
+        // Obtener reservas activas (no canceladas) que se solapan con este mes
+        $reservas = Reserva::where('id_espacio', $id)
+            ->whereNotIn('estado', ['Cancelada'])
+            ->where('fecha_inicio', '<', $finMes)
+            ->where('fecha_fin', '>', $inicioMes)
+            ->get(['fecha_inicio', 'fecha_fin']);
+
+        // Para cada día del mes, contar cuántas reservas lo ocupan
+        $diasOcupados = [];
+        $capacidad = $espacio->capacidad;
+
+        $dia = $inicioMes->copy();
+        while ($dia <= $finMes) {
+            $diaStr = $dia->format('Y-m-d');
+            $count = 0;
+
+            foreach ($reservas as $reserva) {
+                $rInicio = Carbon::parse($reserva->fecha_inicio)->startOfDay();
+                $rFin = Carbon::parse($reserva->fecha_fin)->startOfDay();
+
+                if ($dia >= $rInicio && $dia <= $rFin) {
+                    $count++;
+                }
+            }
+
+            if ($count >= $capacidad) {
+                $diasOcupados[] = $diaStr;
+            }
+
+            $dia->addDay();
+        }
+
+        return response()->json([
+            'capacidad' => $capacidad,
+            'dias_ocupados' => $diasOcupados
+        ]);
+    }
+
+    /**
      * Paso 1: Inicializar Intención de Pago
      * Valida disponibilidad y crea una Intención de Stripe. NO guarda en BD todavía.
      */
@@ -54,11 +107,32 @@ class ReservaController extends Controller
         try {
             $espacio = Espacio::findOrFail($request->id_espacio);
 
-            // Calcular Precio
             $start = Carbon::parse($request->fecha_inicio);
             $end = Carbon::parse($request->fecha_fin);
 
-            // Lógica: Días * Precio
+            // VERIFICAR DISPONIBILIDAD: comprobar que no se excede la capacidad en ningún día
+            $dia = $start->copy()->startOfDay();
+            $finDia = $end->copy()->startOfDay();
+            $capacidad = $espacio->capacidad;
+
+            while ($dia <= $finDia) {
+                $reservasEnDia = Reserva::where('id_espacio', $espacio->id_espacio)
+                    ->whereNotIn('estado', ['Cancelada'])
+                    ->where('fecha_inicio', '<=', $dia->copy()->endOfDay())
+                    ->where('fecha_fin', '>', $dia->copy()->startOfDay())
+                    ->count();
+
+                if ($reservasEnDia >= $capacidad) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'El espacio no tiene disponibilidad para el día ' . $dia->format('d/m/Y') . '. Está completo (' . $capacidad . '/' . $capacidad . ' reservas).'
+                    ], 409);
+                }
+
+                $dia->addDay();
+            }
+
+            // Calcular Precio
             $days = $start->diffInDays($end);
             if ($days < 1)
                 $days = ceil($start->diffInHours($end) / 24);
@@ -217,14 +291,14 @@ class ReservaController extends Controller
         $reservas = Reserva::whereHas('espacio', function ($query) use ($user) {
             $query->where('id_anfitrion', $user->id_usuario);
         })->with([
-            'espacio' => function ($query) {
-                $query->select('id_espacio', 'titulo', 'ciudad', 'direccion');
-            },
-            'espacio.fotos',
-            'usuario:id_usuario,nombre_completo,email,foto_perfil'
-        ])
-        ->orderBy('fecha_inicio', 'desc')
-        ->get();
+                    'espacio' => function ($query) {
+                        $query->select('id_espacio', 'titulo', 'ciudad', 'direccion');
+                    },
+                    'espacio.fotos',
+                    'usuario:id_usuario,nombre_completo,email,foto_perfil'
+                ])
+            ->orderBy('fecha_inicio', 'desc')
+            ->get();
 
         return response()->json($reservas);
     }
@@ -258,7 +332,7 @@ class ReservaController extends Controller
     public function cancelar(Request $request, $id)
     {
         $user = $request->user();
-        
+
         $reserva = Reserva::where('id_reserva', $id)
             ->where('id_cliente', $user->id_usuario)
             ->first();

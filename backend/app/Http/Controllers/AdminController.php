@@ -16,25 +16,41 @@ class AdminController extends Controller
     {
         Carbon::setLocale('es');
 
-        // 1. Total Usuarios (excluyendo admin si se quiere, o todos)
+        $now = Carbon::now();
+        $currentMonth = $now->month;
+        $currentYear = $now->year;
+        $prevMonth = $now->copy()->subMonth();
+
+        // 1. Total Usuarios
         $totalUsuarios = Usuario::count();
 
-        // 2. Espacios Activos
-        $espaciosActivos = Espacio::where('estado', 'activo')->count();
+        // 2. Espacios Activos (estado 'Disponible' en la BD)
+        $espaciosActivos = Espacio::where('estado', 'Disponible')->count();
 
-        // 3. Reservas del Mes
-        $reservasMes = Reserva::whereMonth('fecha_inicio', Carbon::now()->month)
-            ->whereYear('fecha_inicio', Carbon::now()->year)
+        // 3. Reservas del Mes actual
+        $reservasMes = Reserva::whereMonth('fecha_inicio', $currentMonth)
+            ->whereYear('fecha_inicio', $currentYear)
             ->count();
 
-        // 4. Ingresos del Mes (Suma de monto_total de reservas del mes)
-        $ingresosMes = Reserva::whereMonth('fecha_inicio', Carbon::now()->month)
-            ->whereYear('fecha_inicio', Carbon::now()->year)
-            ->sum('monto_total');
+        // Reservas del mes anterior (para calcular % cambio)
+        $reservasMesAnterior = Reserva::whereMonth('fecha_inicio', $prevMonth->month)
+            ->whereYear('fecha_inicio', $prevMonth->year)
+            ->count();
 
-        // 5. Últimas Reservas (take 5)
+        // 4. Ingresos del Mes (Comisión 14.59% de gastos de gestión)
+        $totalBrutoMes = Reserva::whereMonth('fecha_inicio', $currentMonth)
+            ->whereYear('fecha_inicio', $currentYear)
+            ->sum('monto_total');
+        $ingresosMes = $totalBrutoMes * 0.1459;
+
+        $totalBrutoMesAnterior = Reserva::whereMonth('fecha_inicio', $prevMonth->month)
+            ->whereYear('fecha_inicio', $prevMonth->year)
+            ->sum('monto_total');
+        $ingresosMesAnterior = $totalBrutoMesAnterior * 0.1459;
+
+        // 5. Últimas Reservas (las 4 más recientes)
         $ultimasReservas = Reserva::with(['usuario', 'espacio'])
-            ->orderBy('fecha_inicio', 'desc')
+            ->orderBy('id_reserva', 'desc')
             ->take(4)
             ->get()
             ->map(function ($reserva) {
@@ -42,14 +58,14 @@ class AdminController extends Controller
                     'user' => $reserva->usuario ? $reserva->usuario->nombre_completo : 'Usuario Eliminado',
                     'space' => $reserva->espacio ? $reserva->espacio->titulo : 'Espacio Eliminado',
                     'amount' => '€' . number_format($reserva->monto_total, 2),
-                    'date' => Carbon::parse($reserva->fecha_inicio)->diffForHumans(),
-                    'avatar' => $reserva->usuario && $reserva->usuario->foto_perfil 
-                        ? asset('storage/' . $reserva->usuario->foto_perfil) 
+                    'date' => Carbon::parse($reserva->created_at)->diffForHumans(),
+                    'avatar' => $reserva->usuario && $reserva->usuario->foto_perfil
+                        ? asset('storage/' . $reserva->usuario->foto_perfil)
                         : 'https://ui-avatars.com/api/?name=' . urlencode($reserva->usuario->nombre_completo ?? 'U') . '&background=random'
                 ];
             });
 
-        // 6. Espacios Populares (por número de reservas)
+        // 6. Espacios Populares (por número de reservas) con rating_promedio real
         $espaciosPopulares = Espacio::withCount('reservas')
             ->orderBy('reservas_count', 'desc')
             ->take(4)
@@ -59,27 +75,36 @@ class AdminController extends Controller
                     'id' => $espacio->id_espacio,
                     'name' => $espacio->titulo,
                     'reservas' => $espacio->reservas_count,
-                    'rating' => $espacio->calificacion_promedio ?? 0 // Asumiendo campo calificacion
+                    'rating' => round($espacio->rating_promedio, 1)
                 ];
             });
+
+        // Calcular porcentajes de cambio
+        $cambioReservas = $reservasMesAnterior > 0
+            ? round((($reservasMes - $reservasMesAnterior) / $reservasMesAnterior) * 100)
+            : ($reservasMes > 0 ? 100 : 0);
+
+        $cambioIngresos = $ingresosMesAnterior > 0
+            ? round((($ingresosMes - $ingresosMesAnterior) / $ingresosMesAnterior) * 100)
+            : ($ingresosMes > 0 ? 100 : 0);
 
         return response()->json([
             'stats' => [
                 'usuarios' => [
                     'value' => number_format($totalUsuarios),
-                    'change' => '+12%' // Hardcoded for simplified delta logic
+                    'change' => $totalUsuarios > 0 ? '+' . $totalUsuarios : '0'
                 ],
                 'espacios' => [
                     'value' => number_format($espaciosActivos),
-                    'change' => '+8%'
+                    'change' => $espaciosActivos > 0 ? '' . $espaciosActivos . ' activos' : '0'
                 ],
                 'reservas' => [
                     'value' => number_format($reservasMes),
-                    'change' => '+24%'
+                    'change' => ($cambioReservas >= 0 ? '+' : '') . $cambioReservas . '%'
                 ],
                 'ingresos' => [
                     'value' => '€' . number_format($ingresosMes, 2),
-                    'change' => '+18%'
+                    'change' => ($cambioIngresos >= 0 ? '+' : '') . $cambioIngresos . '%'
                 ]
             ],
             'recentReservations' => $ultimasReservas,
@@ -150,8 +175,15 @@ class AdminController extends Controller
         }
 
         $espacio->update($request->only([
-            'titulo', 'ciudad', 'direccion', 'descripcion', 
-            'precio_hora', 'capacidad', 'estado', 'latitud', 'longitud'
+            'titulo',
+            'ciudad',
+            'direccion',
+            'descripcion',
+            'precio_hora',
+            'capacidad',
+            'estado',
+            'latitud',
+            'longitud'
         ]));
 
         if ($request->has('servicios')) {
@@ -193,7 +225,7 @@ class AdminController extends Controller
 
         // Prevent deleting self or super admin if functionality existed
         if ($user->id_usuario == auth()->id()) {
-             return response()->json(['message' => 'No puedes eliminar tu propia cuenta desde aquí'], 403);
+            return response()->json(['message' => 'No puedes eliminar tu propia cuenta desde aquí'], 403);
         }
 
         $user->delete();
@@ -308,22 +340,22 @@ class AdminController extends Controller
             'reserva.usuario',
             'reserva.espacio'
         ])
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->map(function ($pago) {
-            return [
-                'id'             => $pago->id_pago,
-                'id_reserva'     => $pago->id_reserva,
-                'cliente'        => optional(optional($pago->reserva)->usuario)->nombre_completo ?? 'N/A',
-                'email'          => optional(optional($pago->reserva)->usuario)->email ?? 'N/A',
-                'espacio'        => optional(optional($pago->reserva)->espacio)->titulo ?? 'N/A',
-                'monto'          => $pago->monto_pagado,
-                'metodo_pago'    => $pago->metodo_pago ?? 'Tarjeta',
-                'estado_pago'    => $pago->estado_pago ?? 'Completado',
-                'fecha_pago'     => $pago->created_at ? $pago->created_at->format('d/m/Y H:i') : 'N/A',
-                'id_transaccion' => '', // Ya no tenemos esta columna en la DB
-            ];
-        });
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($pago) {
+                return [
+                    'id' => $pago->id_pago,
+                    'id_reserva' => $pago->id_reserva,
+                    'cliente' => optional(optional($pago->reserva)->usuario)->nombre_completo ?? 'N/A',
+                    'email' => optional(optional($pago->reserva)->usuario)->email ?? 'N/A',
+                    'espacio' => optional(optional($pago->reserva)->espacio)->titulo ?? 'N/A',
+                    'monto' => $pago->monto_pagado,
+                    'metodo_pago' => $pago->metodo_pago ?? 'Tarjeta',
+                    'estado_pago' => $pago->estado_pago ?? 'Completado',
+                    'fecha_pago' => $pago->created_at ? $pago->created_at->format('d/m/Y H:i') : 'N/A',
+                    'id_transaccion' => '', // Ya no tenemos esta columna en la DB
+                ];
+            });
 
         return response()->json($pagos);
     }

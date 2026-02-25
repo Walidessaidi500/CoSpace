@@ -13,6 +13,17 @@
         "DARK_MODE": "Modo Oscuro",
         "LIGHT_MODE": "Modo Claro"
     },
+    "ACCESSIBILITY": {
+        "TITLE": "Accesibilidad",
+        "LANGUAGE": "Idioma",
+        "TEXT_SIZE": "Tamaño de texto",
+        "TEXT_NORMAL": "Normal",
+        "TEXT_LARGE": "Grande",
+        "TEXT_XLARGE": "Muy grande",
+        "THEME": "Tema",
+        "DARK_MODE": "Modo oscuro",
+        "LIGHT_MODE": "Modo claro"
+    },
     "FOOTER": {
         "DESCRIPTION": "Encuentra tu espacio de trabajo ideal en cualquier lugar. Conectando profesionales con los mejores espacios.",
         "PLATFORM": "Plataforma",

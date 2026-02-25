@@ -65,9 +65,9 @@
                             Usuario</label>
                         <select id="tipo_usuario" formControlName="tipo_usuario"
                             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all shadow-sm">
-                            <option value="cliente">Cliente</option>
-                            <option value="anfitrion">Anfitrión</option>
-                            <option value="admin">Administrador</option>
+                            <option value="Cliente">Cliente</option>
+                            <option value="Anfitrion">Anfitrión</option>
+                            <option value="Admin">Administrador</option>
                         </select>
                         <div *ngIf="userForm.get('tipo_usuario')?.invalid && userForm.get('tipo_usuario')?.touched"
                             class="text-red-500 text-xs mt-1">

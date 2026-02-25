@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -13,7 +13,7 @@ import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.com
     templateUrl: './pagos-admin.component.html',
     styleUrls: ['./pagos-admin.component.css'],
 })
-export class PagosAdminComponent implements OnInit {
+export class PagosAdminComponent implements OnInit, OnDestroy {
     private adminService = inject(AdminService);
     private cdr = inject(ChangeDetectorRef);
 
@@ -34,11 +34,15 @@ export class PagosAdminComponent implements OnInit {
     modalTitle = 'Eliminar Registro de Pago';
     modalMessage = '¿Estás seguro de que deseas eliminar este registro de pago? Esta acción no se puede deshacer.';
 
+    // Comisión de gestión de la plataforma
+    private readonly COMMISSION_RATE = 0.1459;
+
     // Estadísticas calculadas
     get totalIngresos(): number {
-        return this.allPagos
+        const totalBruto = this.allPagos
             .filter(p => p.estado_pago === 'Completado')
             .reduce((sum, p) => sum + Number(p.monto || 0), 0);
+        return totalBruto * this.COMMISSION_RATE;
     }
 
     get totalCompletados(): number {
@@ -49,11 +53,35 @@ export class PagosAdminComponent implements OnInit {
         return this.allPagos.filter(p => p.estado_pago === 'Reembolsado').length;
     }
 
-    ngOnInit() { this.loadPagos(); }
+    private pollingInterval: any = null;
+
+    ngOnInit() {
+        this.loadPagos();
+        // Polling cada 10 segundos para datos en tiempo real
+        this.pollingInterval = setInterval(() => {
+            this.refreshPagos();
+        }, 10000);
+    }
+
+    ngOnDestroy() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+        }
+    }
 
     loadPagos() {
         this.isLoading = true;
         this.errorMessage = null;
+        this.fetchPagos();
+    }
+
+    /** Refresco silencioso sin spinner */
+    refreshPagos() {
+        this.fetchPagos();
+    }
+
+    private fetchPagos() {
         this.adminService.getAllPagos().subscribe({
             next: (data: any) => {
                 this.allPagos = data;

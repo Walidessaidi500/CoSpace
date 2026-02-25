@@ -13,6 +13,17 @@
         "DARK_MODE": "Dark Mode",
         "LIGHT_MODE": "Light Mode"
     },
+    "ACCESSIBILITY": {
+        "TITLE": "Accessibility",
+        "LANGUAGE": "Language",
+        "TEXT_SIZE": "Text size",
+        "TEXT_NORMAL": "Normal",
+        "TEXT_LARGE": "Large",
+        "TEXT_XLARGE": "Very large",
+        "THEME": "Theme",
+        "DARK_MODE": "Dark mode",
+        "LIGHT_MODE": "Light mode"
+    },
     "FOOTER": {
         "DESCRIPTION": "Find your ideal workspace anywhere. Connecting professionals with the best spaces.",
         "PLATFORM": "Platform",
