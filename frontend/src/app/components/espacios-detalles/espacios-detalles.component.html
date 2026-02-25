@@ -435,8 +435,14 @@
                             class="w-full bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold py-5 rounded-2xl cursor-not-allowed opacity-75">
                             {{ 'SPACE_DETAILS.HOST_BTN' | translate }}
                         </button>
-                        <button
-                            class="w-full bg-white dark:bg-transparent border-2 border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 text-gray-600 dark:text-gray-300 font-bold py-5 rounded-2xl transition-all">
+                        <button *ngIf="!isAnfitrion" (click)="contactarAnfitrion()"
+                            class="w-full bg-white dark:bg-transparent border-2 border-gray-100 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-500 text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 font-bold py-5 rounded-2xl transition-all flex items-center justify-center gap-3 group">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-5 h-5 text-gray-400 group-hover:text-orange-500 transition-colors"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
                             {{ 'SPACE_DETAILS.CONTACT_BTN' | translate }}
                         </button>
                     </div>

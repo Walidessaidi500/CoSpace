@@ -34,6 +34,9 @@ export class ReservaComponent implements OnInit {
   // Calculated
   totalPrice: number = 0;
   days: number = 0;
+  basePrice: number = 0; // precio base sin comisión
+  commissionAmount: number = 0; // importe de la comisión
+  private readonly COMMISSION_RATE = 0.1459; // 14.59%
 
   // Calendar UI Data
   currentMonthName: string = '';
@@ -205,7 +208,9 @@ export class ReservaComponent implements OnInit {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       this.days = diffDays > 0 ? diffDays : 1;
 
-      this.totalPrice = this.days * this.espacio.precio_hora; // using precio_hora as base rate
+      this.basePrice = this.days * this.espacio.precio_hora;
+      this.commissionAmount = this.basePrice * this.COMMISSION_RATE;
+      this.totalPrice = this.basePrice + this.commissionAmount;
     }
   }
 
@@ -417,7 +422,7 @@ export class ReservaComponent implements OnInit {
       next: (res) => {
         this.isProcessingPayment = false;
         alert('¡Pago exitoso y Reserva confirmada!');
-        this.router.navigate(['/']);
+        this.router.navigate(['/cliente/panel']);
       },
       error: (err) => {
         this.isProcessingPayment = false;

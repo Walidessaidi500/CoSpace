@@ -7,11 +7,12 @@ import { FooterComponent } from './components/footer/footer.component';
 import { ToastContainerComponent } from './components/shared/toast-container/toast-container.component';
 import { LanguageService } from './services/language.service';
 import { ToastService } from './services/toast.service';
+import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, ChatWidgetComponent],
   templateUrl: './app.html',
   styleUrls: []
 })

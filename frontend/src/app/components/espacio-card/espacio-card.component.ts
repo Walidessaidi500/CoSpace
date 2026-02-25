@@ -14,6 +14,14 @@ import { environment } from '../../../environments/enviroments';
 export class EspacioCardComponent {
   @Input() espacio: any;
 
+  private readonly COMMISSION_RATE = 0.1459; // 14.59% comisión por gastos de gestión
+
+  getPrecioConComision(): string {
+    const precioBase = parseFloat(this.espacio?.precio_hora) || 0;
+    const precioConComision = precioBase * (1 + this.COMMISSION_RATE);
+    return precioConComision.toFixed(2);
+  }
+
   getImagenPrincipal(): string {
     if (this.espacio?.fotos && this.espacio.fotos.length > 0) {
       // Find the principal photo, or fallback to the first one

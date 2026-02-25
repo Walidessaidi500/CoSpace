@@ -9,6 +9,7 @@ import { ValoracionService } from '../../services/valoracion.service';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/enviroments';
+import { ChatService } from '../../services/chat.service';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -27,11 +28,14 @@ export class EspaciosDetallesComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private sanitizer = inject(DomSanitizer);
   private http = inject(HttpClient);
+  private chatService = inject(ChatService);
 
   space: any = null;
   isLoading: boolean = true;
   errorMessage: string = '';
   currentUserRole: string | null = null;
+
+  private readonly COMMISSION_RATE = 0.1459; // 14.59% comisión por gastos de gestión
 
   // Google Maps Configuration
   mapOptions: google.maps.MapOptions = {
@@ -109,6 +113,33 @@ export class EspaciosDetallesComponent implements OnInit {
     return this.currentUserRole !== null && this.currentUserRole !== undefined;
   }
 
+  /**
+   * Iniciar conversación con el anfitrión del espacio
+   */
+  contactarAnfitrion(): void {
+    if (!this.isAuthenticated) {
+      alert('Inicia sesión para contactar con el anfitrión');
+      return;
+    }
+
+    if (this.isAnfitrion) {
+      alert('Los anfitriones no pueden contactar otros anfitriones');
+      return;
+    }
+
+    if (!this.space?.anfitrionId) return;
+
+    this.chatService.startConversation(this.space.anfitrionId).subscribe({
+      next: () => {
+        // El chat se abre automáticamente desde el servicio
+      },
+      error: (err: any) => {
+        console.error('Error al iniciar conversación:', err);
+        alert('Error al iniciar la conversación');
+      }
+    });
+  }
+
   fetchSpaceDetails(id: string) {
     this.isLoading = true;
     this.apiService.getEspacioById(id).subscribe({
@@ -120,7 +151,7 @@ export class EspaciosDetallesComponent implements OnInit {
             titulo: data.titulo,
             direccion: `${data.direccion}, ${data.ciudad}`,
             descripcion: data.descripcion,
-            precio: data.precio_hora,
+            precio: (parseFloat(data.precio_hora) * (1 + this.COMMISSION_RATE)).toFixed(2),
             puntuacion: data.rating_promedio || 'N/A',
             total_resenas: data.total_resenas || 0,
             latitud: data.latitud,
@@ -131,7 +162,9 @@ export class EspaciosDetallesComponent implements OnInit {
             caracteristicas: data.servicios ? data.servicios.map((s: any) => ({
               nombre: s.nombre_servicio,
               icono: this.getIconForService(s.nombre_servicio)
-            })) : []
+            })) : [],
+            anfitrionId: data.id_anfitrion,
+            anfitrionNombre: data.anfitrion?.usuario?.nombre_completo || 'Anfitrión'
           };
 
           if (data.latitud && data.longitud) {

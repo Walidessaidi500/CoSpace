@@ -28,7 +28,7 @@
         <span class="text-gray-400 dark:text-gray-500 text-xs font-normal">({{ espacio.total_resenas || 0 }})</span>
       </div>
       <div class="text-slate-900 dark:text-white">
-        <span class="font-black text-xl">{{ espacio.precio_hora }}€</span>
+        <span class="font-black text-xl">{{ getPrecioConComision() }}€</span>
         <span class="text-gray-400 font-normal">{{ 'EXPLORE.CARD.PER_HOUR' | translate }}</span>
       </div>
     </div>

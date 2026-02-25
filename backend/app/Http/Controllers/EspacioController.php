@@ -123,7 +123,7 @@ class EspacioController extends Controller
     public function show($id)
     {
         try {
-            $espacio = Espacio::with(['fotos', 'servicios'])->find($id);
+            $espacio = Espacio::with(['fotos', 'servicios', 'anfitrion.usuario'])->find($id);
             if (!$espacio) {
                 return response()->json(['message' => 'Espacio no encontrado'], 404);
             }

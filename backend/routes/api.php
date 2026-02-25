@@ -33,10 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
+
     // Admin Routes
     Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'getDashboardStats']);
-    
+
     // Admin Spaces Management
     Route::get('/admin/espacios', [App\Http\Controllers\AdminController::class, 'getAllSpaces']);
     Route::delete('/admin/espacios/{id}', [App\Http\Controllers\AdminController::class, 'destroy']);
@@ -82,8 +82,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reservas', [App\Http\Controllers\ReservaController::class, 'store']);
     Route::get('/anfitrion/reservas-recibidas', [App\Http\Controllers\ReservaController::class, 'indexAnfitrion']);
     Route::post('/anfitrion/reservas/{id}/estado', [App\Http\Controllers\ReservaController::class, 'updateEstadoAnfitrion']);
-    
+
     // Reservas del Cliente
     Route::get('/cliente/mis-reservas', [App\Http\Controllers\ReservaController::class, 'indexCliente']);
     Route::post('/reservas/{id}/cancelar', [App\Http\Controllers\ReservaController::class, 'cancelar']);
+
+    // Chat / Conversaciones
+    Route::get('/conversaciones', [App\Http\Controllers\ChatController::class, 'index']);
+    Route::post('/conversaciones', [App\Http\Controllers\ChatController::class, 'store']);
+    Route::get('/conversaciones/no-leidos', [App\Http\Controllers\ChatController::class, 'totalNoLeidos']);
+    Route::get('/conversaciones/{id}/mensajes', [App\Http\Controllers\ChatController::class, 'mensajes']);
+    Route::post('/conversaciones/{id}/mensajes', [App\Http\Controllers\ChatController::class, 'enviarMensaje']);
 });
