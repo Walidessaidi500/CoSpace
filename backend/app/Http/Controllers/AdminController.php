@@ -16,25 +16,46 @@ class AdminController extends Controller
     {
         Carbon::setLocale('es');
 
-        // 1. Total Usuarios (excluyendo admin si se quiere, o todos)
+        $now = Carbon::now();
+        $lastMonth = Carbon::now()->subMonth();
+
+        // 1. Total Usuarios
         $totalUsuarios = Usuario::count();
+        $usuariosEsteMes = Usuario::whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count();
+        $usuariosMesPasado = Usuario::whereMonth('created_at', $lastMonth->month)->whereYear('created_at', $lastMonth->year)->count();
+        $cambioUsuarios = $usuariosMesPasado > 0 ? (($usuariosEsteMes - $usuariosMesPasado) / $usuariosMesPasado) * 100 : ($usuariosEsteMes > 0 ? 100 : 0);
+        $cambioUsuariosStr = ($cambioUsuarios > 0 ? '+' : '') . number_format($cambioUsuarios, 0) . '%';
 
         // 2. Espacios Activos
-        $espaciosActivos = Espacio::where('estado', 'activo')->count();
+        $espaciosActivos = Espacio::where('estado', 'Disponible')->count();
+        $espaciosEsteMes = Espacio::where('estado', 'Disponible')->whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count();
+        $espaciosMesPasado = Espacio::where('estado', 'Disponible')->whereMonth('created_at', $lastMonth->month)->whereYear('created_at', $lastMonth->year)->count();
+        $cambioEspacios = $espaciosMesPasado > 0 ? (($espaciosEsteMes - $espaciosMesPasado) / $espaciosMesPasado) * 100 : ($espaciosEsteMes > 0 ? 100 : 0);
+        $cambioEspaciosStr = ($cambioEspacios > 0 ? '+' : '') . number_format($cambioEspacios, 0) . '%';
 
         // 3. Reservas del Mes
-        $reservasMes = Reserva::whereMonth('fecha_inicio', Carbon::now()->month)
-            ->whereYear('fecha_inicio', Carbon::now()->year)
+        $reservasMes = Reserva::whereMonth('created_at', $now->month)
+            ->whereYear('created_at', $now->year)
             ->count();
+        $reservasMesPasado = Reserva::whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->count();
+        $cambioReservas = $reservasMesPasado > 0 ? (($reservasMes - $reservasMesPasado) / $reservasMesPasado) * 100 : ($reservasMes > 0 ? 100 : 0);
+        $cambioReservasStr = ($cambioReservas > 0 ? '+' : '') . number_format($cambioReservas, 0) . '%';
 
         // 4. Ingresos del Mes (Suma de monto_total de reservas del mes)
-        $ingresosMes = Reserva::whereMonth('fecha_inicio', Carbon::now()->month)
-            ->whereYear('fecha_inicio', Carbon::now()->year)
+        $ingresosMes = Reserva::whereMonth('created_at', $now->month)
+            ->whereYear('created_at', $now->year)
             ->sum('monto_total');
+        $ingresosMesPasado = Reserva::whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->sum('monto_total');
+        $cambioIngresos = $ingresosMesPasado > 0 ? (($ingresosMes - $ingresosMesPasado) / $ingresosMesPasado) * 100 : ($ingresosMes > 0 ? 100 : 0);
+        $cambioIngresosStr = ($cambioIngresos > 0 ? '+' : '') . number_format($cambioIngresos, 0) . '%';
 
         // 5. Últimas Reservas (take 5)
         $ultimasReservas = Reserva::with(['usuario', 'espacio'])
-            ->orderBy('fecha_inicio', 'desc')
+            ->orderBy('created_at', 'desc')
             ->take(4)
             ->get()
             ->map(function ($reserva) {
@@ -42,7 +63,7 @@ class AdminController extends Controller
                     'user' => $reserva->usuario ? $reserva->usuario->nombre_completo : 'Usuario Eliminado',
                     'space' => $reserva->espacio ? $reserva->espacio->titulo : 'Espacio Eliminado',
                     'amount' => '€' . number_format($reserva->monto_total, 2),
-                    'date' => Carbon::parse($reserva->fecha_inicio)->diffForHumans(),
+                    'date' => Carbon::parse($reserva->created_at)->diffForHumans(),
                     'avatar' => $reserva->usuario && $reserva->usuario->foto_perfil 
                         ? asset('storage/' . $reserva->usuario->foto_perfil) 
                         : 'https://ui-avatars.com/api/?name=' . urlencode($reserva->usuario->nombre_completo ?? 'U') . '&background=random'
@@ -59,7 +80,7 @@ class AdminController extends Controller
                     'id' => $espacio->id_espacio,
                     'name' => $espacio->titulo,
                     'reservas' => $espacio->reservas_count,
-                    'rating' => $espacio->calificacion_promedio ?? 0 // Asumiendo campo calificacion
+                    'rating' => $espacio->rating_promedio ?? 0
                 ];
             });
 
@@ -67,19 +88,19 @@ class AdminController extends Controller
             'stats' => [
                 'usuarios' => [
                     'value' => number_format($totalUsuarios),
-                    'change' => '+12%' // Hardcoded for simplified delta logic
+                    'change' => $cambioUsuariosStr
                 ],
                 'espacios' => [
                     'value' => number_format($espaciosActivos),
-                    'change' => '+8%'
+                    'change' => $cambioEspaciosStr
                 ],
                 'reservas' => [
                     'value' => number_format($reservasMes),
-                    'change' => '+24%'
+                    'change' => $cambioReservasStr
                 ],
                 'ingresos' => [
                     'value' => '€' . number_format($ingresosMes, 2),
-                    'change' => '+18%'
+                    'change' => $cambioIngresosStr
                 ]
             ],
             'recentReservations' => $ultimasReservas,

@@ -16,38 +16,36 @@
             <div>
                 <h3 class="font-semibold text-white mb-5 text-[16px]">{{ 'FOOTER.PLATFORM' | translate }}</h3>
                 <ul class="space-y-3">
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{ 'HEADER.HOME' |
+                    <li><a routerLink="/" class="text-white/60 hover:text-white text-sm transition-colors">{{
+                            'HEADER.HOME' |
                             translate }}</a>
                     </li>
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{
+                    <li><a routerLink="/explorar" class="text-white/60 hover:text-white text-sm transition-colors">{{
                             'HEADER.COWORKINGS' | translate }}</a>
                     </li>
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{ 'FOOTER.PRICING'
-                            | translate }}</a>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-white mb-5 text-[16px]">Únete</h3>
+                <ul class="space-y-3">
+                    <li><a routerLink="/registro-cliente"
+                            class="text-white/60 hover:text-white text-sm transition-colors">Registro Cliente</a>
+                    </li>
+                    <li><a routerLink="/registro-anfitrion"
+                            class="text-white/60 hover:text-white text-sm transition-colors">Registro Anfitrión</a></li>
+                    <li><a routerLink="/iniciar-sesion"
+                            class="text-white/60 hover:text-white text-sm transition-colors">Iniciar Sesión</a>
                     </li>
                 </ul>
             </div>
             <div>
-                <h3 class="font-semibold text-white mb-5 text-[16px]">{{ 'FOOTER.COMPANY' | translate }}</h3>
+                <h3 class="font-semibold text-white mb-5 text-[16px]">Accesos Rápidos</h3>
                 <ul class="space-y-3">
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{ 'FOOTER.ABOUT' |
-                            translate }}</a>
+                    <li><a routerLink="/admin/panel"
+                            class="text-white/60 hover:text-white text-sm transition-colors">Panel Administración</a>
                     </li>
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{ 'FOOTER.BLOG' |
-                            translate }}</a></li>
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{ 'FOOTER.CONTACT'
-                            | translate }}</a>
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <h3 class="font-semibold text-white mb-5 text-[16px]">{{ 'FOOTER.LEGAL' | translate }}</h3>
-                <ul class="space-y-3">
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{ 'FOOTER.PRIVACY'
-                            | translate }}</a>
-                    </li>
-                    <li><a href="#" class="text-white/60 hover:text-white text-sm transition-colors">{{ 'FOOTER.TERMS' |
-                            translate }}</a>
+                    <li><a routerLink="/configuracion"
+                            class="text-white/60 hover:text-white text-sm transition-colors">Configuración</a>
                     </li>
                 </ul>
             </div>
