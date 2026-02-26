@@ -1,11 +1,29 @@
 import { Component, Input, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-// Importación corregida según tu estructura:
 import { EspaciosService } from '../../services/espacios';
 
+/** Declaración global de Google Maps para TypeScript */
 declare var google: any;
 
+/**
+ * Componente de Formulario de Espacio (Formulario Espacio)
+ *
+ * Formulario reutilizable para la creación y edición de espacios de coworking.
+ * Es utilizado tanto por CrearEspacioComponent como por EspacioAdminEditComponent.
+ *
+ * Funcionalidades:
+ * - **Campos de texto**: Título, ciudad, dirección, descripción, precio/hora, capacidad.
+ * - **Google Maps Autocomplete**: Sugiere direcciones y extrae automáticamente ciudad,
+ *   latitud y longitud del lugar seleccionado.
+ * - **Servicios/Amenidades**: Checkboxes para seleccionar los servicios disponibles (WiFi,
+ *   Café, Impresora, etc.) con IDs fijos que corresponden a la tabla de servicios del backend.
+ * - **Galería de imágenes**: Soporte para selección múltiple de archivos y arrastrar y soltar (drag & drop),
+ *   con previsualización de imágenes.
+ *
+ * Los datos del formulario se envían como FormData (multipart/form-data) para soportar
+ * tanto los campos de texto como la subida de archivos de imagen.
+ */
 @Component({
   selector: 'app-formulario-espacio',
   standalone: true,
@@ -14,12 +32,22 @@ declare var google: any;
   styleUrl: './formulario-espacio.component.css'
 })
 export class FormularioEspacioComponent implements AfterViewInit {
+  /** Referencia al campo de dirección para vincularlo con Google Places Autocomplete */
   @ViewChild('addressInput') addressInput!: ElementRef;
+  /** Indica si el formulario está en modo edición */
   @Input() isEditMode: boolean = false;
+
+  /** Formulario reactivo con los campos del espacio */
   espacioForm: FormGroup;
+  /** Archivos de imagen seleccionados por el usuario */
   selectedFiles: File[] = [];
+  /** URLs de previsualización de las imágenes seleccionadas */
   previewImages: string[] = [];
 
+  /**
+   * Lista de amenidades disponibles con IDs fijos que corresponden
+   * a los registros de la tabla 'servicios' en la base de datos.
+   */
   amenidades = [
     { id: 1, nombre: 'WiFi de Alta Velocidad' },
     { id: 2, nombre: 'Café y Té Gratis' },
@@ -49,15 +77,22 @@ export class FormularioEspacioComponent implements AfterViewInit {
     });
   }
 
+  /** Inicializa el autocompletado de Google Maps una vez la vista esté lista. */
   ngAfterViewInit() {
     this.initAutocomplete();
   }
 
+  /**
+   * Configura Google Maps Places Autocomplete en el campo de dirección.
+   * Al seleccionar un lugar, extrae automáticamente:
+   * - Dirección formateada
+   * - Ciudad (locality o administrative_area_level_2 como fallback)
+   * - Coordenadas geográficas (latitud y longitud)
+   */
   initAutocomplete() {
-    // Check if google is available
     if (typeof google !== 'undefined') {
       const autocomplete = new google.maps.places.Autocomplete(this.addressInput.nativeElement, {
-        types: ['geocode'], // 'address' or 'geocode' covers most addresses
+        types: ['geocode'],
         fields: ['address_components', 'geometry', 'formatted_address']
       });
 
@@ -66,21 +101,19 @@ export class FormularioEspacioComponent implements AfterViewInit {
           const place = autocomplete.getPlace();
 
           if (!place.geometry) {
-            // User entered the name of a Place that was not suggested and
-            // pressed the Enter key, or the Place Details request failed.
+            // El usuario escribió una dirección que no fue sugerida y presionó Enter
             return;
           }
 
-          // 1. Update formatted address and coordinates
+          // Se actualizan la dirección y las coordenadas en el formulario
           this.espacioForm.patchValue({
             direccion: place.formatted_address,
             latitud: place.geometry.location.lat(),
             longitud: place.geometry.location.lng()
           });
 
-          // 2. Extract city/locality
+          // Se extrae la ciudad de los componentes de dirección
           let city = '';
-          // Iterate components to find locality
           for (const component of place.address_components) {
             const types = component.types;
             if (types.includes('locality')) {
@@ -89,7 +122,7 @@ export class FormularioEspacioComponent implements AfterViewInit {
             }
           }
 
-          // Fallback if locality is not found (sometimes it's under administrative_area_level_2 etc)
+          // Fallback: si no se encuentra 'locality', se busca 'administrative_area_level_2'
           if (!city) {
             for (const component of place.address_components) {
               if (component.types.includes('administrative_area_level_2')) {
@@ -107,6 +140,10 @@ export class FormularioEspacioComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * Alterna la selección de una amenidad/servicio.
+   * Añade o elimina el ID del servicio del array de servicios del formulario.
+   */
   toggleAmenidad(id: number, event: any) {
     const current = this.espacioForm.get('servicios')?.value as number[];
     if (event.target.checked) {
@@ -116,20 +153,26 @@ export class FormularioEspacioComponent implements AfterViewInit {
     }
   }
 
-  // Métodos para el manejo de archivos
+  // ========================
+  // MANEJO DE ARCHIVOS DE IMAGEN
+  // ========================
+
+  /** Maneja la selección de archivos desde el input file. */
   onFileSelected(event: any) {
     if (event.target.files && event.target.files.length > 0) {
       this.processFiles(Array.from(event.target.files));
-      // Reset input to allow selecting the same file again if needed
+      // Se resetea el input para permitir seleccionar el mismo archivo de nuevo
       event.target.value = '';
     }
   }
 
+  /** Previene el comportamiento por defecto al arrastrar archivos sobre la zona de drop. */
   onDragOver(event: any) {
     event.preventDefault();
     event.stopPropagation();
   }
 
+  /** Maneja el drop de archivos arrastrados a la zona de drop. */
   onFileDropped(event: any) {
     event.preventDefault();
     event.stopPropagation();
@@ -138,39 +181,49 @@ export class FormularioEspacioComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * Procesa los archivos seleccionados: valida que sean imágenes,
+   * los añade a la lista y genera previsualizaciones Base64.
+   */
   processFiles(files: File[]) {
     for (let file of files) {
-      // Validar tipo y tamaño si es necesario
+      // Solo se aceptan archivos de imagen
       if (file.type.match(/image\/*/) == null) {
-        continue; // Solo imágenes
+        continue;
       }
 
       this.selectedFiles.push(file);
 
-      // Crear preview
+      // Se genera la previsualización usando FileReader
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.previewImages.push(e.target.result);
-        this.cdr.detectChanges(); // Force view update
+        this.cdr.detectChanges();
       }
       reader.readAsDataURL(file);
     }
   }
 
+  /** Elimina un archivo y su previsualización en el índice especificado. */
   removeFile(index: number) {
     this.selectedFiles.splice(index, 1);
     this.previewImages.splice(index, 1);
   }
 
-  // Método auxiliar para preparar los datos para el envío
+  /**
+   * Prepara los datos del formulario como FormData para el envío al backend.
+   * Los servicios se envían como array (servicios[]) para que Laravel los procese correctamente.
+   * Las imágenes se envían como array (fotos[]).
+   * @returns FormData con todos los campos y archivos listos para enviar.
+   */
   getFormData(): FormData {
     const formData = new FormData();
 
-    // Añadir campos de texto
+    // Se añaden los campos de texto del formulario
     Object.keys(this.espacioForm.controls).forEach(key => {
       if (key === 'servicios') {
+        // Los arrays en FormData se envían con sufijo [] para Laravel
         const servicios = this.espacioForm.get('servicios')?.value;
-        // Para arrays en FormData, solemos enviarlos así para que Laravel los procese bien
         servicios.forEach((id: number) => {
           formData.append('servicios[]', id.toString());
         });
@@ -182,7 +235,7 @@ export class FormularioEspacioComponent implements AfterViewInit {
       }
     });
 
-    // Añadir imágenes
+    // Se añaden los archivos de imagen
     this.selectedFiles.forEach((file) => {
       formData.append('fotos[]', file);
     });
@@ -190,7 +243,10 @@ export class FormularioEspacioComponent implements AfterViewInit {
     return formData;
   }
 
-  // Nuevo método para rellenar datos (Edición)
+  /**
+   * Pre-rellena el formulario con los datos existentes de un espacio (modo edición).
+   * Mapea los servicios a sus IDs y genera las previsualizaciones de las fotos existentes.
+   */
   patchData(data: any) {
     this.espacioForm.patchValue({
       titulo: data.titulo,
@@ -199,18 +255,23 @@ export class FormularioEspacioComponent implements AfterViewInit {
       descripcion: data.descripcion,
       precio_hora: data.precio_hora,
       capacidad: data.capacidad,
+      // Se extraen los IDs de los servicios del array de objetos
       servicios: data.servicios ? data.servicios.map((s: any) => s.id_servicio) : [],
       latitud: data.latitud,
       longitud: data.longitud
     });
 
-    // Handle existing images for preview
+    // Se generan las URLs de previsualización para las fotos existentes
     if (data.fotos && data.fotos.length > 0) {
       this.previewImages = data.fotos.map((f: any) => this.getFullUrl(f.url_foto));
     }
   }
 
-  // TODO: Move this helper to a shared utility or service
+  /**
+   * Construye la URL completa a partir de una ruta relativa del backend.
+   * @param path Ruta relativa de la imagen.
+   * @returns URL completa hacia el servidor backend.
+   */
   private getFullUrl(path: string | null): string {
     if (!path) return '';
     if (path.startsWith('http')) return path;

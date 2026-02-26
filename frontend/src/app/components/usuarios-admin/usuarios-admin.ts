@@ -1,5 +1,12 @@
 import { Component } from '@angular/core';
 
+/**
+ * Componente Stub de Usuarios Admin
+ *
+ * Componente vacío generado automáticamente por Angular CLI.
+ * La lógica real de gestión de usuarios del administrador se encuentra
+ * en el componente UsuariosAdminComponent (usuarios-admin.component.ts).
+ */
 @Component({
   selector: 'app-usuarios-admin',
   imports: [],

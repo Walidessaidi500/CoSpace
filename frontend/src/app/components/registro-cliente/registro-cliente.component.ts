@@ -6,6 +6,17 @@ import { ApiService } from '../../services/api';
 
 import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Componente de Registro de Cliente
+ *
+ * Gestiona el formulario de registro para nuevos clientes de la plataforma CoSpace.
+ * Requiere los datos básicos del usuario: nombre completo, email, contraseña
+ * y confirmación de contraseña.
+ *
+ * Incluye un validador personalizado para verificar que las contraseñas coincidan.
+ * El campo de confirmación de contraseña se elimina antes de enviar los datos
+ * al backend, ya que no es necesario en el endpoint de registro.
+ */
 @Component({
   selector: 'app-registro-cliente',
   standalone: true,
@@ -14,7 +25,9 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrl: './registro-cliente.component.css',
 })
 export class RegistroClienteComponent {
+  /** Formulario reactivo con los campos de registro del cliente */
   registerForm: FormGroup;
+  /** Indicador de estado de carga durante el registro */
   loading = false;
 
   constructor(
@@ -30,12 +43,20 @@ export class RegistroClienteComponent {
     }, { validators: this.passwordMatchValidator });
   }
 
-  // Validador personalizado para contraseñas
+  /**
+   * Validador personalizado que verifica que la contraseña y su confirmación coincidan.
+   * @returns null si coinciden, o un objeto { mismatch: true } si no.
+   */
   passwordMatchValidator(form: FormGroup) {
     return form.get('password')?.value === form.get('confirmPassword')?.value
       ? null : { mismatch: true };
   }
 
+  /**
+   * Envía los datos de registro al backend.
+   * Se elimina el campo confirmPassword antes del envío porque el backend no lo necesita.
+   * Si el registro es exitoso, redirige al login.
+   */
   onSubmit() {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
@@ -43,7 +64,7 @@ export class RegistroClienteComponent {
     }
 
     this.loading = true;
-    // Remover confirmPassword antes de enviar si no se necesita en backend
+    // Se elimina confirmPassword ya que el backend no lo espera
     const { confirmPassword, ...dataToSend } = this.registerForm.value;
 
     this.apiService.registerClient(dataToSend).subscribe({

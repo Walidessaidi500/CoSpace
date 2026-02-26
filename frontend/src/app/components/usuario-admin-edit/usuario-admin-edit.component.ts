@@ -6,6 +6,19 @@ import { AdminService } from '../../services/admin.service';
 import { SidebarAdminComponent } from '../sidebar-admin/sidebar-admin.component';
 import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.component';
 
+/**
+ * Componente de Edición de Usuario del Administrador
+ *
+ * Permite al administrador editar los datos de cualquier usuario de la plataforma,
+ * incluyendo nombre, email y rol (tipo de usuario).
+ *
+ * El usuario se carga obteniendo la lista completa de usuarios y filtrando
+ * por el ID del parámetro de ruta. También permite eliminar el usuario
+ * directamente desde la vista de edición con un modal de confirmación.
+ *
+ * Tras una actualización exitosa, muestra un mensaje de éxito y redirige
+ * al listado de usuarios tras 1.5 segundos.
+ */
 @Component({
     selector: 'app-usuario-admin-edit',
     standalone: true,
@@ -20,18 +33,21 @@ export class UsuarioAdminEditComponent implements OnInit {
     private fb = inject(FormBuilder);
     private cdr = inject(ChangeDetectorRef);
 
+    /** Formulario reactivo con los campos editables del usuario */
     userForm: FormGroup;
+    /** ID del usuario que se está editando */
     userId: number | null = null;
     isLoading = true;
     errorMessage: string | null = null;
     successMessage: string | null = null;
     deletingId: number | null = null;
 
-    // Modal State
+    // Estado del modal de eliminación
     showDeleteModal = false;
     modalTitle = 'Eliminar Usuario';
     dialogMessage = '¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.';
 
+    /** Inicializa el formulario reactivo con las validaciones necesarias. */
     constructor() {
         this.userForm = this.fb.group({
             nombre_completo: ['', [Validators.required, Validators.minLength(3)]],
@@ -40,6 +56,10 @@ export class UsuarioAdminEditComponent implements OnInit {
         });
     }
 
+    /**
+     * Obtiene el ID del usuario de la ruta y carga sus datos.
+     * Si no hay ID, redirige al listado de usuarios.
+     */
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
@@ -50,12 +70,18 @@ export class UsuarioAdminEditComponent implements OnInit {
         }
     }
 
+    /**
+     * Carga los datos del usuario buscándolo en la lista completa de usuarios.
+     * Este enfoque se usa porque la API del administrador no tiene
+     * un endpoint individual de usuario por ID.
+     */
     loadUserData(id: number) {
         this.isLoading = true;
         this.adminService.getAllUsers().subscribe({
             next: (users: any[]) => {
                 const user = users.find(u => u.id === id);
                 if (user) {
+                    // Se rellenan los campos del formulario con los datos del usuario encontrado
                     this.userForm.patchValue({
                         nombre_completo: user.nombre,
                         email: user.email,
@@ -78,6 +104,11 @@ export class UsuarioAdminEditComponent implements OnInit {
         });
     }
 
+    /**
+     * Envía los cambios del usuario al backend.
+     * Tras la actualización exitosa, muestra un mensaje de éxito
+     * y redirige al listado de usuarios tras 1.5 segundos.
+     */
     onSubmit() {
         if (this.userForm.valid && this.userId) {
             this.isLoading = true;
@@ -99,23 +130,31 @@ export class UsuarioAdminEditComponent implements OnInit {
                 }
             });
         } else {
+            // Marca todos los campos como tocados para mostrar las validaciones
             this.userForm.markAllAsTouched();
         }
     }
 
+    /** Cancela la edición y redirige al listado de usuarios. */
     onCancel() {
         this.router.navigate(['/admin/usuarios']);
     }
 
-    // Delete Logic
+    // ========================
+    // LÓGICA DE ELIMINACIÓN
+    // ========================
+
+    /** Abre el modal de confirmación de eliminación. */
     initiateDelete() {
         this.showDeleteModal = true;
     }
 
+    /** Cierra el modal de confirmación de eliminación. */
     closeDeleteModal() {
         this.showDeleteModal = false;
     }
 
+    /** Confirma la eliminación del usuario y redirige al listado. */
     confirmDelete() {
         if (!this.userId) return;
 

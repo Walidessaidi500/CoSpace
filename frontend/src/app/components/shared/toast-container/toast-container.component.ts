@@ -2,6 +2,19 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService } from '../../../services/toast.service';
 
+/**
+ * Componente Contenedor de Notificaciones Toast
+ *
+ * Renderiza todas las notificaciones toast activas en la esquina superior derecha
+ * de la pantalla. Utiliza Signals del ToastService para obtener la lista
+ * reactiva de toasts y mostrar cada uno según su tipo (success, error, warning, info).
+ *
+ * Los toasts se apilan verticalmente con una separación de 12px y cada uno
+ * incluye un icono SVG correspondiente a su tipo, el mensaje y un botón de cierre.
+ * Se aplican animaciones de entrada (animate-bounce-in-up) para una experiencia visual fluida.
+ *
+ * Soporta modo oscuro mediante clases condicionales dark:.
+ */
 @Component({
   selector: 'app-toast-container',
   standalone: true,
@@ -17,7 +30,7 @@ import { ToastService } from '../../../services/toast.service';
              'bg-white dark:bg-[#1a2736] border-blue-200 dark:border-blue-800/30': toast.type === 'info'
            }">
         
-        <!-- Icon -->
+        <!-- Icono según el tipo de notificación -->
         <div class="shrink-0 mt-0.5">
           <svg *ngIf="toast.type === 'success'" class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -39,6 +52,7 @@ import { ToastService } from '../../../services/toast.service';
           </p>
         </div>
         
+        <!-- Botón para cerrar la notificación manualmente -->
         <div class="ml-4 shrink-0 flex">
           <button (click)="toastService.remove(toast.id)" class="inline-flex text-neutral-placeholder dark:text-gray-400 hover:text-primary-blue dark:hover:text-gray-200 transition-colors">
             <span class="sr-only">Close</span>
@@ -52,5 +66,6 @@ import { ToastService } from '../../../services/toast.service';
   `
 })
 export class ToastContainerComponent {
+  /** Servicio de notificaciones toast inyectado para acceder a la lista de toasts activos */
   toastService = inject(ToastService);
 }

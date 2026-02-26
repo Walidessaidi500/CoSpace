@@ -5,34 +5,41 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo Cliente
+ *
+ * Representa el perfil de cliente de un usuario en la plataforma CoSpace.
+ * Un cliente es un usuario que puede buscar y reservar espacios de coworking.
+ * La clave primaria de esta tabla es la misma que la del usuario padre (id_usuario),
+ * creando una relación de herencia 1:1 con la tabla 'usuarios'.
+ * Almacena información adicional específica del cliente como teléfono y método de pago preferido.
+ */
 class Cliente extends Model
 {
     use HasFactory;
 
-    // 1. Configuración de la Tabla
+    // Nombre de la tabla en la base de datos
     protected $table = 'clientes';
-    
-    // La clave primaria es 'id_usuario' (compartida con la tabla usuarios)
+
+    // La clave primaria es el mismo id_usuario de la tabla padre 'usuarios' (relación 1:1)
     protected $primaryKey = 'id_usuario';
 
-    // IMPORTANTE: El ID no se genera solo en esta tabla, viene del usuario padre.
-    // Si no pones esto en false, Laravel intentará convertirlo y fallará al guardar.
+    // El ID no es autoincremental ya que viene heredado de la tabla 'usuarios'
     public $incrementing = false;
 
-    // Desactivamos timestamps (según tu esquema SQL, esta tabla no los tenía)
+    // Se desactivan los timestamps porque esta tabla auxiliar no los necesita
     public $timestamps = false;
 
-    // 2. Asignación Masiva
+    // Campos permitidos para asignación masiva
     protected $fillable = [
-        'id_usuario',       // Se debe pasar el ID del usuario recién creado
+        'id_usuario',
         'telefono',
         'metodo_pago_pref'
     ];
 
-    // 3. Relaciones
-
     /**
-     * Relación Inversa: Un Cliente "es" un Usuario.
+     * Relación inversa: un cliente pertenece a (es) un usuario.
+     * Permite acceder a los datos del usuario asociado a este perfil de cliente.
      */
     public function usuario()
     {
@@ -40,7 +47,8 @@ class Cliente extends Model
     }
 
     /**
-     * Un Cliente puede hacer muchas Reservas.
+     * Relación: un cliente puede realizar muchas reservas de espacios.
+     * Permite obtener todas las reservas realizadas por este cliente.
      */
     public function reservas()
     {

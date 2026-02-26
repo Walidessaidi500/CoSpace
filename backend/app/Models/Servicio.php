@@ -5,37 +5,45 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo Servicio
+ *
+ * Representa un servicio o amenidad que puede ofrecer un espacio de coworking
+ * (por ejemplo: WiFi, proyector, café, impresora, pizarra, etc.).
+ * Los servicios se relacionan con los espacios mediante una tabla pivote
+ * 'espacio_servicios' (relación muchos a muchos), permitiendo que un servicio
+ * esté disponible en múltiples espacios y que un espacio ofrezca múltiples servicios.
+ */
 class Servicio extends Model
 {
     use HasFactory;
 
-    // 1. Configuración de la Tabla
+    // Nombre de la tabla en la base de datos
     protected $table = 'servicios';
-    protected $primaryKey = 'id_servicio';
-    
-    // Si en tu SQL no añadiste 'created_at' y 'updated_at' a esta tabla,
-    // debes poner esto en false. Si sí los tienes, bórralo o ponlo en true.
-    public $timestamps = false; 
 
-    // 2. Asignación Masiva
+    // Clave primaria personalizada de la tabla
+    protected $primaryKey = 'id_servicio';
+
+    // Se desactivan los timestamps porque esta tabla de catálogo no los necesita
+    public $timestamps = false;
+
+    // Campos permitidos para asignación masiva
     protected $fillable = [
         'nombre_servicio',
-        'icono_url' // Por si guardas la clase del icono (ej: 'fa-wifi') o la URL de la imagen
+        'icono_url'
     ];
 
-    // 3. Relaciones
-
     /**
-     * Relación inversa Muchos a Muchos:
-     * Un Servicio (ej: Wifi) puede estar en muchos Espacios.
+     * Relación inversa muchos a muchos: un servicio puede estar disponible en muchos espacios.
+     * La relación se gestiona a través de la tabla pivote 'espacio_servicios'.
      */
     public function espacios()
     {
         return $this->belongsToMany(
-            Espacio::class, 
-            'espacio_servicios', // Tabla pivote
-            'id_servicio',       // FK de este modelo en la pivote
-            'id_espacio'         // FK del otro modelo en la pivote
+            Espacio::class,
+            'espacio_servicios',
+            'id_servicio',
+            'id_espacio'
         );
     }
 }

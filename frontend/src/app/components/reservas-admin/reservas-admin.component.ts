@@ -6,6 +6,20 @@ import { AdminService } from '../../services/admin.service';
 import { SidebarAdminComponent } from '../sidebar-admin/sidebar-admin.component';
 import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.component';
 
+/**
+ * Componente de Gestión de Reservas del Administrador
+ *
+ * Muestra un listado de todas las reservas de la plataforma con funcionalidades de:
+ *
+ * - **Búsqueda**: Por nombre del cliente o título del espacio.
+ * - **Filtrado**: Por estado de la reserva (Pendiente, Confirmada, En_Curso, Finalizada, Cancelada).
+ * - **Cambio de estado**: El administrador puede cambiar el estado directamente desde el listado.
+ * - **Eliminación**: Con modal de confirmación reutilizable.
+ * - **Navegación**: Enlace a la vista de edición individual de cada reserva.
+ *
+ * Al cambiar el estado de una reserva, se guarda el estado anterior para revertir
+ * en caso de error en la petición al backend (patrón optimista con rollback).
+ */
 @Component({
     selector: 'app-reservas-admin',
     standalone: true,
@@ -17,20 +31,25 @@ export class ReservasAdminComponent implements OnInit {
     private adminService = inject(AdminService);
     private cdr = inject(ChangeDetectorRef);
 
+    /** Lista completa de reservas sin filtrar */
     allReservas: any[] = [];
+    /** Lista de reservas visible tras aplicar filtros */
     reservas: any[] = [];
     isLoading = true;
     errorMessage: string | null = null;
+    /** ID de la reserva que se está eliminando */
     deletingId: number | null = null;
+    /** ID de la reserva cuyo estado se está actualizando */
     updatingId: number | null = null;
 
     // Filtros
     searchTerm = '';
     filterEstado = '';
 
+    /** Estados posibles de una reserva */
     estadosDisponibles = ['Pendiente', 'Confirmada', 'En_Curso', 'Finalizada', 'Cancelada'];
 
-    // Modal State
+    // Estado del modal de eliminación
     showDeleteModal = false;
     itemToDeleteId: number | null = null;
     modalTitle = 'Eliminar Reserva';
@@ -38,6 +57,7 @@ export class ReservasAdminComponent implements OnInit {
 
     ngOnInit() { this.loadReservas(); }
 
+    /** Obtiene todas las reservas desde la API del administrador. */
     loadReservas() {
         this.isLoading = true;
         this.adminService.getAllReservations().subscribe({
@@ -55,6 +75,7 @@ export class ReservasAdminComponent implements OnInit {
         });
     }
 
+    /** Aplica filtros de búsqueda y estado sobre la lista de reservas. */
     applyFilters() {
         const term = this.searchTerm.toLowerCase().trim();
         this.reservas = this.allReservas.filter(r => {
@@ -78,6 +99,10 @@ export class ReservasAdminComponent implements OnInit {
     get totalFiltrados() { return this.reservas.length; }
     get totalReservas() { return this.allReservas.length; }
 
+    /**
+     * Cambia el estado de una reserva. Guarda el estado anterior
+     * para revertir en caso de error del backend (patrón rollback).
+     */
     onEstadoChange(reserva: any, nuevoEstado: string) {
         if (nuevoEstado === reserva.estado) return;
         const estadoAnterior = reserva.estado;
@@ -89,6 +114,7 @@ export class ReservasAdminComponent implements OnInit {
                 this.cdr.detectChanges();
             },
             error: (err) => {
+                // Se revierte al estado anterior si la actualización falla
                 reserva.estado = estadoAnterior;
                 this.updatingId = null;
                 alert('Error al actualizar el estado: ' + (err.error?.message || 'Error desconocido'));
@@ -97,11 +123,13 @@ export class ReservasAdminComponent implements OnInit {
         });
     }
 
+    /** Formatea la etiqueta de estado reemplazando guiones bajos por espacios. */
     getEstadoLabel(estado: string): string { return estado.replace('_', ' '); }
 
     openDeleteModal(id: number) { this.itemToDeleteId = id; this.showDeleteModal = true; }
     closeDeleteModal() { this.showDeleteModal = false; this.itemToDeleteId = null; }
 
+    /** Confirma la eliminación de la reserva y actualiza la lista local. */
     confirmDelete() {
         if (this.itemToDeleteId === null) return;
         const id = this.itemToDeleteId;

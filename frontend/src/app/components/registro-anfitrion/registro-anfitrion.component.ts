@@ -8,6 +8,21 @@ declare var google: any;
 
 import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Componente de Registro de Anfitrión
+ *
+ * Gestiona el formulario de registro para nuevos anfitriones de la plataforma CoSpace.
+ * A diferencia del registro de clientes, el anfitrión debe proporcionar información
+ * adicional sobre su primer espacio de coworking durante el registro:
+ *
+ * - **Datos personales**: Nombre, email, contraseña.
+ * - **Datos del espacio**: Título, dirección, ciudad, capacidad, precio/hora, descripción.
+ *
+ * Integra Google Maps Places Autocomplete para facilitar la introducción de direcciones,
+ * extrayendo automáticamente la ciudad, latitud y longitud del lugar seleccionado.
+ *
+ * Incluye un validador personalizado para verificar que las contraseñas coincidan.
+ */
 @Component({
     selector: 'app-registro-anfitrion',
     standalone: true,
@@ -16,10 +31,14 @@ import { TranslateModule } from '@ngx-translate/core';
     styleUrl: './registro-anfitrion.component.css'
 })
 export class RegistroAnfitrionComponent implements AfterViewInit {
+    /** Referencia al campo de dirección para vincularlo con Google Places Autocomplete */
     @ViewChild('addressInput') addressInput!: ElementRef;
 
+    /** Formulario reactivo con los campos del anfitrión y su primer espacio */
     registroForm: FormGroup;
+    /** Indicador de estado de carga durante el registro */
     loading = false;
+    /** Mensaje de error si el registro falla */
     errorMessage = '';
 
     constructor(
@@ -33,7 +52,7 @@ export class RegistroAnfitrionComponent implements AfterViewInit {
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(8)]],
             password_confirmation: ['', Validators.required],
-            titulo: ['', Validators.required], // Nombre del Espacio
+            titulo: ['', Validators.required],        // Nombre del espacio
             direccion: ['', Validators.required],
             ciudad: ['', Validators.required],
             latitud: [null],
@@ -44,10 +63,20 @@ export class RegistroAnfitrionComponent implements AfterViewInit {
         }, { validators: this.passwordMatchValidator });
     }
 
+    /** Inicializa el autocompletado de Google Maps una vez la vista está lista. */
     ngAfterViewInit() {
         this.initAutocomplete();
     }
 
+    /**
+     * Configura Google Maps Places Autocomplete en el campo de dirección.
+     * Al seleccionar un lugar, extrae automáticamente:
+     * - Dirección formateada
+     * - Ciudad (locality o administrative_area_level_2 como fallback)
+     * - Coordenadas (latitud y longitud)
+     *
+     * NgZone.run() asegura que Angular detecte los cambios realizados desde el callback de Google.
+     */
     initAutocomplete() {
         if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
             console.error('Google Maps JavaScript API not loaded.');
@@ -55,7 +84,7 @@ export class RegistroAnfitrionComponent implements AfterViewInit {
         }
 
         const autocomplete = new google.maps.places.Autocomplete(this.addressInput.nativeElement, {
-            types: ['address'], // Restrict to addresses
+            types: ['address'],
             fields: ['address_components', 'geometry', 'formatted_address']
         });
 
@@ -68,29 +97,27 @@ export class RegistroAnfitrionComponent implements AfterViewInit {
                     return;
                 }
 
-                // 1. Get Lat/Lng
+                // Se extraen las coordenadas geográficas
                 const lat = place.geometry.location.lat();
                 const lng = place.geometry.location.lng();
 
-                // 2. Get Formatted Address
+                // Se obtiene la dirección formateada
                 let address = place.formatted_address;
-                // Alternatively, build it from components if you want specific format.
-                // For now, formatted_address is usually good.
 
-                // 3. Extract City
+                // Se extrae la ciudad de los componentes de dirección
                 let city = '';
                 for (const component of place.address_components) {
                     const types = component.types;
                     if (types.includes('locality')) {
                         city = component.long_name;
                     }
-                    // Fallback to administrative_area_level_2 or 1 if locality not found (common in some areas)
+                    // Fallback si no se encuentra 'locality'
                     if (!city && types.includes('administrative_area_level_2')) {
                         city = component.long_name;
                     }
                 }
 
-                // Update Form
+                // Se actualizan los campos del formulario con los datos extraídos
                 this.registroForm.patchValue({
                     direccion: address,
                     ciudad: city,
@@ -101,12 +128,19 @@ export class RegistroAnfitrionComponent implements AfterViewInit {
         });
     }
 
-    // Validador personalizado para contraseñas
+    /**
+     * Validador personalizado que verifica que la contraseña y su confirmación coincidan.
+     * @returns null si las contraseñas coinciden, o un objeto { mismatch: true } si no.
+     */
     passwordMatchValidator(form: FormGroup) {
         return form.get('password')?.value === form.get('password_confirmation')?.value
             ? null : { mismatch: true };
     }
 
+    /**
+     * Envía los datos de registro al backend.
+     * Si el registro es exitoso, redirige al usuario a la vista de inicio de sesión.
+     */
     onSubmit() {
         if (this.registroForm.invalid) {
             this.registroForm.markAllAsTouched();
@@ -114,7 +148,6 @@ export class RegistroAnfitrionComponent implements AfterViewInit {
         }
 
         this.loading = true;
-        // Usamos el servicio API genérico 'register' por ahora
         this.apiService.register(this.registroForm.value).subscribe({
             next: (res: any) => {
                 alert('Cuenta creada con éxito');

@@ -6,6 +6,21 @@ import { AdminService } from '../../services/admin.service';
 import { SidebarAdminComponent } from '../sidebar-admin/sidebar-admin.component';
 import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.component';
 
+/**
+ * Componente de Gestión de Reportes del Administrador
+ *
+ * Muestra un listado de todos los reportes de usuarios sobre espacios de la plataforma.
+ * Los reportes son quejas o denuncias que los clientes pueden enviar sobre los espacios.
+ *
+ * Características:
+ * - **Búsqueda**: Por nombre del espacio, usuario, email o descripción del reporte.
+ * - **Filtrado**: Por estado (Pendiente, Revisado, Resuelto) y por motivo del reporte.
+ * - **Cambio de estado**: El administrador puede cambiar el estado del reporte.
+ * - **Contactar usuario**: Abre el cliente de email con un template pre-rellenado.
+ * - **Eliminación**: Con modal de confirmación reutilizable.
+ *
+ * Los motivos de reporte se mapean a etiquetas legibles en español mediante un diccionario.
+ */
 @Component({
     selector: 'app-reportes-admin',
     standalone: true,
@@ -17,11 +32,14 @@ export class ReportesAdminComponent implements OnInit {
     private adminService = inject(AdminService);
     private cdr = inject(ChangeDetectorRef);
 
+    /** Lista completa de reportes sin filtrar */
     allReportes: any[] = [];
+    /** Lista de reportes visible tras aplicar filtros */
     reportes: any[] = [];
     isLoading = true;
     errorMessage: string | null = null;
     deletingId: number | null = null;
+    /** ID del reporte cuyo estado se está actualizando */
     updatingId: number | null = null;
 
     // Filtros
@@ -29,12 +47,13 @@ export class ReportesAdminComponent implements OnInit {
     filterEstado = '';
     filterMotivo = '';
 
-    // Modal State
+    // Estado del modal de eliminación
     showDeleteModal = false;
     itemToDeleteId: number | null = null;
     modalTitle = 'Eliminar Reporte';
     modalMessage = '¿Estás seguro de que deseas eliminar este reporte? Esta acción no se puede deshacer.';
 
+    /** Diccionario de mapeo de claves de motivo a etiquetas legibles en español */
     motivosMap: { [key: string]: string } = {
         'reserva_fraudulenta': 'Reserva fraudulenta',
         'contenido_inapropiado': 'Contenido inapropiado',
@@ -46,6 +65,7 @@ export class ReportesAdminComponent implements OnInit {
 
     ngOnInit() { this.loadReportes(); }
 
+    /** Obtiene todos los reportes desde la API del administrador. */
     loadReportes() {
         this.isLoading = true;
         this.errorMessage = null;
@@ -64,6 +84,7 @@ export class ReportesAdminComponent implements OnInit {
         });
     }
 
+    /** Aplica filtros de búsqueda, estado y motivo sobre la lista de reportes. */
     applyFilters() {
         const term = this.searchTerm.toLowerCase().trim();
         this.reportes = this.allReportes.filter(r => {
@@ -91,8 +112,13 @@ export class ReportesAdminComponent implements OnInit {
     get totalFiltrados() { return this.reportes.length; }
     get totalReportes() { return this.allReportes.length; }
 
+    /** Obtiene la etiqueta legible en español para un motivo de reporte. */
     getMotivoLabel(motivo: string): string { return this.motivosMap[motivo] || motivo; }
 
+    /**
+     * Abre el cliente de correo del sistema con un email pre-rellenado
+     * para contactar al usuario que realizó el reporte.
+     */
     contactarUsuario(email: string, nombreEspacio: string) {
         const subject = encodeURIComponent(`Re: Tu reporte sobre "${nombreEspacio}" - CoSpace`);
         const body = encodeURIComponent(
@@ -101,6 +127,7 @@ export class ReportesAdminComponent implements OnInit {
         window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
     }
 
+    /** Cambia el estado de un reporte (Pendiente → Revisado → Resuelto). */
     cambiarEstado(id: number, nuevoEstado: string) {
         this.updatingId = id;
         this.adminService.updateReporteEstado(id, nuevoEstado).subscribe({
@@ -122,6 +149,7 @@ export class ReportesAdminComponent implements OnInit {
     openDeleteModal(id: number) { this.itemToDeleteId = id; this.showDeleteModal = true; }
     closeDeleteModal() { this.showDeleteModal = false; this.itemToDeleteId = null; }
 
+    /** Confirma la eliminación del reporte y actualiza la lista local. */
     confirmDelete() {
         if (this.itemToDeleteId === null) return;
         const id = this.itemToDeleteId;

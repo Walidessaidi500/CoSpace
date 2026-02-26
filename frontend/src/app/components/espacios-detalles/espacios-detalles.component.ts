@@ -13,6 +13,22 @@ import { ChatService } from '../../services/chat.service';
 
 import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Componente de Detalles de Espacio
+ *
+ * Muestra toda la información detallada de un espacio de coworking, incluyendo:
+ *
+ * 1. **Información general**: Título, dirección, descripción, precio (con comisión), puntuación.
+ * 2. **Galería de fotos**: Imágenes del espacio con modal de ampliación.
+ * 3. **Mapa**: Ubicación en Google Maps con marcador.
+ * 4. **Servicios**: Lista de amenidades con iconos SVG correspondientes.
+ * 5. **Valoraciones**: Sistema completo de reseñas con filtrado, ordenamiento y paginación.
+ * 6. **Formulario de valoración**: Los clientes pueden enviar reseñas con puntuación.
+ * 7. **Chat**: Los clientes pueden contactar al anfitrión directamente.
+ * 8. **Reportes**: Los clientes pueden reportar un espacio por diversos motivos.
+ *
+ * El precio mostrado incluye una comisión del 14.59% (gastos de gestión de la plataforma).
+ */
 @Component({
   selector: 'app-espacios-detalles',
   standalone: true,
@@ -21,6 +37,7 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrl: './espacios-detalles.component.css',
 })
 export class EspaciosDetallesComponent implements OnInit {
+  // Inyección de dependencias
   private route = inject(ActivatedRoute);
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
@@ -30,14 +47,19 @@ export class EspaciosDetallesComponent implements OnInit {
   private http = inject(HttpClient);
   private chatService = inject(ChatService);
 
+  /** Datos completos del espacio transformados para la vista */
   space: any = null;
   isLoading: boolean = true;
   errorMessage: string = '';
+  /** Rol del usuario actual para controlar la visibilidad de acciones */
   currentUserRole: string | null = null;
 
-  private readonly COMMISSION_RATE = 0.1459; // 14.59% comisión por gastos de gestión
+  /** Tasa de comisión aplicada al precio base (14.59% por gastos de gestión) */
+  private readonly COMMISSION_RATE = 0.1459;
 
-  // Google Maps Configuration
+  // ========================
+  // CONFIGURACIÓN DE GOOGLE MAPS
+  // ========================
   mapOptions: google.maps.MapOptions = {
     center: { lat: 40, lng: -3 },
     zoom: 15,
@@ -46,33 +68,47 @@ export class EspaciosDetallesComponent implements OnInit {
   };
   markerPosition: google.maps.LatLngLiteral = { lat: 40, lng: -3 };
 
+  /** Indica si se accedió a la vista en modo "ya reservado" (para mostrar info post-reserva) */
   isReservedMode: boolean = false;
 
-  // Valoraciones
+  // ========================
+  // SECCIÓN DE VALORACIONES
+  // ========================
+  /** Lista de valoraciones del espacio */
   valoraciones: any[] = [];
+  /** Resumen estadístico: promedio, total y distribución por estrellas */
   resumenValoraciones: any = { promedio: 0, total: 0, distribucion: {} };
+  /** Criterio de ordenamiento actual ('reciente', 'antiguo', 'mayor', 'menor') */
   sortBy: string = 'reciente';
+  /** Filtro activo por puntuación específica (1-5 estrellas) */
   filterPuntuacion: number | null = null;
+  /** Página actual de la paginación de valoraciones */
   currentPage: number = 1;
+  /** Última página disponible de valoraciones */
   lastPage: number = 1;
   isLoadingValoraciones: boolean = false;
 
-  // Formulario de valoración
+  // Formulario de nueva valoración
   nuevaPuntuacion: number = 0;
   nuevoComentario: string = '';
+  /** Puntuación sobre la que se hace hover (para previsualización de estrellas) */
   hoverPuntuacion: number = 0;
   isSubmitting: boolean = false;
+  /** Indica si el usuario actual ya ha valorado este espacio */
   yaValorado: boolean = false;
   submitSuccess: string = '';
   submitError: string = '';
 
-  // Reporte
+  // ========================
+  // SECCIÓN DE REPORTES
+  // ========================
   showReporteModal: boolean = false;
   reporteMotivo: string = '';
   reporteDescripcion: string = '';
   isSubmittingReporte: boolean = false;
   reporteSuccess: string = '';
   reporteError: string = '';
+  /** Lista de motivos disponibles para reportar un espacio */
   motivosReporte = [
     { value: 'reserva_fraudulenta', label: 'Reserva fraudulenta' },
     { value: 'contenido_inapropiado', label: 'Contenido inapropiado' },
@@ -82,9 +118,14 @@ export class EspaciosDetallesComponent implements OnInit {
     { value: 'otro', label: 'Otro motivo' }
   ];
 
+  /**
+   * Inicializa el componente: obtiene el rol del usuario, verifica el modo de vista,
+   * y carga los detalles del espacio y sus valoraciones.
+   */
   ngOnInit() {
     this.currentUserRole = this.authService.getRole();
 
+    // Se verifica si se accede en modo "reservado" (query param ?mode=reserved)
     this.route.queryParams.subscribe(params => {
       this.isReservedMode = params['mode'] === 'reserved';
     });
@@ -101,20 +142,24 @@ export class EspaciosDetallesComponent implements OnInit {
     }
   }
 
+  /** Verifica si el usuario actual es un anfitrión */
   get isAnfitrion(): boolean {
     return this.currentUserRole === 'Anfitrion';
   }
 
+  /** Verifica si el usuario actual es un cliente */
   get isCliente(): boolean {
     return this.currentUserRole === 'Cliente';
   }
 
+  /** Verifica si hay un usuario autenticado */
   get isAuthenticated(): boolean {
     return this.currentUserRole !== null && this.currentUserRole !== undefined;
   }
 
   /**
-   * Iniciar conversación con el anfitrión del espacio
+   * Inicia una conversación con el anfitrión del espacio.
+   * Solo disponible para clientes autenticados.
    */
   contactarAnfitrion(): void {
     if (!this.isAuthenticated) {
@@ -140,25 +185,34 @@ export class EspaciosDetallesComponent implements OnInit {
     });
   }
 
+  /**
+   * Obtiene los detalles completos del espacio desde la API.
+   * Transforma los datos del backend al formato de la vista,
+   * incluyendo el cálculo del precio con comisión y la configuración del mapa.
+   */
   fetchSpaceDetails(id: string) {
     this.isLoading = true;
     this.apiService.getEspacioById(id).subscribe({
       next: (data: any) => {
         console.log('Datos recibidos de API:', data);
         try {
+          // Se transforman los datos del backend al formato esperado por la vista
           this.space = {
             id: data.id_espacio,
             titulo: data.titulo,
             direccion: `${data.direccion}, ${data.ciudad}`,
             descripcion: data.descripcion,
+            // Se aplica la comisión del 14.59% al precio base
             precio: (parseFloat(data.precio_hora) * (1 + this.COMMISSION_RATE)).toFixed(2),
             puntuacion: data.rating_promedio || 'N/A',
             total_resenas: data.total_resenas || 0,
             latitud: data.latitud,
             longitud: data.longitud,
+            // Se ordenan las fotos poniendo la principal primero
             imagenes: (data.fotos && data.fotos.length > 0)
               ? this.sortFotosPrincipalFirst(data.fotos).map((f: any) => this.getFullUrl(f.url_foto))
               : [],
+            // Se mapean los servicios con sus iconos SVG
             caracteristicas: data.servicios ? data.servicios.map((s: any) => ({
               nombre: s.nombre_servicio,
               icono: this.getIconForService(s.nombre_servicio)
@@ -167,6 +221,7 @@ export class EspaciosDetallesComponent implements OnInit {
             anfitrionNombre: data.anfitrion?.usuario?.nombre_completo || 'Anfitrión'
           };
 
+          // Se configura el mapa de Google Maps con las coordenadas del espacio
           if (data.latitud && data.longitud) {
             const lat = parseFloat(data.latitud);
             const lng = parseFloat(data.longitud);
@@ -196,9 +251,14 @@ export class EspaciosDetallesComponent implements OnInit {
   }
 
   // ========================
-  // VALORACIONES
+  // MÉTODOS DE VALORACIONES
   // ========================
 
+  /**
+   * Carga las valoraciones del espacio con soporte para ordenamiento,
+   * filtrado por puntuación y paginación desde el backend.
+   * También verifica si el usuario actual ya ha valorado el espacio.
+   */
   loadValoraciones(espacioId?: string) {
     const id = espacioId || this.space?.id?.toString();
     if (!id) return;
@@ -216,11 +276,10 @@ export class EspaciosDetallesComponent implements OnInit {
         this.lastPage = data.valoraciones?.last_page || 1;
         this.isLoadingValoraciones = false;
 
-        // Verificar si el usuario actual ya ha valorado
+        // Se verifica si el usuario actual ya ha dejado una valoración
         if (this.isCliente) {
           const currentUser = this.authService.getUser();
           if (currentUser) {
-            // Verificar en la lista actual
             this.yaValorado = this.valoraciones.some(
               (v: any) => v.id_usuario === currentUser.id_usuario
             );
@@ -237,18 +296,21 @@ export class EspaciosDetallesComponent implements OnInit {
     });
   }
 
+  /** Cambia el criterio de ordenamiento y recarga las valoraciones desde la primera página. */
   cambiarOrden(sort: string) {
     this.sortBy = sort;
     this.currentPage = 1;
     this.loadValoraciones();
   }
 
+  /** Activa o desactiva el filtro por puntuación específica (toggle). */
   filtrarPorPuntuacion(puntuacion: number | null) {
     this.filterPuntuacion = this.filterPuntuacion === puntuacion ? null : puntuacion;
     this.currentPage = 1;
     this.loadValoraciones();
   }
 
+  /** Navega a una página específica de valoraciones. */
   cambiarPagina(page: number) {
     if (page >= 1 && page <= this.lastPage) {
       this.currentPage = page;
@@ -256,18 +318,25 @@ export class EspaciosDetallesComponent implements OnInit {
     }
   }
 
+  /** Establece la puntuación de hover para previsualización visual. */
   setHoverPuntuacion(star: number) {
     this.hoverPuntuacion = star;
   }
 
+  /** Limpia la previsualización de puntuación al quitar el hover. */
   clearHoverPuntuacion() {
     this.hoverPuntuacion = 0;
   }
 
+  /** Establece la puntuación seleccionada por el usuario. */
   setPuntuacion(star: number) {
     this.nuevaPuntuacion = star;
   }
 
+  /**
+   * Envía una nueva valoración/reseña para el espacio actual.
+   * Tras el envío exitoso, recarga las valoraciones y actualiza el resumen.
+   */
   submitValoracion() {
     if (this.nuevaPuntuacion < 1 || this.nuevaPuntuacion > 5) {
       this.submitError = 'Selecciona una puntuación de 1 a 5 estrellas';
@@ -289,10 +358,10 @@ export class EspaciosDetallesComponent implements OnInit {
         this.nuevoComentario = '';
         this.isSubmitting = false;
 
-        // Recargar valoraciones y actualizar el resumen
+        // Se recargan las valoraciones para reflejar la nueva reseña
         this.loadValoraciones();
 
-        // Actualizar el rating mostrado en el espacio
+        // Se actualiza el rating mostrado en la cabecera del espacio
         if (this.resumenValoraciones) {
           this.space.puntuacion = this.resumenValoraciones.promedio;
           this.space.total_resenas = this.resumenValoraciones.total;
@@ -309,10 +378,12 @@ export class EspaciosDetallesComponent implements OnInit {
     });
   }
 
+  /** Devuelve un array [1,2,3,4,5] para renderizar las estrellas de puntuación. */
   getStarArray(): number[] {
     return [1, 2, 3, 4, 5];
   }
 
+  /** Formatea una fecha ISO a formato legible en español (ej: "15 de enero de 2026"). */
   formatFecha(fecha: string): string {
     const date = new Date(fecha);
     return date.toLocaleDateString('es-ES', {
@@ -322,10 +393,12 @@ export class EspaciosDetallesComponent implements OnInit {
     });
   }
 
+  /** Obtiene la inicial en mayúsculas del nombre para usar como avatar por defecto. */
   getInitial(nombre: string): string {
     return nombre ? nombre.charAt(0).toUpperCase() : '?';
   }
 
+  /** Obtiene la URL completa de la foto de perfil del autor de una valoración. */
   getAutorFoto(valoracion: any): string | null {
     if (valoracion.autor?.foto_perfil) {
       const foto = valoracion.autor.foto_perfil;
@@ -339,9 +412,13 @@ export class EspaciosDetallesComponent implements OnInit {
   }
 
   // ========================
-  // EXISTING METHODS
+  // MÉTODOS AUXILIARES
   // ========================
 
+  /**
+   * Construye la URL completa a partir de una ruta relativa del backend.
+   * Si ya es una URL absoluta (http/https), la devuelve sin modificar.
+   */
   private getFullUrl(path: string | null): string {
     if (!path) return '';
     if (path.startsWith('http')) return path;
@@ -350,6 +427,10 @@ export class EspaciosDetallesComponent implements OnInit {
     return `${baseUrl}${cleanUrl}`;
   }
 
+  /**
+   * Ordena las fotos del espacio poniendo la principal (es_principal) primero.
+   * Esto asegura que la imagen principal se muestre como primera en la galería.
+   */
   private sortFotosPrincipalFirst(fotos: any[]): any[] {
     return [...fotos].sort((a, b) => {
       const aIsPrincipal = a.es_principal == 1 || a.es_principal === true;
@@ -360,6 +441,11 @@ export class EspaciosDetallesComponent implements OnInit {
     });
   }
 
+  /**
+   * Devuelve el icono SVG correspondiente a un servicio/amenidad del espacio.
+   * Busca coincidencias parciales del nombre del servicio en un diccionario de iconos.
+   * Si no hay coincidencia, devuelve un icono genérico de estrella.
+   */
   private getIconForService(name: string): SafeHtml {
     const icons: { [key: string]: string } = {
       'WiFi': '<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>',
@@ -372,6 +458,7 @@ export class EspaciosDetallesComponent implements OnInit {
       'Cocina': '<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"></path></svg>'
     };
 
+    // Si no se encuentra un icono específico, se usa uno genérico de estrella
     let svgStr = '<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>';
 
     for (const key in icons) {
@@ -380,10 +467,15 @@ export class EspaciosDetallesComponent implements OnInit {
         break;
       }
     }
+    // Se usa bypassSecurityTrustHtml para renderizar el SVG de forma segura
     return this.sanitizer.bypassSecurityTrustHtml(svgStr);
   }
 
-  // Reporte Methods
+  // ========================
+  // MÉTODOS DEL MODAL DE REPORTE
+  // ========================
+
+  /** Abre el modal de reporte y resetea el formulario. */
   openReporteModal() {
     this.showReporteModal = true;
     this.reporteMotivo = '';
@@ -392,10 +484,15 @@ export class EspaciosDetallesComponent implements OnInit {
     this.reporteError = '';
   }
 
+  /** Cierra el modal de reporte. */
   closeReporteModal() {
     this.showReporteModal = false;
   }
 
+  /**
+   * Envía un reporte sobre el espacio al backend.
+   * Tras el envío exitoso, cierra el modal automáticamente tras 2.5 segundos.
+   */
   submitReporte() {
     if (!this.reporteMotivo) {
       this.reporteError = 'Selecciona un motivo para el reporte';
@@ -413,6 +510,7 @@ export class EspaciosDetallesComponent implements OnInit {
       next: () => {
         this.reporteSuccess = '¡Reporte enviado correctamente! Lo revisaremos lo antes posible.';
         this.isSubmittingReporte = false;
+        // Se cierra el modal automáticamente tras 2.5 segundos
         setTimeout(() => this.closeReporteModal(), 2500);
         this.cdr.detectChanges();
       },
@@ -424,10 +522,16 @@ export class EspaciosDetallesComponent implements OnInit {
     });
   }
 
-  // Modal Logic
+  // ========================
+  // MODAL DE AMPLIACIÓN DE IMAGEN
+  // ========================
+
+  /** Indica si el modal de imagen ampliada está abierto */
   isModalOpen: boolean = false;
+  /** URL de la imagen seleccionada para ampliar */
   selectedImage: string = '';
 
+  /** Abre el modal de ampliación de imagen. */
   openModal(imageUrl: string) {
     if (imageUrl) {
       this.selectedImage = imageUrl;
@@ -435,6 +539,7 @@ export class EspaciosDetallesComponent implements OnInit {
     }
   }
 
+  /** Cierra el modal de ampliación de imagen. */
   closeModal() {
     this.isModalOpen = false;
     this.selectedImage = '';

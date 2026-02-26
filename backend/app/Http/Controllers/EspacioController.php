@@ -4,18 +4,42 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Espacio;
-use App\Models\Usuario; // Use Usuario
+use App\Models\Usuario;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Controlador de Espacios (EspacioController)
+ *
+ * Este controlador gestiona todas las operaciones CRUD relacionadas con los espacios
+ * de coworking en la plataforma CoSpace. Proporciona endpoints tanto públicos (para
+ * que cualquier visitante pueda ver los espacios disponibles) como privados (para que
+ * los anfitriones gestionen sus propios espacios).
+ *
+ * Funcionalidades principales:
+ * - Listado público de todos los espacios con sus fotos y servicios.
+ * - Listado privado de los espacios de un anfitrión autenticado.
+ * - Creación de nuevos espacios con fotos y servicios asociados.
+ * - Visualización de un espacio individual con todos sus detalles.
+ * - Actualización de datos, servicios y fotos de un espacio existente.
+ * - Eliminación de espacios verificando la propiedad del anfitrión.
+ */
 class EspacioController extends Controller
 {
-    // Endpoint público para buscar espacios (Lógica HEAD extendida)
+    /**
+     * Obtiene la lista pública de todos los espacios registrados en la plataforma.
+     *
+     * Este endpoint es accesible sin autenticación y carga las relaciones de fotos
+     * y servicios de cada espacio para que el frontend pueda mostrar toda la información
+     * necesaria en las tarjetas de exploración.
+     *
+     * @return \Illuminate\Http\JsonResponse Lista completa de espacios con fotos y servicios.
+     */
     public function index()
     {
         try {
-            // Incluir relaciones para visualización
+            // Se obtienen todos los espacios con sus fotos y servicios cargados (eager loading)
             $espacios = Espacio::with(['fotos', 'servicios'])->get();
             return response()->json($espacios);
         } catch (\Exception $e) {
@@ -23,12 +47,21 @@ class EspacioController extends Controller
         }
     }
 
-    // Endpoint de anfitrión para gestionar sus espacios (Lógica Victor)
+    /**
+     * Obtiene la lista de espacios que pertenecen al anfitrión autenticado.
+     *
+     * Solo devuelve los espacios creados por el anfitrión que ha iniciado sesión,
+     * permitiéndole gestionar sus propios espacios desde su panel.
+     * Los resultados se ordenan del más reciente al más antiguo.
+     *
+     * @return \Illuminate\Http\JsonResponse Lista de espacios del anfitrión autenticado.
+     */
     public function indexAnfitrion()
     {
         $anfitrionId = Auth::id();
 
         try {
+            // Se filtran los espacios por el ID del anfitrión autenticado y se cargan sus relaciones
             $espacios = Espacio::where('id_anfitrion', $anfitrionId)
                 ->with(['fotos', 'servicios'])
                 ->orderBy('created_at', 'desc')
@@ -40,11 +73,25 @@ class EspacioController extends Controller
         }
     }
 
+    /**
+     * Crea un nuevo espacio de coworking en la plataforma.
+     *
+     * Valida todos los datos del formulario: título, ciudad, dirección, descripción,
+     * precio por hora, capacidad, servicios opcionales, fotos (mínimo 3) y coordenadas.
+     * La operación se ejecuta dentro de una transacción para garantizar la integridad:
+     * 1. Se crea el espacio con sus datos básicos.
+     * 2. Se asocian los servicios seleccionados mediante la tabla pivote.
+     * 3. Se almacenan las fotos en el disco 'public' y se registran en la base de datos.
+     * La primera foto subida se marca automáticamente como foto principal.
+     *
+     * @param Request $request Datos del formulario de creación del espacio.
+     * @return \Illuminate\Http\JsonResponse Espacio creado con sus relaciones o mensaje de error.
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string|max:100',
-            'ciudad' => 'required|string|max:100', // ciudad es obligatoria
+            'ciudad' => 'required|string|max:100',
             'direccion' => 'required|string|max:255',
             'descripcion' => 'required|string|min:20',
             'precio_hora' => 'required|numeric|min:0',
@@ -67,15 +114,14 @@ class EspacioController extends Controller
         try {
             return DB::transaction(function () use ($request) {
 
-                // Eliminar lógica de prueba hardcoded para producción, pero mantener fallback si Auth falla durante desarrollo estricto
+                // Se obtiene el ID del anfitrión autenticado mediante Sanctum
                 $anfitrionId = Auth::id();
 
                 if (!$anfitrionId) {
-                    // Fallback/Solo Prueba - ¿quizás eliminar si no se necesita?
-                    // Asumiendo que Auth se maneja correctamente vía Sanctum
                     return response()->json(['message' => 'Unauthenticated'], 401);
                 }
 
+                // Se crea el espacio con los valores iniciales de rating y reseñas en 0
                 $espacio = Espacio::create([
                     'id_anfitrion' => $anfitrionId,
                     'titulo' => $request->titulo,
@@ -91,9 +137,13 @@ class EspacioController extends Controller
                     'longitud' => $request->longitud
                 ]);
 
+                // Se asocian los servicios seleccionados al espacio mediante la tabla pivote
                 if ($request->has('servicios') && !empty($request->servicios)) {
                     $espacio->servicios()->attach($request->servicios);
                 }
+
+                // Se almacenan las fotos en el disco 'public' y se registra cada una en la base de datos
+                // La primera foto (índice 0) se marca como foto principal del espacio
                 if ($request->hasFile('fotos')) {
                     foreach ($request->file('fotos') as $index => $foto) {
                         $path = $foto->store('espacios', 'public');
@@ -120,9 +170,20 @@ class EspacioController extends Controller
         }
     }
 
+    /**
+     * Obtiene los detalles completos de un espacio específico.
+     *
+     * Carga todas las relaciones necesarias: fotos, servicios y datos del anfitrión
+     * (incluyendo la información del usuario asociado al anfitrión).
+     * Este endpoint es público y se utiliza para la página de detalles del espacio.
+     *
+     * @param int $id Identificador único del espacio.
+     * @return \Illuminate\Http\JsonResponse Datos completos del espacio o error 404.
+     */
     public function show($id)
     {
         try {
+            // Se busca el espacio con todas sus relaciones cargadas para la vista de detalle
             $espacio = Espacio::with(['fotos', 'servicios', 'anfitrion.usuario'])->find($id);
             if (!$espacio) {
                 return response()->json(['message' => 'Espacio no encontrado'], 404);
@@ -133,6 +194,16 @@ class EspacioController extends Controller
         }
     }
 
+    /**
+     * Elimina un espacio propiedad del anfitrión autenticado.
+     *
+     * Verifica que el espacio exista y que pertenezca al anfitrión que hace la solicitud.
+     * Si el anfitrión no es el propietario del espacio, se devuelve un error 404 por seguridad
+     * (no se revela si el espacio existe pero pertenece a otro usuario).
+     *
+     * @param int $id Identificador único del espacio a eliminar.
+     * @return \Illuminate\Http\JsonResponse Mensaje de confirmación o error.
+     */
     public function destroy($id)
     {
         $anfitrionId = Auth::id();
@@ -141,6 +212,7 @@ class EspacioController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
+        // Se busca el espacio verificando que pertenezca al anfitrión autenticado
         $espacio = Espacio::where('id_espacio', $id)
             ->where('id_anfitrion', $anfitrionId)
             ->first();
@@ -154,6 +226,19 @@ class EspacioController extends Controller
         return response()->json(['message' => 'Espacio eliminado correctamente']);
     }
 
+    /**
+     * Actualiza los datos de un espacio propiedad del anfitrión autenticado.
+     *
+     * Verifica la propiedad del espacio antes de permitir la actualización.
+     * Los campos son opcionales gracias a la regla 'sometimes', permitiendo
+     * actualizar solo los campos enviados. Se pueden actualizar también los
+     * servicios (mediante sincronización en la tabla pivote) y añadir nuevas
+     * fotos al espacio. Todo se ejecuta dentro de una transacción.
+     *
+     * @param Request $request Datos a actualizar del espacio.
+     * @param int $id Identificador único del espacio a actualizar.
+     * @return \Illuminate\Http\JsonResponse Espacio actualizado o mensaje de error.
+     */
     public function update(Request $request, $id)
     {
         $anfitrionId = Auth::id();
@@ -162,6 +247,7 @@ class EspacioController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
+        // Se verifica que el espacio pertenezca al anfitrión autenticado
         $espacio = Espacio::where('id_espacio', $id)
             ->where('id_anfitrion', $anfitrionId)
             ->first();
@@ -170,6 +256,7 @@ class EspacioController extends Controller
             return response()->json(['message' => 'Espacio no encontrado o no autorizado'], 404);
         }
 
+        // Se validan los datos; 'sometimes' permite actualizar solo los campos enviados en la petición
         $validator = Validator::make($request->all(), [
             'titulo' => 'sometimes|required|string|max:100',
             'ciudad' => 'sometimes|required|string|max:100',
@@ -179,9 +266,6 @@ class EspacioController extends Controller
             'capacidad' => 'sometimes|required|integer|min:1',
             'servicios' => 'array',
             'servicios.*' => 'integer|exists:servicios,id_servicio',
-            // El manejo de fotos en actualización puede ser complejo (añadir/quitar),
-            // por simplicidad podríamos solo permitir añadir nuevas aquí o manejarlo por separado
-            // dependiendo de la implementación del frontend.
             'latitud' => 'sometimes|nullable|numeric',
             'longitud' => 'sometimes|nullable|numeric'
         ]);
@@ -195,6 +279,7 @@ class EspacioController extends Controller
 
         try {
             DB::transaction(function () use ($request, $espacio) {
+                // Se actualizan solo los campos permitidos que fueron enviados en la petición
                 $espacio->update($request->only([
                     'titulo',
                     'ciudad',
@@ -206,11 +291,12 @@ class EspacioController extends Controller
                     'longitud'
                 ]));
 
+                // Si se enviaron servicios, se sincronizan con la tabla pivote (reemplaza los anteriores)
                 if ($request->has('servicios')) {
                     $espacio->servicios()->sync($request->servicios);
                 }
 
-                // Lógica de subida de fotos para actualización (Añadiendo nuevas fotos)
+                // Si se enviaron nuevas fotos, se almacenan y registran como fotos adicionales del espacio
                 if ($request->hasFile('fotos')) {
                     foreach ($request->file('fotos') as $foto) {
                         $path = $foto->store('espacios', 'public');

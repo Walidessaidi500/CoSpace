@@ -6,6 +6,22 @@ import { AdminService } from '../../services/admin.service';
 import { SidebarAdminComponent } from '../sidebar-admin/sidebar-admin.component';
 import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.component';
 
+/**
+ * Componente de Gestión de Pagos del Administrador
+ *
+ * Muestra un listado de todos los pagos realizados en la plataforma con
+ * funcionalidades de búsqueda, filtrado y eliminación. Implementa un sistema
+ * de polling cada 10 segundos para mantener los datos actualizados en tiempo real.
+ *
+ * Características:
+ * - **Búsqueda**: Por nombre del cliente, email, nombre del espacio o ID de transacción.
+ * - **Filtrado**: Por estado del pago (Completado, Pendiente, Fallido, Reembolsado) y método de pago.
+ * - **Estadísticas**: Calcula ingresos totales (comisión del 14.59%), pagos completados y reembolsados.
+ * - **Eliminación**: Con modal de confirmación reutilizable.
+ * - **Polling**: Refresco silencioso cada 10 segundos sin indicador de carga visual.
+ *
+ * Los ingresos se calculan como el 14.59% de comisión sobre el monto bruto de pagos completados.
+ */
 @Component({
     selector: 'app-pagos-admin',
     standalone: true,
@@ -17,7 +33,9 @@ export class PagosAdminComponent implements OnInit, OnDestroy {
     private adminService = inject(AdminService);
     private cdr = inject(ChangeDetectorRef);
 
+    /** Lista completa de pagos sin filtrar */
     allPagos: any[] = [];
+    /** Lista de pagos visible tras aplicar filtros */
     pagos: any[] = [];
     isLoading = true;
     errorMessage: string | null = null;
@@ -28,16 +46,20 @@ export class PagosAdminComponent implements OnInit, OnDestroy {
     filterEstado = '';
     filterMetodo = '';
 
-    // Modal
+    // Estado del modal de eliminación
     showDeleteModal = false;
     itemToDeleteId: number | null = null;
     modalTitle = 'Eliminar Registro de Pago';
     modalMessage = '¿Estás seguro de que deseas eliminar este registro de pago? Esta acción no se puede deshacer.';
 
-    // Comisión de gestión de la plataforma
+    /** Tasa de comisión de la plataforma: 14.59% sobre el monto bruto */
     private readonly COMMISSION_RATE = 0.1459;
 
-    // Estadísticas calculadas
+    // ========================
+    // ESTADÍSTICAS CALCULADAS
+    // ========================
+
+    /** Calcula los ingresos totales de la plataforma como comisión sobre pagos completados */
     get totalIngresos(): number {
         const totalBruto = this.allPagos
             .filter(p => p.estado_pago === 'Completado')
@@ -45,24 +67,32 @@ export class PagosAdminComponent implements OnInit, OnDestroy {
         return totalBruto * this.COMMISSION_RATE;
     }
 
+    /** Número total de pagos con estado 'Completado' */
     get totalCompletados(): number {
         return this.allPagos.filter(p => p.estado_pago === 'Completado').length;
     }
 
+    /** Número total de pagos con estado 'Reembolsado' */
     get totalReembolsados(): number {
         return this.allPagos.filter(p => p.estado_pago === 'Reembolsado').length;
     }
 
+    /** Referencia al intervalo de polling para limpiarlo al destruir el componente */
     private pollingInterval: any = null;
 
+    /**
+     * Carga inicial de pagos y configuración del polling cada 10 segundos
+     * para mantener los datos actualizados en tiempo real.
+     */
     ngOnInit() {
         this.loadPagos();
-        // Polling cada 10 segundos para datos en tiempo real
+        // Polling silencioso cada 10 segundos
         this.pollingInterval = setInterval(() => {
             this.refreshPagos();
         }, 10000);
     }
 
+    /** Limpia el intervalo de polling para evitar fugas de memoria. */
     ngOnDestroy() {
         if (this.pollingInterval) {
             clearInterval(this.pollingInterval);
@@ -70,17 +100,19 @@ export class PagosAdminComponent implements OnInit, OnDestroy {
         }
     }
 
+    /** Carga inicial de pagos con indicador de carga visible. */
     loadPagos() {
         this.isLoading = true;
         this.errorMessage = null;
         this.fetchPagos();
     }
 
-    /** Refresco silencioso sin spinner */
+    /** Refresco silencioso de pagos sin indicador de carga (para el polling). */
     refreshPagos() {
         this.fetchPagos();
     }
 
+    /** Realiza la petición HTTP para obtener todos los pagos. */
     private fetchPagos() {
         this.adminService.getAllPagos().subscribe({
             next: (data: any) => {
@@ -97,6 +129,7 @@ export class PagosAdminComponent implements OnInit, OnDestroy {
         });
     }
 
+    /** Aplica filtros de búsqueda, estado y método de pago. */
     applyFilters() {
         const term = this.searchTerm.toLowerCase().trim();
         this.pagos = this.allPagos.filter(p => {
@@ -124,6 +157,10 @@ export class PagosAdminComponent implements OnInit, OnDestroy {
     get totalFiltrados() { return this.pagos.length; }
     get totalPagos() { return this.allPagos.length; }
 
+    /**
+     * Devuelve las clases CSS de Tailwind correspondientes al estado del pago
+     * para aplicar estilos de color diferenciados.
+     */
     getEstadoClasses(estado: string): string {
         const map: { [k: string]: string } = {
             'Completado': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
@@ -137,6 +174,7 @@ export class PagosAdminComponent implements OnInit, OnDestroy {
     openDeleteModal(id: number) { this.itemToDeleteId = id; this.showDeleteModal = true; }
     closeDeleteModal() { this.showDeleteModal = false; this.itemToDeleteId = null; }
 
+    /** Confirma la eliminación del pago y actualiza la lista local. */
     confirmDelete() {
         if (this.itemToDeleteId === null) return;
         const id = this.itemToDeleteId;

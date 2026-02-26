@@ -5,18 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo Valoración
+ *
+ * Representa una reseña o valoración escrita por un cliente sobre un espacio
+ * de coworking en la plataforma CoSpace. Cada valoración incluye una puntuación
+ * de 1 a 5 estrellas y un comentario opcional. Está vinculada a una reserva
+ * específica, al espacio valorado y al usuario que la escribió.
+ * Solo se permite una valoración por usuario por espacio.
+ */
 class Valoracion extends Model
 {
     use HasFactory;
 
-    // 1. Configuración de la Tabla
+    // Nombre de la tabla en la base de datos
     protected $table = 'valoraciones';
+
+    // Clave primaria personalizada de la tabla
     protected $primaryKey = 'id_valoracion';
 
-    // Usar timestamps automáticos (created_at / updated_at)
+    // Se activan los timestamps para registrar automáticamente cuándo se creó la valoración
     public $timestamps = true;
 
-    // 2. Asignación Masiva
+    // Campos permitidos para asignación masiva
     protected $fillable = [
         'id_reserva',
         'id_espacio',
@@ -25,15 +36,14 @@ class Valoracion extends Model
         'comentario',
     ];
 
-    // 3. Casteo de Tipos
+    // Conversión automática de la puntuación a tipo entero
     protected $casts = [
         'puntuacion' => 'integer',
     ];
 
-    // 4. Relaciones
-
     /**
-     * La valoración pertenece a una Reserva específica.
+     * Relación: la valoración está vinculada a una reserva específica.
+     * Permite acceder a la reserva que originó esta reseña.
      */
     public function reserva()
     {
@@ -41,7 +51,8 @@ class Valoracion extends Model
     }
 
     /**
-     * La valoración pertenece a un Espacio (el objeto calificado).
+     * Relación: la valoración pertenece a un espacio (el objeto calificado).
+     * Permite acceder al espacio que fue valorado.
      */
     public function espacio()
     {
@@ -49,7 +60,8 @@ class Valoracion extends Model
     }
 
     /**
-     * La valoración fue escrita por un Usuario (Cliente).
+     * Relación: la valoración fue escrita por un usuario (cliente).
+     * Se usa el alias 'autor' para mayor claridad semántica en el código.
      */
     public function autor()
     {

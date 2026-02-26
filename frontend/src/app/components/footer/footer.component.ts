@@ -3,6 +3,13 @@ import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
 
+/**
+ * Componente del Pie de Página (Footer)
+ *
+ * Muestra el pie de página de la aplicación CoSpace con enlaces de navegación,
+ * información legal y créditos. Utiliza el módulo de traducción para mostrar
+ * el contenido en el idioma seleccionado por el usuario.
+ */
 @Component({
     selector: 'app-footer',
     standalone: true,

@@ -5,27 +5,35 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo Anfitrión
+ *
+ * Representa el perfil de anfitrión de un usuario en la plataforma CoSpace.
+ * Un anfitrión es un usuario que publica espacios de coworking para que
+ * otros usuarios (clientes) puedan reservarlos. La clave primaria de esta
+ * tabla es la misma que la del usuario padre (id_usuario), creando una
+ * relación de herencia 1:1 con la tabla 'usuarios'.
+ */
 class Anfitrion extends Model
 {
     use HasFactory;
 
-    // Nombre de la tabla
+    // Nombre de la tabla en la base de datos
     protected $table = 'anfitriones';
 
-    // Clave primaria personalizada (es la misma que id_usuario en la tabla Users)
+    // La clave primaria es el mismo id_usuario de la tabla padre 'usuarios' (relación 1:1)
     protected $primaryKey = 'id_usuario';
 
-    // IMPORTANTE: Como el ID no es autoincremental (viene heredado de User),
-    // debemos establecer esto en false o Laravel intentará castearlo incorrectamente.
+    // El ID no es autoincremental ya que viene heredado de la tabla 'usuarios'
     public $incrementing = false;
 
-    // Tipo de la clave primaria
+    // Tipo de dato de la clave primaria
     protected $keyType = 'int';
 
-    // Desactivamos timestamps si tu tabla anfitriones no tiene created_at/updated_at
-    // (Generalmente estas fechas se controlan en la tabla padre 'usuarios')
+    // Se desactivan los timestamps porque las fechas se gestionan en la tabla padre 'usuarios'
     public $timestamps = false;
 
+    // Campos permitidos para asignación masiva
     protected $fillable = [
         'id_usuario',
         'biografia',
@@ -34,7 +42,8 @@ class Anfitrion extends Model
     ];
 
     /**
-     * Relación Inversa: Un Anfitrión "es" un Usuario.
+     * Relación inversa: un anfitrión pertenece a (es) un usuario.
+     * Permite acceder a los datos del usuario asociado a este perfil de anfitrión.
      */
     public function usuario()
     {
@@ -42,7 +51,8 @@ class Anfitrion extends Model
     }
 
     /**
-     * Un Anfitrión tiene muchos Espacios publicados.
+     * Relación: un anfitrión tiene muchos espacios publicados en la plataforma.
+     * Permite obtener todos los espacios de coworking creados por este anfitrión.
      */
     public function espacios()
     {

@@ -7,21 +7,38 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Conversacion;
 use App\Models\Mensaje;
 
+/**
+ * Controlador del Chat (ChatController)
+ *
+ * Este controlador gestiona el sistema de mensajería interna de la plataforma CoSpace.
+ * Permite a los usuarios (clientes y anfitriones) comunicarse entre sí mediante
+ * conversaciones privadas. Incluye funcionalidades para listar conversaciones,
+ * crear nuevas, enviar mensajes, obtener el historial de mensajes y contar
+ * los mensajes no leídos del usuario autenticado.
+ */
 class ChatController extends Controller
 {
     /**
-     * GET /api/conversaciones
-     * Obtener todas las conversaciones del usuario autenticado.
+     * Obtiene todas las conversaciones del usuario autenticado.
+     *
+     * Para cada conversación, se devuelve la información del otro participante,
+     * el último mensaje enviado, el número de mensajes no leídos y las fechas
+     * de creación y última actualización. Las conversaciones se ordenan por
+     * actividad más reciente (último mensaje o fecha de creación).
+     *
+     * @return \Illuminate\Http\JsonResponse Lista de conversaciones del usuario ordenadas por actividad.
      */
     public function index()
     {
         $userId = Auth::id();
 
+        // Se obtienen todas las conversaciones donde el usuario es participante (como usuario_1 o usuario_2)
         $conversaciones = Conversacion::where('id_usuario_1', $userId)
             ->orWhere('id_usuario_2', $userId)
             ->with(['usuario1', 'usuario2', 'ultimoMensaje'])
             ->get()
             ->map(function ($conv) use ($userId) {
+                // Se identifica al otro participante de la conversación
                 $otroUsuario = $conv->getOtroUsuario($userId);
                 return [
                     'id_conv' => $conv->id_conv,
@@ -40,6 +57,7 @@ class ChatController extends Controller
                     'updated_at' => $conv->updated_at,
                 ];
             })
+            // Se ordenan las conversaciones por la fecha del último mensaje (las más recientes primero)
             ->sortByDesc(function ($conv) {
                 return $conv['ultimo_mensaje']['created_at'] ?? $conv['created_at'];
             })
@@ -49,9 +67,14 @@ class ChatController extends Controller
     }
 
     /**
-     * POST /api/conversaciones
-     * Iniciar una nueva conversación (o devolver la existente).
-     * Body: { id_usuario_destino: int }
+     * Crea una nueva conversación entre el usuario autenticado y otro usuario.
+     *
+     * Si ya existe una conversación entre ambos participantes, se devuelve la existente
+     * sin crear una duplicada. Si no existe, se crea una nueva conversación.
+     * No se permite que un usuario inicie una conversación consigo mismo.
+     *
+     * @param Request $request Contiene el campo 'id_usuario_destino' con el ID del otro participante.
+     * @return \Illuminate\Http\JsonResponse Datos de la conversación (nueva o existente).
      */
     public function store(Request $request)
     {
@@ -62,12 +85,12 @@ class ChatController extends Controller
         $userId = Auth::id();
         $destinoId = $request->id_usuario_destino;
 
-        // No permitir conversación consigo mismo
+        // Se impide que un usuario pueda iniciar una conversación consigo mismo
         if ($userId == $destinoId) {
             return response()->json(['message' => 'No puedes iniciar una conversación contigo mismo'], 422);
         }
 
-        // Buscar si ya existe una conversación entre ambos usuarios
+        // Se busca si ya existe una conversación entre ambos usuarios (en cualquier orden)
         $conversacion = Conversacion::where(function ($q) use ($userId, $destinoId) {
             $q->where('id_usuario_1', $userId)->where('id_usuario_2', $destinoId);
         })->orWhere(function ($q) use ($userId, $destinoId) {
@@ -75,7 +98,7 @@ class ChatController extends Controller
         })->first();
 
         if ($conversacion) {
-            // Retornar la existente con datos del otro usuario
+            // Si ya existe la conversación, se devuelve con los datos del otro participante
             $conversacion->load(['usuario1', 'usuario2']);
             $otroUsuario = $conversacion->getOtroUsuario($userId);
 
@@ -90,7 +113,7 @@ class ChatController extends Controller
             ]);
         }
 
-        // Crear nueva conversación
+        // Si no existe, se crea una nueva conversación entre ambos usuarios
         $conversacion = Conversacion::create([
             'id_usuario_1' => $userId,
             'id_usuario_2' => $destinoId,
@@ -111,14 +134,21 @@ class ChatController extends Controller
     }
 
     /**
-     * GET /api/conversaciones/{id}/mensajes
-     * Obtener todos los mensajes de una conversación.
+     * Obtiene todos los mensajes de una conversación específica.
+     *
+     * Antes de devolver los mensajes, marca como leídos todos los mensajes
+     * que no fueron enviados por el usuario actual (es decir, los mensajes recibidos).
+     * Los mensajes se devuelven ordenados cronológicamente de más antiguo a más reciente.
+     * Se verifica que el usuario pertenezca a la conversación antes de mostrar los mensajes.
+     *
+     * @param int $id Identificador de la conversación.
+     * @return \Illuminate\Http\JsonResponse Lista de mensajes de la conversación o error 404.
      */
     public function mensajes($id)
     {
         $userId = Auth::id();
 
-        // Verificar que el usuario pertenece a la conversación
+        // Se verifica que el usuario autenticado sea uno de los participantes de la conversación
         $conversacion = Conversacion::where('id_conv', $id)
             ->where(function ($q) use ($userId) {
                 $q->where('id_usuario_1', $userId)->orWhere('id_usuario_2', $userId);
@@ -129,13 +159,13 @@ class ChatController extends Controller
             return response()->json(['message' => 'Conversación no encontrada'], 404);
         }
 
-        // Marcar como leídos todos los mensajes que NO son del usuario actual
+        // Se marcan como leídos todos los mensajes enviados por el otro participante
         Mensaje::where('id_conv', $id)
             ->where('id_emisor', '!=', $userId)
             ->where('leido', false)
             ->update(['leido' => true]);
 
-        // Obtener mensajes con datos del emisor
+        // Se obtienen todos los mensajes con los datos del emisor, ordenados cronológicamente
         $mensajes = Mensaje::where('id_conv', $id)
             ->with('emisor')
             ->orderBy('created_at', 'asc')
@@ -158,9 +188,15 @@ class ChatController extends Controller
     }
 
     /**
-     * POST /api/conversaciones/{id}/mensajes
-     * Enviar un mensaje en una conversación.
-     * Body: { contenido: string }
+     * Envía un nuevo mensaje dentro de una conversación existente.
+     *
+     * Verifica que el usuario pertenezca a la conversación antes de permitir el envío.
+     * Tras crear el mensaje, se actualiza el timestamp de la conversación para que
+     * aparezca como la más reciente en el listado de conversaciones.
+     *
+     * @param Request $request Contiene el campo 'contenido' con el texto del mensaje (máx. 2000 caracteres).
+     * @param int $id Identificador de la conversación.
+     * @return \Illuminate\Http\JsonResponse Datos del mensaje enviado o error 404.
      */
     public function enviarMensaje(Request $request, $id)
     {
@@ -170,7 +206,7 @@ class ChatController extends Controller
 
         $userId = Auth::id();
 
-        // Verificar pertenencia a la conversación
+        // Se verifica que el usuario autenticado sea participante de la conversación
         $conversacion = Conversacion::where('id_conv', $id)
             ->where(function ($q) use ($userId) {
                 $q->where('id_usuario_1', $userId)->orWhere('id_usuario_2', $userId);
@@ -181,7 +217,7 @@ class ChatController extends Controller
             return response()->json(['message' => 'Conversación no encontrada'], 404);
         }
 
-        // Crear mensaje
+        // Se crea el nuevo mensaje con estado 'no leído' por defecto
         $mensaje = Mensaje::create([
             'id_conv' => $id,
             'id_emisor' => $userId,
@@ -189,7 +225,7 @@ class ChatController extends Controller
             'leido' => false,
         ]);
 
-        // Actualizar timestamp de la conversación para ordenar por actividad reciente
+        // Se actualiza la fecha de modificación de la conversación para ordenar por actividad reciente
         $conversacion->touch();
 
         return response()->json([
@@ -206,13 +242,19 @@ class ChatController extends Controller
     }
 
     /**
-     * GET /api/conversaciones/no-leidos
-     * Obtener el total de mensajes no leídos para el usuario.
+     * Obtiene el número total de mensajes no leídos del usuario autenticado.
+     *
+     * Cuenta todos los mensajes en conversaciones del usuario que fueron enviados
+     * por otros participantes y que aún no han sido marcados como leídos.
+     * Este endpoint se usa para mostrar el badge de notificaciones en el frontend.
+     *
+     * @return \Illuminate\Http\JsonResponse Número total de mensajes no leídos.
      */
     public function totalNoLeidos()
     {
         $userId = Auth::id();
 
+        // Se cuentan los mensajes no leídos en todas las conversaciones del usuario
         $total = Mensaje::whereHas('conversacion', function ($q) use ($userId) {
             $q->where('id_usuario_1', $userId)->orWhere('id_usuario_2', $userId);
         })

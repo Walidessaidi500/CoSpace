@@ -9,6 +9,19 @@ import { EspaciosDetallesComponent } from './components/espacios-detalles/espaci
 import { ReservaComponent } from './components/reserva/reserva';
 import { anfitrionGuard } from './guards/anfitrion.guard';
 
+/**
+ * Definición de todas las rutas de la aplicación CoSpace.
+ *
+ * Las rutas están organizadas en las siguientes secciones:
+ * - Rutas públicas: página de inicio, registro, exploración y detalles de espacios.
+ * - Rutas de anfitrión: crear/editar espacio, mis áreas, reservas recibidas (protegidas con anfitrionGuard).
+ * - Rutas de administrador: panel de control, gestión de espacios, usuarios, reservas, reportes y pagos.
+ * - Rutas de autenticación: login, verificación 2FA, recuperación y restablecimiento de contraseña.
+ * - Ruta comodín (**): página 404 para URLs no encontradas.
+ *
+ * Las rutas de administrador y cliente usan carga perezosa (loadComponent) para optimizar
+ * el rendimiento, cargando los componentes solo cuando el usuario navega a ellos.
+ */
 export const routes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'registro-anfitrion', component: RegistroAnfitrionComponent },
@@ -17,7 +30,7 @@ export const routes: Routes = [
     { path: 'espacios/:id', component: EspaciosDetallesComponent },
     { path: 'reserva/:id', component: ReservaComponent },
 
-    // Rutas de Anfitrión (Victor)
+    // Rutas del anfitrión (protegidas con anfitrionGuard que verifica el rol del usuario)
     {
         path: 'anfitrion/crear-espacio',
         component: CrearEspacioComponent,
@@ -58,7 +71,7 @@ export const routes: Routes = [
         canActivate: [anfitrionGuard]
     },
 
-    // Rutas de Administrador
+    // Rutas del panel de administración (carga perezosa para mejor rendimiento)
     {
         path: 'admin/panel',
         loadComponent: () => import('./components/panel-admin/panel-admin.component').then(m => m.PanelAdminComponent),
@@ -105,7 +118,7 @@ export const routes: Routes = [
         title: 'CoSpace - Gestión de Pagos'
     },
 
-    // Auth
+    // Rutas de autenticación avanzada (verificación 2FA y recuperación de contraseña)
     {
         path: 'verify-2fa',
         loadComponent: () => import('./components/verify-2fa/verify-2fa.component').then(m => m.Verify2faComponent),
@@ -121,6 +134,8 @@ export const routes: Routes = [
         loadComponent: () => import('./components/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
         title: 'CoSpace - Resetear Contraseña'
     },
+
+    // Ruta comodín: cualquier URL no definida redirige a la página de error 404
     {
         path: '**',
         loadComponent: () => import('./components/not-found/not-found.component').then(m => m.NotFoundComponent),

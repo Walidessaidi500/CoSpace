@@ -5,39 +5,52 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo Reserva
+ *
+ * Representa una reserva de un espacio de coworking realizada por un cliente
+ * en la plataforma CoSpace. Cada reserva tiene un rango de fechas (inicio y fin),
+ * un monto total calculado según los días y el precio del espacio, y un estado
+ * que refleja el ciclo de vida de la reserva: Pendiente, Confirmada, En_Curso,
+ * Finalizada o Cancelada. Se relaciona con el cliente, el espacio, un pago,
+ * posibles ajustes económicos y una valoración.
+ *
+ * Al eliminar una reserva, se eliminan en cascada sus dependencias (pago, valoración y ajustes)
+ * para evitar errores de clave foránea.
+ */
 class Reserva extends Model
 {
     use HasFactory;
 
-    // 1. Configuración de la Tabla
+    // Nombre de la tabla en la base de datos
     protected $table = 'reservas';
+
+    // Clave primaria personalizada de la tabla
     protected $primaryKey = 'id_reserva';
 
-    // Configuración de Fechas
-    public $timestamps = true; // La tabla tiene columnas created_at y updated_at
+    // Se activan los timestamps porque la tabla tiene columnas created_at y updated_at
+    public $timestamps = true;
 
-    // 2. Asignación Masiva
+    // Campos permitidos para asignación masiva
     protected $fillable = [
         'id_cliente',
         'id_espacio',
         'fecha_inicio',
         'fecha_fin',
         'monto_total',
-        'estado' // 'Pendiente', 'Confirmada', 'En_Curso', 'Finalizada', 'Cancelada'
+        'estado'
     ];
 
-    // 3. Casteo de Tipos (¡Importante!)
-    // Esto convierte automáticamente las fechas de string a objetos Carbon
+    // Conversión automática de tipos: fechas a objetos Carbon y monto a decimal con 2 decimales
     protected $casts = [
         'fecha_inicio' => 'datetime',
         'fecha_fin' => 'datetime',
         'monto_total' => 'decimal:2',
     ];
 
-    // 4. Relaciones
-
     /**
-     * Una reserva pertenece a un Cliente (Usuario).
+     * Relación: una reserva pertenece a un cliente (a través del modelo Cliente).
+     * Vincula la reserva con la tabla 'clientes' mediante la clave foránea 'id_cliente'.
      */
     public function cliente()
     {
@@ -45,7 +58,8 @@ class Reserva extends Model
     }
 
     /**
-     * Una reserva pertenece a un Espacio.
+     * Relación: una reserva pertenece a un espacio específico.
+     * Permite acceder a los datos del espacio reservado.
      */
     public function espacio()
     {
@@ -53,7 +67,8 @@ class Reserva extends Model
     }
 
     /**
-     * Una reserva tiene un pago asociado (Relación 1:1).
+     * Relación 1:1: una reserva tiene un único pago asociado.
+     * Permite acceder a los datos del pago vinculado a esta reserva.
      */
     public function pago()
     {
@@ -61,7 +76,8 @@ class Reserva extends Model
     }
 
     /**
-     * Una reserva puede tener ajustes (cargos extra o descuentos).
+     * Relación: una reserva puede tener múltiples ajustes económicos.
+     * Los ajustes pueden ser cargos extra, descuentos o multas aplicadas a la reserva.
      */
     public function ajustes()
     {
@@ -69,7 +85,8 @@ class Reserva extends Model
     }
 
     /**
-     * Una reserva tiene una valoración final (Review).
+     * Relación 1:1: una reserva puede tener una valoración (reseña) del cliente.
+     * La valoración se escribe después de que la reserva ha finalizado.
      */
     public function valoracion()
     {
@@ -77,7 +94,9 @@ class Reserva extends Model
     }
 
     /**
-     * Relación directa con el Usuario (Cliente) para evitar pasar por el modelo Cliente si no es necesario.
+     * Relación directa con el modelo Usuario (atajo para acceder al cliente).
+     * Permite obtener los datos del usuario sin pasar por el modelo intermedio Cliente.
+     * Útil para mostrar nombre, email y foto del cliente en listados de reservas.
      */
     public function usuario()
     {
@@ -85,21 +104,27 @@ class Reserva extends Model
     }
 
     /**
-     * Eliminar en cascada a través de Eloquent
+     * Evento de eliminación en cascada a nivel de Eloquent.
+     *
+     * Antes de eliminar una reserva, se eliminan manualmente sus dependencias:
+     * el pago asociado, la valoración y todos los ajustes económicos.
+     * Esto evita errores de restricción de clave foránea (error 1451) en la base de datos.
      */
     protected static function boot()
     {
         parent::boot();
 
         static::deleting(function ($reserva) {
-            // Eliminar dependencias antes de borrar la reserva para evitar error 1451 FK constraint
+            // Se elimina el pago asociado si existe
             if ($reserva->pago) {
                 $reserva->pago->delete();
             }
+            // Se elimina la valoración asociada si existe
             if ($reserva->valoracion) {
                 $reserva->valoracion->delete();
             }
-            $reserva->ajustes()->delete(); // hasMany
+            // Se eliminan todos los ajustes económicos asociados a la reserva
+            $reserva->ajustes()->delete();
         });
     }
 }

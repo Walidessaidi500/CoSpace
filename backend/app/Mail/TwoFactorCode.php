@@ -9,17 +9,27 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Clase de correo para el envío del código de verificación de dos factores (2FA).
+ *
+ * Este Mailable genera el correo electrónico que se envía al usuario durante
+ * el proceso de inicio de sesión cuando tiene habilitada la autenticación
+ * de dos factores. Contiene un código numérico de 6 dígitos con validez
+ * de 10 minutos que el usuario debe introducir para completar el login.
+ * Utiliza la plantilla Blade 'emails.two_factor_code' para renderizar el contenido HTML.
+ */
 class TwoFactorCode extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
+    // Código de verificación 2FA de 6 dígitos que se envía al usuario
     public $code;
 
     /**
-     * Create a new message instance.
+     * Constructor del Mailable.
+     * Recibe el código de verificación generado en el controlador de autenticación.
+     *
+     * @param string|int $code Código numérico de 6 dígitos para la verificación 2FA.
      */
     public function __construct($code)
     {
@@ -27,7 +37,9 @@ class TwoFactorCode extends Mailable
     }
 
     /**
-     * Get the message envelope.
+     * Define el sobre del correo electrónico (asunto y metadatos).
+     *
+     * @return Envelope Configuración del sobre con el asunto del correo.
      */
     public function envelope(): Envelope
     {
@@ -37,20 +49,23 @@ class TwoFactorCode extends Mailable
     }
 
     /**
-     * Get the message content definition.
+     * Define el contenido del correo electrónico.
+     * Utiliza la vista Blade 'emails.two_factor_code' que recibe la variable $code.
+     *
+     * @return Content Configuración del contenido con la vista a renderizar.
      */
     public function content(): Content
     {
-        // Usar markdown o view simple. Crearemos resources/views/emails/two_factor_code.blade.php
         return new Content(
             view: 'emails.two_factor_code',
         );
     }
 
     /**
-     * Get the attachments for the message.
+     * Define los archivos adjuntos del correo electrónico.
+     * Este correo no incluye archivos adjuntos.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array Lista vacía de adjuntos.
      */
     public function attachments(): array
     {

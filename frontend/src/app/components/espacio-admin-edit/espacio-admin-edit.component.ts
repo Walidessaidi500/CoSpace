@@ -7,6 +7,19 @@ import { FormularioEspacioComponent } from '../formulario-espacio/formulario-esp
 import { SidebarAdminComponent } from '../sidebar-admin/sidebar-admin.component';
 import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.component';
 
+/**
+ * Componente de Edición de Espacio del Administrador
+ *
+ * Permite al administrador editar los datos de cualquier espacio de la plataforma.
+ * Reutiliza el FormularioEspacioComponent para la interfaz del formulario.
+ *
+ * A diferencia de la edición normal del anfitrión, este componente:
+ * - Usa AdminService.updateSpace() en lugar de EspaciosService.updateEspacio()
+ * - Permite eliminar el espacio directamente desde la vista de edición
+ * - Incluye un modal de confirmación de eliminación
+ *
+ * El ID del espacio se obtiene del parámetro de ruta.
+ */
 @Component({
     selector: 'app-espacio-admin-edit',
     standalone: true,
@@ -15,6 +28,7 @@ import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.com
     styleUrls: ['./espacio-admin-edit.component.css']
 })
 export class EspacioAdminEditComponent implements OnInit {
+    /** Referencia al formulario reutilizable para acceder a sus datos y métodos */
     @ViewChild(FormularioEspacioComponent) formularioComponent!: FormularioEspacioComponent;
 
     private espaciosService = inject(EspaciosService);
@@ -23,17 +37,23 @@ export class EspacioAdminEditComponent implements OnInit {
     private router = inject(Router);
     private cdr = inject(ChangeDetectorRef);
 
+    /** ID del espacio que se está editando */
     espacioId: string | null = null;
     isLoading = true;
     loadingText = 'Cargando información...';
     errorMessage: string | null = null;
+    /** ID del espacio que se está eliminando (para estado visual de carga) */
     deletingId: number | null = null;
 
-    // Modal State
+    // Estado del modal de eliminación
     showDeleteModal = false;
     modalTitle = 'Eliminar Espacio';
     modalMessage = '¿Estás seguro de que deseas eliminar este espacio? Esta acción no se puede deshacer y eliminará todas las reservas asociadas.';
 
+    /**
+     * Obtiene el ID del espacio de la ruta y carga sus datos.
+     * Si no hay ID, redirige al listado de espacios.
+     */
     ngOnInit() {
         this.espacioId = this.route.snapshot.paramMap.get('id');
         if (this.espacioId) {
@@ -43,6 +63,10 @@ export class EspacioAdminEditComponent implements OnInit {
         }
     }
 
+    /**
+     * Carga los datos del espacio y los rellena en el formulario.
+     * Usa setTimeout para asegurar que el ViewChild esté disponible.
+     */
     loadEspacioData() {
         this.isLoading = true;
         this.loadingText = 'Cargando datos del espacio...';
@@ -67,6 +91,10 @@ export class EspacioAdminEditComponent implements OnInit {
         });
     }
 
+    /**
+     * Guarda los cambios del espacio usando el servicio de administrador.
+     * Valida el formulario antes de enviar.
+     */
     onGuardar() {
         if (this.formularioComponent && this.formularioComponent.espacioForm.valid) {
             const formData = this.formularioComponent.getFormData();
@@ -88,33 +116,42 @@ export class EspacioAdminEditComponent implements OnInit {
                 });
             }
         } else {
+            // Marca todos los campos como tocados para mostrar las validaciones
             this.formularioComponent.espacioForm.markAllAsTouched();
         }
     }
 
+    /** Cancela la edición y redirige al listado de espacios. */
     onCancelar() {
         this.router.navigate(['/admin/espacios']);
     }
 
+    /** Muestra mensaje de éxito y redirige al listado de espacios. */
     private handleSuccess() {
         alert('¡Espacio actualizado correctamente por el Administrador!');
         this.router.navigate(['/admin/espacios']);
     }
 
-    // Delete Logic
+    // ========================
+    // LÓGICA DE ELIMINACIÓN
+    // ========================
+
+    /** Abre el modal de confirmación de eliminación. */
     openDeleteModal() {
         this.showDeleteModal = true;
     }
 
+    /** Cierra el modal de confirmación de eliminación. */
     closeDeleteModal() {
         this.showDeleteModal = false;
     }
 
+    /** Confirma la eliminación del espacio y redirige al listado. */
     confirmDelete() {
         if (!this.espacioId) return;
 
         const id = +this.espacioId;
-        this.deletingId = id; // Optional: show loading state
+        this.deletingId = id;
 
         this.adminService.deleteSpace(id).subscribe({
             next: () => {

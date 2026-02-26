@@ -7,6 +7,19 @@ import { environment } from '../../../environments/enviroments';
 
 import { RouterLink } from '@angular/router';
 
+/**
+ * Componente de Reservas del Anfitrión
+ *
+ * Muestra un listado de todas las reservas realizadas en los espacios del anfitrión
+ * autenticado. Permite visualizar los detalles de cada reserva y cambiar su estado.
+ *
+ * Características:
+ * - **Listado**: Muestra reservas con imagen del espacio, datos del cliente, fechas y monto.
+ * - **Cambio de estado**: El anfitrión puede cambiar el estado desde un select
+ *   (Confirmada, En_Curso, Finalizada, Cancelada).
+ * - **Timeout**: Implementa un timeout de 10 segundos para prevenir bloqueos de interfaz.
+ * - **Rollback**: Si el cambio de estado falla, revierte al estado anterior.
+ */
 @Component({
     selector: 'app-reservas-anfitrion',
     standalone: true,
@@ -17,21 +30,30 @@ export class ReservasAnfitrionComponent implements OnInit {
     private reservaService = inject(ReservaService);
     private cdr = inject(ChangeDetectorRef);
 
+    /** Lista de reservas de los espacios del anfitrión */
     reservas: any[] = [];
     isLoading = true;
     errorMessage = '';
+    /** ID de la reserva cuyo estado se está actualizando */
     updatingId: number | null = null;
 
+    /** Estados posibles para las reservas del anfitrión */
     estadosDisponibles = ['Confirmada', 'En_Curso', 'Finalizada', 'Cancelada'];
 
     ngOnInit() {
         this.loadReservas();
     }
 
+    /**
+     * Carga las reservas del anfitrión desde el backend.
+     * Incluye un timeout de 10 segundos para evitar que la interfaz
+     * quede bloqueada indefinidamente si el servidor no responde.
+     */
     loadReservas() {
         this.isLoading = true;
         this.errorMessage = '';
 
+        // Timeout de seguridad: si la respuesta tarda más de 10 segundos, se muestra un error
         const timeoutId = setTimeout(() => {
             if (this.isLoading) {
                 this.isLoading = false;
@@ -59,6 +81,10 @@ export class ReservasAnfitrionComponent implements OnInit {
         });
     }
 
+    /**
+     * Cambia el estado de una reserva. Guarda el estado anterior
+     * para revertir en caso de error (patrón rollback).
+     */
     onEstadoChange(reserva: any, nuevoEstado: string) {
         if (nuevoEstado === reserva.estado) return;
 
@@ -73,6 +99,7 @@ export class ReservasAnfitrionComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error actualizando estado:', err);
+                // Se revierte al estado anterior si la actualización falla
                 reserva.estado = estadoAnterior;
                 this.updatingId = null;
                 alert('Error al actualizar el estado: ' + (err.error?.message || 'Error desconocido'));
@@ -81,10 +108,15 @@ export class ReservasAnfitrionComponent implements OnInit {
         });
     }
 
+    /** Formatea la etiqueta de estado reemplazando guiones bajos por espacios. */
     getEstadoLabel(estado: string): string {
         return estado.replace('_', ' ');
     }
 
+    /**
+     * Obtiene la URL de la imagen principal del espacio asociado a una reserva.
+     * Busca la foto marcada como principal; si no existe, usa la primera.
+     */
     getEspacioImage(reserva: any): string {
         if (reserva.espacio?.fotos?.length > 0) {
             const principalPhoto = reserva.espacio.fotos.find((f: any) => f.es_principal == 1 || f.es_principal === true) || reserva.espacio.fotos[0];
@@ -98,6 +130,10 @@ export class ReservasAnfitrionComponent implements OnInit {
         return 'assets/placeholder.jpg';
     }
 
+    /**
+     * Calcula el número de días entre dos fechas.
+     * Si la diferencia es 0, devuelve 1 como mínimo.
+     */
     calculateDays(start: string, end: string): number {
         const startDate = new Date(start);
         const endDate = new Date(end);
@@ -106,6 +142,7 @@ export class ReservasAnfitrionComponent implements OnInit {
         return diffDays || 1;
     }
 
+    /** Maneja errores de carga de imágenes mostrando un placeholder. */
     handleImageError(event: any) {
         event.target.src = 'assets/placeholder.jpg';
     }

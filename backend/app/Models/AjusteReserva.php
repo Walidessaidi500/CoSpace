@@ -5,37 +5,46 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo AjusteReserva
+ *
+ * Representa un ajuste económico vinculado a una reserva existente.
+ * Los ajustes pueden ser cargos extra (por daños, limpieza, etc.),
+ * descuentos aplicados o multas por incumplimiento de normas.
+ * Cada ajuste incluye el tipo, el monto, el motivo descriptivo
+ * y la fecha en la que se realizó.
+ */
 class AjusteReserva extends Model
 {
     use HasFactory;
 
-    // 1. Configuración de la Tabla
-    // Asumo que tu tabla se llama 'ajustes_reserva' siguiendo la convención
+    // Nombre de la tabla en la base de datos que almacena los ajustes de reservas
     protected $table = 'ajustes_reserva';
+
+    // Clave primaria personalizada de la tabla
     protected $primaryKey = 'id_ajuste';
 
-    // Desactivamos timestamps estándar si la tabla solo registra cuando ocurre el ajuste
+    // Se desactivan los timestamps porque esta tabla solo registra la fecha del ajuste manualmente
     public $timestamps = false;
 
-    // 2. Asignación Masiva
+    // Campos permitidos para asignación masiva mediante create() o fill()
     protected $fillable = [
         'id_reserva',
-        'tipo_ajuste',  // Ej: 'Cargo Extra', 'Descuento', 'Multa'
+        'tipo_ajuste',
         'monto',
-        'motivo',       // Ej: 'Rotura de silla', 'Limpieza extra requerida'
+        'motivo',
         'fecha_ajuste'
     ];
 
-    // 3. Casteo de Tipos
+    // Conversión automática de tipos para que Laravel los maneje como objetos nativos
     protected $casts = [
         'monto' => 'decimal:2',
         'fecha_ajuste' => 'datetime',
     ];
 
-    // 4. Relaciones
-
     /**
-     * Un ajuste pertenece a una Reserva.
+     * Relación: un ajuste pertenece a una reserva específica.
+     * Cada ajuste está vinculado a una única reserva mediante la clave foránea 'id_reserva'.
      */
     public function reserva()
     {

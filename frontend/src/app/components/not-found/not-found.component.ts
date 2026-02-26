@@ -2,6 +2,16 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
+/**
+ * Componente de Página No Encontrada (404)
+ *
+ * Muestra una página de error 404 personalizada cuando el usuario navega
+ * a una URL que no existe en la aplicación. Incluye un mensaje explicativo
+ * en español y un botón para volver a la página de inicio.
+ *
+ * Usa un template inline con el diseño completo de la página,
+ * posicionado de forma fija para cubrir toda la pantalla.
+ */
 @Component({
   selector: 'app-not-found',
   standalone: true,

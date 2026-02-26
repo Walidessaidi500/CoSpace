@@ -6,6 +6,20 @@ import { AdminService } from '../../services/admin.service';
 import { SidebarAdminComponent } from '../sidebar-admin/sidebar-admin.component';
 import { ConfirmModalComponent } from '../shared/confirm-modal/confirm-modal.component';
 
+/**
+ * Componente de Gestión de Espacios del Administrador
+ *
+ * Muestra un listado de todos los espacios registrados en la plataforma con
+ * funcionalidades de búsqueda, filtrado y eliminación.
+ *
+ * Características:
+ * - **Búsqueda**: Por título, ciudad o nombre del anfitrión.
+ * - **Filtrado**: Por estado del espacio (Disponible, Mantenimiento, etc.).
+ * - **Eliminación**: Con modal de confirmación para prevenir acciones accidentales.
+ * - **Navegación**: Enlace a la vista de edición individual de cada espacio.
+ *
+ * Utiliza el ConfirmModalComponent reutilizable para las confirmaciones de eliminación.
+ */
 @Component({
     selector: 'app-espacios-admin',
     standalone: true,
@@ -17,24 +31,31 @@ export class EspaciosAdminComponent implements OnInit {
     private adminService = inject(AdminService);
     private cdr = inject(ChangeDetectorRef);
 
+    /** Lista completa de espacios sin filtrar (fuente de datos original) */
     allEspacios: any[] = [];
+    /** Lista de espacios visible tras aplicar los filtros */
     espacios: any[] = [];
+    /** Indicador de estado de carga */
     isLoading = true;
+    /** Mensaje de error si falla la carga */
     errorMessage: string | null = null;
+    /** ID del espacio que se está eliminando actualmente */
     deletingId: number | null = null;
 
-    // Filtros
+    // Filtros de búsqueda
     searchTerm = '';
     filterEstado = '';
 
-    // Modal State
+    // Estado del modal de eliminación
     showDeleteModal = false;
     itemToDeleteId: number | null = null;
     modalTitle = 'Eliminar Espacio';
     modalMessage = '¿Estás seguro de que deseas eliminar este espacio? Esta acción no se puede deshacer y eliminará todas las reservas asociadas.';
 
+    /** Carga los espacios al inicializar el componente. */
     ngOnInit() { this.loadEspacios(); }
 
+    /** Obtiene todos los espacios desde la API del administrador. */
     loadEspacios() {
         this.isLoading = true;
         this.adminService.getAllSpaces().subscribe({
@@ -52,6 +73,10 @@ export class EspaciosAdminComponent implements OnInit {
         });
     }
 
+    /**
+     * Aplica los filtros de búsqueda y estado sobre la lista completa de espacios.
+     * Los filtros son acumulativos: el espacio debe cumplir ambos criterios.
+     */
     applyFilters() {
         const term = this.searchTerm.toLowerCase().trim();
         this.espacios = this.allEspacios.filter(e => {
@@ -64,21 +89,32 @@ export class EspaciosAdminComponent implements OnInit {
         });
     }
 
+    /** Re-aplica filtros cuando cambia el término de búsqueda. */
     onSearchChange() { this.applyFilters(); }
+    /** Re-aplica filtros cuando cambia el estado seleccionado. */
     onFilterChange() { this.applyFilters(); }
 
+    /** Limpia todos los filtros y muestra la lista completa. */
     clearFilters() {
         this.searchTerm = '';
         this.filterEstado = '';
         this.applyFilters();
     }
 
+    /** Número de espacios tras aplicar filtros */
     get totalFiltrados() { return this.espacios.length; }
+    /** Número total de espacios sin filtrar */
     get totalEspacios() { return this.allEspacios.length; }
 
+    /** Abre el modal de confirmación de eliminación para un espacio. */
     openDeleteModal(id: number) { this.itemToDeleteId = id; this.showDeleteModal = true; }
+    /** Cierra el modal de confirmación de eliminación. */
     closeDeleteModal() { this.showDeleteModal = false; this.itemToDeleteId = null; }
 
+    /**
+     * Confirma la eliminación del espacio seleccionado.
+     * Actualiza la lista local tras la eliminación exitosa sin recargar desde el servidor.
+     */
     confirmDelete() {
         if (this.itemToDeleteId === null) return;
         const id = this.itemToDeleteId;
