@@ -17,40 +17,49 @@ class AdminController extends Controller
         Carbon::setLocale('es');
 
         $now = Carbon::now();
-        $currentMonth = $now->month;
-        $currentYear = $now->year;
-        $prevMonth = $now->copy()->subMonth();
+        $lastMonth = $now->copy()->subMonth();
 
         // 1. Total Usuarios
         $totalUsuarios = Usuario::count();
+        $usuariosEsteMes = Usuario::whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count();
+        $usuariosMesPasado = Usuario::whereMonth('created_at', $lastMonth->month)->whereYear('created_at', $lastMonth->year)->count();
+        $cambioUsuarios = $usuariosMesPasado > 0 ? (($usuariosEsteMes - $usuariosMesPasado) / $usuariosMesPasado) * 100 : ($usuariosEsteMes > 0 ? 100 : 0);
+        $cambioUsuariosStr = ($cambioUsuarios >= 0 ? '+' : '') . number_format($cambioUsuarios, 0) . '%';
 
         // 2. Espacios Activos (estado 'Disponible' en la BD)
         $espaciosActivos = Espacio::where('estado', 'Disponible')->count();
+        $espaciosEsteMes = Espacio::where('estado', 'Disponible')->whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count();
+        $espaciosMesPasado = Espacio::where('estado', 'Disponible')->whereMonth('created_at', $lastMonth->month)->whereYear('created_at', $lastMonth->year)->count();
+        $cambioEspacios = $espaciosMesPasado > 0 ? (($espaciosEsteMes - $espaciosMesPasado) / $espaciosMesPasado) * 100 : ($espaciosEsteMes > 0 ? 100 : 0);
+        $cambioEspaciosStr = ($cambioEspacios >= 0 ? '+' : '') . number_format($cambioEspacios, 0) . '%';
 
         // 3. Reservas del Mes actual
-        $reservasMes = Reserva::whereMonth('fecha_inicio', $currentMonth)
-            ->whereYear('fecha_inicio', $currentYear)
+        $reservasMes = Reserva::whereMonth('created_at', $now->month)
+            ->whereYear('created_at', $now->year)
             ->count();
-
-        // Reservas del mes anterior (para calcular % cambio)
-        $reservasMesAnterior = Reserva::whereMonth('fecha_inicio', $prevMonth->month)
-            ->whereYear('fecha_inicio', $prevMonth->year)
+        $reservasMesPasado = Reserva::whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
             ->count();
+        $cambioReservas = $reservasMesPasado > 0 ? (($reservasMes - $reservasMesPasado) / $reservasMesPasado) * 100 : ($reservasMes > 0 ? 100 : 0);
+        $cambioReservasStr = ($cambioReservas >= 0 ? '+' : '') . number_format($cambioReservas, 0) . '%';
 
         // 4. Ingresos del Mes (Comisión 14.59% de gastos de gestión)
-        $totalBrutoMes = Reserva::whereMonth('fecha_inicio', $currentMonth)
-            ->whereYear('fecha_inicio', $currentYear)
+        $totalBrutoMes = Reserva::whereMonth('created_at', $now->month)
+            ->whereYear('created_at', $now->year)
             ->sum('monto_total');
         $ingresosMes = $totalBrutoMes * 0.1459;
 
-        $totalBrutoMesAnterior = Reserva::whereMonth('fecha_inicio', $prevMonth->month)
-            ->whereYear('fecha_inicio', $prevMonth->year)
+        $totalBrutoMesAnterior = Reserva::whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
             ->sum('monto_total');
         $ingresosMesAnterior = $totalBrutoMesAnterior * 0.1459;
 
+        $cambioIngresos = $ingresosMesAnterior > 0 ? (($ingresosMes - $ingresosMesAnterior) / $ingresosMesAnterior) * 100 : ($ingresosMes > 0 ? 100 : 0);
+        $cambioIngresosStr = ($cambioIngresos >= 0 ? '+' : '') . number_format($cambioIngresos, 0) . '%';
+
         // 5. Últimas Reservas (las 4 más recientes)
         $ultimasReservas = Reserva::with(['usuario', 'espacio'])
-            ->orderBy('id_reserva', 'desc')
+            ->orderBy('created_at', 'desc')
             ->take(4)
             ->get()
             ->map(function ($reserva) {
@@ -61,7 +70,7 @@ class AdminController extends Controller
                     'date' => Carbon::parse($reserva->created_at)->diffForHumans(),
                     'avatar' => $reserva->usuario && $reserva->usuario->foto_perfil
                         ? asset('storage/' . $reserva->usuario->foto_perfil)
-                        : 'https://ui-avatars.com/api/?name=' . urlencode($reserva->usuario->nombre_completo ?? 'U') . '&background=random'
+                        : 'https://ui-avatars.com/api/?name=' . urlencode(optional($reserva->usuario)->nombre_completo ?? 'U') . '&background=random'
                 ];
             });
 
@@ -75,36 +84,27 @@ class AdminController extends Controller
                     'id' => $espacio->id_espacio,
                     'name' => $espacio->titulo,
                     'reservas' => $espacio->reservas_count,
-                    'rating' => round($espacio->rating_promedio, 1)
+                    'rating' => round($espacio->rating_promedio ?? 0, 1)
                 ];
             });
-
-        // Calcular porcentajes de cambio
-        $cambioReservas = $reservasMesAnterior > 0
-            ? round((($reservasMes - $reservasMesAnterior) / $reservasMesAnterior) * 100)
-            : ($reservasMes > 0 ? 100 : 0);
-
-        $cambioIngresos = $ingresosMesAnterior > 0
-            ? round((($ingresosMes - $ingresosMesAnterior) / $ingresosMesAnterior) * 100)
-            : ($ingresosMes > 0 ? 100 : 0);
 
         return response()->json([
             'stats' => [
                 'usuarios' => [
                     'value' => number_format($totalUsuarios),
-                    'change' => $totalUsuarios > 0 ? '+' . $totalUsuarios : '0'
+                    'change' => $cambioUsuariosStr
                 ],
                 'espacios' => [
                     'value' => number_format($espaciosActivos),
-                    'change' => $espaciosActivos > 0 ? '' . $espaciosActivos . ' activos' : '0'
+                    'change' => $cambioEspaciosStr
                 ],
                 'reservas' => [
                     'value' => number_format($reservasMes),
-                    'change' => ($cambioReservas >= 0 ? '+' : '') . $cambioReservas . '%'
+                    'change' => $cambioReservasStr
                 ],
                 'ingresos' => [
                     'value' => '€' . number_format($ingresosMes, 2),
-                    'change' => ($cambioIngresos >= 0 ? '+' : '') . $cambioIngresos . '%'
+                    'change' => $cambioIngresosStr
                 ]
             ],
             'recentReservations' => $ultimasReservas,

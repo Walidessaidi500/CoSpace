@@ -121,5 +121,9 @@ export const routes: Routes = [
         loadComponent: () => import('./components/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
         title: 'CoSpace - Resetear Contraseña'
     },
-    { path: '**', redirectTo: '' }
+    {
+        path: '**',
+        loadComponent: () => import('./components/not-found/not-found.component').then(m => m.NotFoundComponent),
+        title: 'CoSpace - Página no encontrada'
+    }
 ];
